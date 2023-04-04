@@ -1,7 +1,6 @@
 import 'package:adder_main/self_adder/self_adder.dart';
 import 'package:flutter/material.dart';
-import 'package:adder_main/self_adder/self_adder.dart';
-import 'package:adder_main/gscore_form/gscore_application.dart';
+import 'package:adder_main/gscore_form/gscore_form.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,8 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '졸업점수',
+        title: Text('졸업점수',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,
@@ -42,9 +40,11 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         elevation: 0.0,
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             ElevatedButton(
               onPressed: () {
