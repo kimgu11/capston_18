@@ -1,6 +1,6 @@
-import 'package:adder_main/self_adder/self_adder.dart';
+import 'package:adder_main/SelfCalc/self_calc_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:adder_main/gscore_form/gscore_form.dart';
+import 'package:adder_main/GScoreForm/gscore_form.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'adder_main',
+      title: 'Calc_main',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SelfAdder()),
+                  MaterialPageRoute(builder: (context) => SelfCalcScreen()),
                 );
               },
               child: Text(
