@@ -41,7 +41,7 @@ class _GScoreApcState extends State<GScoreApc> {
   //파일명
   final Map<String?,String?> _Filenames = {};
 
-  final List<String> _activityTypes = [
+  final List<String> activityTypes = [
     '취업',
     '자격증',
     '외국어 능력',
@@ -385,7 +385,7 @@ class _GScoreApcState extends State<GScoreApc> {
                     validator: (value) =>
                     (value!.isEmpty) ? "학번을 입력해 주세요" : null,
                     onChanged: _onActivityTypeChanged,
-                    items: _activityTypes
+                    items: activityTypes
                         .map<DropdownMenuItem<String>>(
                             (String value) => DropdownMenuItem<String>(
                                   value: value,

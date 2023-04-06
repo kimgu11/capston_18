@@ -32,7 +32,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   int _remainingScore = 800;
 
-  final List<String> _activityTypes = [
+  final List<String> activityTypes = [
     '취업/대학원 진학',
     '자격증',
     '외국어 능력',
@@ -76,11 +76,10 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   Future<void> _fetchPosts() async {
     final response = await http
-        .get(Uri.parse('http://192.168.219.170:3000/gScore/'));
+        .get(Uri.parse('http://로컬서버주소:3000/gScore/info'));
 
     if (response.statusCode == 200) {
       final funcResult =  jsonDecode(response.body);
-
       for (var item in funcResult) {
         String gsinfoType = item['gsinfo_type'];
         if(!['상담 실적', '해외 연수', '인턴쉽'].contains(gsinfoType)) {
@@ -139,7 +138,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
               ),
               value: _activityType,
               onChanged: _onActivityTypeChanged,
-              items: _activityTypes
+              items: activityTypes
                   .map<DropdownMenuItem<String>>(
                       (String value) => DropdownMenuItem<String>(
                             value: value,
