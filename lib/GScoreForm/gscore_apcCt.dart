@@ -7,12 +7,13 @@ import 'package:adder_main/GScoreForm/gscore_form.dart';
 void main() {
   runApp(MaterialApp(
     title: '신청글 조회/수정',
-    home: GScoreApcCt(),
   ));
 }
 
 class GScoreApcCt extends StatefulWidget {
-  const GScoreApcCt({Key? key}) : super(key: key);
+  final dynamic post;
+
+  GScoreApcCt({required this.post});
 
   @override
   _GScoreApcCtState createState() => _GScoreApcCtState();
@@ -20,14 +21,22 @@ class GScoreApcCt extends StatefulWidget {
 
 class _GScoreApcCtState extends State<GScoreApcCt> {
 
-  void initState(){
+  dynamic _post;
+
+  @override
+  void initState() {
     super.initState();
     _fetchPosts();
+    print('test Start');
+    print(widget.post['gspost_category'].toString());
+    print('test end');
+    _fetchContent();
+    // do something with _post
   }
 
   Future<void> _fetchPosts() async {
     final response = await http
-        .get(Uri.parse('http://로컬서버주소:3000/gScore/info'));
+        .get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
 
     if (response.statusCode == 200) {
       final funcResult =  jsonDecode(response.body);
@@ -47,13 +56,43 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
         int gsinfoScore = item['gsinfo_score'];
 
         if (activityNames.containsKey(gsinfoType)) {
-            activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
-          }
+          activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
+        }
 
       }
     } else {
       throw Exception('Failed to load posts');
     }
+  }
+
+
+  void _fetchContent(){
+    setState(() {
+      //_typeController.text = widget.post['gspost_type'].toString();
+      _activityType = widget.post['gspost_category'];
+      print(_activityType);
+
+      //_nameController.text = widget.post['gspost_item'].toString();
+      _activityName = widget.post['gspost_item'];
+
+      //_startDateController.text = widget.post['gspost_start_date'].toString();
+     _startDate = widget.post['gspost_start_date'];
+
+      //_endDateController.text = widget.post['gspost_end_date'].toString();
+      _endDate = widget.post['gspost_end_date'];
+
+      //_scoreController.text = widget.post['gspost_score'].toString();
+      _activityScore = widget.post['gspost_score'].toString();
+
+      //_selfScoreController.text = widget.post[''].toString();
+      //_statusController.text = widget.post['gspost_pass'].toString();
+      _applicationStatus = widget.post['gspost_pass'].toString();
+
+      //_reasonController.text = widget.post['gspost_reason'].toString();
+      _rejectionReason = widget.post['gspost_reason'].toString();
+
+
+    });
   }
 
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
@@ -67,6 +106,9 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   // 종료 날짜 선택박스에서 선택된 값
   DateTime? _endDate;
+
+  //점수값
+  String _activityScore='';
 
   // 점수를 입력할 수 있는 박스에서 입력된 값
   int? _score;
@@ -135,14 +177,14 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                     ),
                     value: _activityType,
                     validator: (value) =>
-                        (value!.isEmpty) ? "학번을 입력해 주세요" : null,
+                    (value!.isEmpty) ? "asd" : null,
                     onChanged: _onActivityTypeChanged,
                     items: activityTypes
                         .map<DropdownMenuItem<String>>(
                             (String value) => DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                ))
+                          value: value,
+                          child: Text(value),
+                        ))
                         .toList(),
                   ),
                 ), //padding1
@@ -160,10 +202,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         ?.entries
                         .map<DropdownMenuItem<String>>(
                             (MapEntry<String, int> entry) =>
-                                DropdownMenuItem<String>(
-                                  value: entry.key,
-                                  child: Text(entry.key),
-                                ))
+                            DropdownMenuItem<String>(
+                              value: entry.key,
+                              child: Text(entry.key),
+                            ))
                         .toList(), // null일 경우에 대한 처리
                   ),
                 ), //padding2
@@ -243,7 +285,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           ),
                           controller: TextEditingController(
                               text: activityNames[_activityType]?[_activityName]
-                                      ?.toString() ??
+                                  ?.toString() ??
                                   ''),
                         ),
                       ),
@@ -352,7 +394,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           color: Colors.grey.withOpacity(0.5),
                         ),
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(4.0)),
+                        const BorderRadius.all(Radius.circular(4.0)),
                       ),
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -452,7 +494,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => GScoreApcForm()),
+                                  builder: (context) => GScoreForm()),
                             );
                           },
                           child: const Text(

@@ -43,7 +43,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     '인턴쉽',
     's/w 공모전',
     '졸업작품 입상',
-    '캡스톤'
+    '캡스톤 디자인'
   ];
 
   Map<String, Map<String,int>> activityNames = {
@@ -76,7 +76,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   Future<void> _fetchPosts() async {
     final response = await http
-        .get(Uri.parse('http://로컬서버주소:3000/gScore/info'));
+        .get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
 
     if (response.statusCode == 200) {
       final funcResult =  jsonDecode(response.body);
