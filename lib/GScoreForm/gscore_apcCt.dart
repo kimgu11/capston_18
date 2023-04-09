@@ -431,6 +431,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         color: const Color(0xffC1D3FF),
                         child: MaterialButton(
                           onPressed: () {
+                            if (_applicationStatus == '승인 대기') {
                             // 여기에 저장 버튼 클릭 시 수행할 동작을 작성합니다.
                             print('저장 버튼이 클릭되었습니다.');
                             print('활동 종류: $_activityType');
@@ -441,6 +442,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             print('신청 상태: $_applicationStatus');
                             print('반려 사유: $_rejectionReason');
                             print('첨부 파일: ${_attachmentFile}');
+                             }
                           },
                           child: const Text(
                             "삭제하기",
@@ -460,6 +462,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         color: const Color(0xffC1D3FF),
                         child: MaterialButton(
                           onPressed: () {
+                             if (_applicationStatus == '승인 대기') {
                             // 여기에 저장 버튼 클릭 시 수행할 동작을 작성합니다.
                             print('저장 버튼이 클릭되었습니다.');
                             print('활동 종류: $_activityType');
@@ -470,6 +473,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             print('신청 상태: $_applicationStatus');
                             print('반려 사유: $_rejectionReason');
                             print('첨부 파일: ${_attachmentFile}');
+                             }
                           },
                           child: const Text(
                             "수정하기",
