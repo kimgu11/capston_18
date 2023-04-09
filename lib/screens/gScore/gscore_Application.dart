@@ -206,7 +206,7 @@ class _GScoreApcState extends State<GScoreApc> {
         if ((_period ?? 0) > 300){
           _period = 300;
         }
-        if ((_period ?? 0) < 0){
+        if ((_period ?? 0) < 100){
           _period = 0;
         }
       }
@@ -214,7 +214,7 @@ class _GScoreApcState extends State<GScoreApc> {
         if ((_period ?? 0) > 200){
           _period = 200;
         }
-        if ((_period ?? 0) < 0){
+        if ((_period ?? 0) < 100){
           _period = 0;
         }
       }
@@ -367,7 +367,7 @@ class _GScoreApcState extends State<GScoreApc> {
                           controller: TextEditingController(
                               text: _activityName == 'TOPCIT'
                                   ? _TopcitScore.toString()
-                                  : _activityName == '50일 이상'
+                                  : _activityName == '50일 이상' && _startDate != null &&_endDate != null
                                   ? _period.toString()
                                   : activityNames[_activityType]?[_activityName]?.toString() ?? ''
                           ),
