@@ -110,11 +110,15 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   // 종료 날짜 선택박스에서 선택된 값
   DateTime? _endDate;
 
+  // 활동 기간 저장 값
+  int? _period;
+
   //점수값
   String _activityScore='';
 
   // 점수를 입력할 수 있는 박스에서 입력된 값
   int? _score;
+  int? _TopcitScore;
 
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _applicationStatus;
@@ -147,6 +151,15 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     setState(() {
       _activityName = newValue;
     });
+  }
+
+  void _calculateResult() {
+    if (_startDate != null && _endDate != null) {
+      final duration = _endDate!.difference(_startDate!).inDays + 1;
+      _period = duration * 2;
+    } else {
+      _period = null;
+    }
   }
 
   @override
@@ -235,6 +248,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             );
                             setState(() {
                               _startDate = selectedDate;
+                              _calculateResult();
                             });
                           },
                           controller: TextEditingController(
@@ -264,6 +278,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             );
                             setState(() {
                               _endDate = selectedDate;
+                              _calculateResult();
                             });
                           },
                           controller: TextEditingController(
@@ -289,9 +304,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             border: OutlineInputBorder(),
                           ),
                           controller: TextEditingController(
-                              text: activityNames[_activityType]?[_activityName]
-                                  ?.toString() ??
-                                  ''),
+                              text: _activityName == 'TOPCIT'
+                                  ? _TopcitScore.toString()
+                                  : _activityName == '50일 이상'
+                                  ? _period.toString()
+                                  : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                          ),
                         ),
                       ),
                     ),
@@ -307,6 +325,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           onChanged: (value) {
                             setState(() {
                               _score = int.tryParse(value);
+                              _TopcitScore = (_score ?? 0) * 2;
                             });
                           },
                         ),

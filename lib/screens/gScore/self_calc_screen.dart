@@ -167,19 +167,21 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                   [],
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: TextFormField(
+
+              TextFormField(
                 readOnly: true,
                 decoration: const InputDecoration(
                   labelText: '점수',
                   border: OutlineInputBorder(),
                 ),
                 controller: TextEditingController(
-                    text: activityNames[_activityType]?[_activityName]
-                            ?.toString() ??
-                        ''),
-              ),
+                    text:
+              activityNames[_activityType]?[_activityName]?.toString() ?? ''
+
+    ),
             ),
+            SizedBox(height: 16.0),
+
             Row(
               children: [
                 Expanded(

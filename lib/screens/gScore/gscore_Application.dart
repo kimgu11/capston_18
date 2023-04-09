@@ -21,18 +21,18 @@ class GScoreApc extends StatefulWidget {
 }
 
 class _GScoreApcState extends State<GScoreApc> {
-
-  void initState(){
+  void initState() {
     super.initState();
     _fetchLists();
   }
 
-  Future<void> _fetchLists() async { //목록 불러오기
-    final response = await http
-        .get(Uri.parse('http://192.168.219.170:3000/gScore/info'));
+  Future<void> _fetchLists() async {
+    //목록 불러오기
+    final response =
+        await http.get(Uri.parse('http://192.168.219.170:3000/gScore/info'));
 
     if (response.statusCode == 200) {
-      final funcResult =  jsonDecode(response.body);
+      final funcResult = jsonDecode(response.body);
       for (var item in funcResult) {
         String gsinfoType = item['gsinfo_type'];
         if (!activityTypes.contains(gsinfoType)) {
@@ -51,7 +51,6 @@ class _GScoreApcState extends State<GScoreApc> {
         if (activityNames.containsKey(gsinfoType)) {
           activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
         }
-
       }
     } else {
       throw Exception('Failed to load posts');
@@ -59,7 +58,6 @@ class _GScoreApcState extends State<GScoreApc> {
   }
 
   void _writePost() async {
-
     if (_activityType == null || _activityName == null) {
       showDialog(
         context: context,
@@ -99,7 +97,7 @@ class _GScoreApcState extends State<GScoreApc> {
       'gspost_category': _activityType,
       'gspost_item': _activityName,
       'gspost_score': int.tryParse(_activityScore),
-      'gspost_content' : _content,
+      'gspost_content': _content,
       'gspost_pass': _applicationStatus,
       'gspost_reason': _rejectionReason,
       'gspost_start_date': _startDate,
@@ -130,12 +128,8 @@ class _GScoreApcState extends State<GScoreApc> {
     }
   }
 
-
   bool isEditable = false;
-  bool _isLoading= false;
-
-
-
+  bool _isLoading = false;
 
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
@@ -144,7 +138,7 @@ class _GScoreApcState extends State<GScoreApc> {
   String? _activityName;
 
   //점수값
-  String _activityScore='';
+  String _activityScore = '';
 
   // 시작 날짜 선택박스에서 선택된 값
   DateTime? _startDate;
@@ -152,8 +146,12 @@ class _GScoreApcState extends State<GScoreApc> {
   // 종료 날짜 선택박스에서 선택된 값
   DateTime? _endDate;
 
+  // 활동 기간 저장 값
+  int? _period;
+
   // 점수를 입력할 수 있는 박스에서 입력된 값
   int? _score;
+  int? _TopcitScore;
 
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String _applicationStatus = '승인 대기';
@@ -168,19 +166,22 @@ class _GScoreApcState extends State<GScoreApc> {
   List<PlatformFile?> _attachmentFile = [];
 
   //파일명
-  final Map<String?,String?> _Filenames = {};
+  final Map<String?, String?> _Filenames = {};
 
+  //활동종류 리스트
   List<String> activityTypes = [];
 
+  //활동명 리스트
   Map<String, Map<String, int>> activityNames = {};
 
   final TextEditingController _scoreController = TextEditingController();
 
+  //활동종류 드롭박스 눌렀을시 활동명을 초기화 해줘야 충돌이 안남
   void _onActivityTypeChanged(String? newValue) {
     setState(() {
       _activityType = newValue;
       _activityName = null;
-      _scoreController.text='';
+      _scoreController.text = '';
       _activityScore = '';
     });
   }
@@ -197,6 +198,14 @@ class _GScoreApcState extends State<GScoreApc> {
     });
   }
 
+  void _calculateResult() {
+    if (_startDate != null && _endDate != null) {
+      final duration = _endDate!.difference(_startDate!).inDays + 1;
+      _period = duration * 2;
+    } else {
+      _period = null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,15 +239,14 @@ class _GScoreApcState extends State<GScoreApc> {
                       border: OutlineInputBorder(),
                     ),
                     value: _activityType,
-                    validator: (value) =>
-                    (value!.isEmpty) ? "asd" : null,
+                    validator: (value) => (value!.isEmpty) ? "asd" : null,
                     onChanged: _onActivityTypeChanged,
                     items: activityTypes
                         .map<DropdownMenuItem<String>>(
                             (String value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ))
+                                  value: value,
+                                  child: Text(value),
+                                ))
                         .toList(),
                   ),
                 ), //padding1
@@ -256,10 +264,10 @@ class _GScoreApcState extends State<GScoreApc> {
                         ?.entries
                         .map<DropdownMenuItem<String>>(
                             (MapEntry<String, int> entry) =>
-                            DropdownMenuItem<String>(
-                              value: entry.key,
-                              child: Text(entry.key),
-                            ))
+                                DropdownMenuItem<String>(
+                                  value: entry.key,
+                                  child: Text(entry.key),
+                                ))
                         .toList(), // null일 경우에 대한 처리
                   ),
                 ), //padding2
@@ -284,6 +292,7 @@ class _GScoreApcState extends State<GScoreApc> {
                             );
                             setState(() {
                               _startDate = selectedDate;
+                              _calculateResult();
                             });
                           },
                           controller: TextEditingController(
@@ -314,6 +323,7 @@ class _GScoreApcState extends State<GScoreApc> {
                             );
                             setState(() {
                               _endDate = selectedDate;
+                              _calculateResult();
                             });
                           },
                           controller: TextEditingController(
@@ -339,9 +349,12 @@ class _GScoreApcState extends State<GScoreApc> {
                             border: OutlineInputBorder(),
                           ),
                           controller: TextEditingController(
-                              text: activityNames[_activityType]?[_activityName]
-                                  ?.toString() ??
-                                  ''),
+                              text: _activityName == 'TOPCIT'
+                                  ? _TopcitScore.toString()
+                                  : _activityName == '50일 이상'
+                                      ? _period.toString()
+                                      : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                          ),
                         ),
                       ),
                     ),
@@ -357,6 +370,7 @@ class _GScoreApcState extends State<GScoreApc> {
                           onChanged: (value) {
                             setState(() {
                               _score = int.tryParse(value);
+                              _TopcitScore = (_score ?? 0) * 2;
                             });
                           },
                         ),
@@ -373,8 +387,7 @@ class _GScoreApcState extends State<GScoreApc> {
                       labelText: '비고',
                       border: OutlineInputBorder(),
                     ),
-                    controller: TextEditingController(
-                        text: _content),
+                    controller: TextEditingController(text: _content),
                     onChanged: (value) {
                       setState(() {
                         _content = value;
@@ -397,16 +410,15 @@ class _GScoreApcState extends State<GScoreApc> {
                       DropdownMenuItem(value: '승인 완료', child: Text('승인 완료')),
                       DropdownMenuItem(value: '반려', child: Text('반려')),
                     ],
-
-                    onChanged: isEditable ? (value) {
-                      setState(() {
-                        _applicationStatus = value ?? '';
-                      });
-                    } : null,
+                    onChanged: isEditable
+                        ? (value) {
+                            setState(() {
+                              _applicationStatus = value ?? '';
+                            });
+                          }
+                        : null,
                   ),
                 ),
-
-
 
                 // 반려 사유 입력박스
                 Padding(
@@ -439,7 +451,8 @@ class _GScoreApcState extends State<GScoreApc> {
                         if (result != null) {
                           setState(() {
                             _attachmentFile.add(result.files.single);
-                            _Filenames.addAll({'파일명': result.files.single.name});
+                            _Filenames.addAll(
+                                {'파일명': result.files.single.name});
                           });
                         }
                       },
@@ -459,7 +472,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
                 // 활동 종류에 대한 드롭다운형식의 콤보박스
                 Padding(
-                  padding:  const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -468,7 +481,8 @@ class _GScoreApcState extends State<GScoreApc> {
                           width: 2.0,
                           color: Colors.grey.withOpacity(0.5),
                         ),
-                        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(4.0)),
                       ),
                       child: ListView.builder(
                         shrinkWrap: true,
