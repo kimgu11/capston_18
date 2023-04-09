@@ -202,6 +202,22 @@ class _GScoreApcState extends State<GScoreApc> {
     if (_startDate != null && _endDate != null) {
       final duration = _endDate!.difference(_startDate!).inDays + 1;
       _period = duration * 2;
+      if(_activityType == '인턴쉽'){
+        if ((_period ?? 0) > 300){
+          _period = 300;
+        }
+        if ((_period ?? 0) < 0){
+          _period = 0;
+        }
+      }
+      if(_activityType == '해외 연수'){
+        if ((_period ?? 0) > 200){
+          _period = 200;
+        }
+        if ((_period ?? 0) < 0){
+          _period = 0;
+        }
+      }
     } else {
       _period = null;
     }
@@ -352,8 +368,8 @@ class _GScoreApcState extends State<GScoreApc> {
                               text: _activityName == 'TOPCIT'
                                   ? _TopcitScore.toString()
                                   : _activityName == '50일 이상'
-                                      ? _period.toString()
-                                      : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                                  ? _period.toString()
+                                  : activityNames[_activityType]?[_activityName]?.toString() ?? ''
                           ),
                         ),
                       ),
@@ -371,6 +387,9 @@ class _GScoreApcState extends State<GScoreApc> {
                             setState(() {
                               _score = int.tryParse(value);
                               _TopcitScore = (_score ?? 0) * 2;
+                              if((_TopcitScore ?? 0) > 1000){
+                                _TopcitScore = 1000;
+                              }
                             });
                           },
                         ),
