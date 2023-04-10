@@ -5,8 +5,8 @@ import 'package:capstone/screens/post/free_board.dart';
 import 'package:capstone/screens/login/login_form.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/screens/login/profile.dart';
-import 'package:capstone/screens/gScore/gscore_form.dart';
-import 'package:capstone/screens/gScore/self_calc_screen.dart';
+import 'package:capstone/screens/gScore/gscore_list_screen.dart';
+import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => MyHomePage()),
-      (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
     );
   }
 

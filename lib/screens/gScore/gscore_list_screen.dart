@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:capstone/screens/gScore/gscore_apcCt.dart';
-import 'package:capstone/screens/gScore/gscore_Application.dart';
+import 'package:capstone/screens/gScore/gscore_modify_screen.dart';
+import 'package:capstone/screens/gScore/gscore_regist_screen.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 //신청글 목록 창
@@ -65,24 +64,35 @@ class _GScoreForm extends State<GScoreForm> {
   }
 
 
-
-  Future<List<dynamic>> _fetchAllPosts() async{
+  /* //권한따라 다른 게시글 불러오기
+  Future<List<dynamic>> _fetchAllPosts() async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-    final response = await http.get(
-      Uri.parse('http://192.168.219.170:3000/gScore/filter'),
-      headers: {'Authorization': 'Bearer $token'},);
+    print(token);
+    if (token != null) {
+      final response = await http.get(
+        Uri.parse('http://3.39.88.187:3000/gScore/testapi'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token', //
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to load posts');
+      }
     } else {
-      throw Exception('Failed to load posts');
+      throw Exception('Token is null');
     }
   }
+  */
 
+  //일단은 전체게시글
   Future<List<dynamic>> _fetchPosts() async {
     final response = await http
-        .get(Uri.parse('http://192.168.219.170:3000/gScore/'));
+        .get(Uri.parse('http://3.39.88.187:3000/gScore/'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -100,7 +110,7 @@ class _GScoreForm extends State<GScoreForm> {
           ),
         );
         setState(() {
-          final _posts = _fetchAllPosts();
+          //final _posts = _fetchPosts();
         });
       },
       child: Padding(
@@ -218,9 +228,9 @@ class _GScoreForm extends State<GScoreForm> {
                       text: TextSpan(
                         style: TextStyle(fontSize: 13.0, color: Colors.black),
                         children: <TextSpan>[
-                          TextSpan(text: '첫 번째 줄\n'),
-                          TextSpan(text: '두 번째 \n', style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: '세 번째 줄'),
+                          TextSpan(text: '1. 각 항목별 점수를 확인해주세요.\n'),
+                          TextSpan(text: '2. TOPCIT 점수는 수기 입력을 통해 계산됩니다. \n', style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.'),
                         ],
                       ),
                     )
