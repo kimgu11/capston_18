@@ -182,8 +182,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       labelText: '활동 종류',
                       border: OutlineInputBorder(),
                     ),
-                    value: _applicationStatus == '승인 완료' || _applicationStatus == '반려' ? _activityType : _selectedActivityType ?? _activityType,
-                    onChanged: _applicationStatus == '승인 완료' || _applicationStatus == '반려' ? null : _onActivityTypeChanged,
+                    value: _applicationStatus == '승인' || _applicationStatus == '반려' ? _activityType : _selectedActivityType ?? _activityType,
+                    onChanged: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : _onActivityTypeChanged,
                     items: activityTypes
                         .map<DropdownMenuItem<String>>(
                             (String value) => DropdownMenuItem<String>(
@@ -202,8 +202,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       border: OutlineInputBorder(),
                     ),
                     value: _activityName,
-                    onChanged: _applicationStatus == '승인 완료' || _applicationStatus == '반려' ? null : _onActivityNameChanged,
-                    items: _applicationStatus == '승인 완료' || _applicationStatus == '반려' ? null : activityNames[_activityType]
+                    onChanged: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : _onActivityNameChanged,
+                    items: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : activityNames[_activityType]
                         ?.entries
                         .map<DropdownMenuItem<String>>((MapEntry<String, int> entry) => DropdownMenuItem<String>(
                       value: entry.key,
@@ -220,13 +220,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _applicationStatus == '승인 완료' || _applicationStatus == '반려',
+                          readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
                           decoration: const InputDecoration(
                             labelText: '시작 날짜',
                             border: OutlineInputBorder(),
                             suffixIcon: Icon(Icons.date_range),
                           ),
-                          onTap: _applicationStatus == '승인 완료' || _applicationStatus == '반려'
+                          onTap: _applicationStatus == '승인' || _applicationStatus == '반려'
                               ? null
                               : () async {
                             final selectedDate = await showDatePicker(
@@ -251,13 +251,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _applicationStatus == '승인 완료' || _applicationStatus == '반려',
+                          readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
                           decoration: const InputDecoration(
                             labelText: '종료 날짜',
                             border: OutlineInputBorder(),
                             suffixIcon: Icon(Icons.date_range),
                           ),
-                          onTap: _applicationStatus == '승인 완료' || _applicationStatus == '반려'
+                          onTap: _applicationStatus == '승인' || _applicationStatus == '반려'
                               ? null
                               : () async {
                             final selectedDate = await showDatePicker(
@@ -304,7 +304,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _applicationStatus == '승인 완료' || _applicationStatus == '반려',
+                          readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
                           decoration: const InputDecoration(
                             labelText: '점수 입력',
                             border: OutlineInputBorder(),
@@ -339,13 +339,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           : null,
                       items: (_permissionValue == 2)
                           ? [
-                        DropdownMenuItem(value: '승인 대기', child: Text('승인 대기')),
-                        DropdownMenuItem(value: '승인 완료', child: Text('승인 완료')),
+                        DropdownMenuItem(value: '대기', child: Text('대기')),
+                        DropdownMenuItem(value: '승인', child: Text('승인')),
                         DropdownMenuItem(value: '반려', child: Text('반려')),
                       ]
                           : [
-                        DropdownMenuItem(value: '승인 대기', child: Text('승인 대기')),
-                        DropdownMenuItem(value: '승인 완료', child: Text('승인 완료', style: TextStyle(color: Colors.grey))),
+                        DropdownMenuItem(value: '대기', child: Text('대기')),
+                        DropdownMenuItem(value: '승인', child: Text('승인', style: TextStyle(color: Colors.grey))),
                         DropdownMenuItem(value: '반려', child: Text('반려', style: TextStyle(color: Colors.grey))),
                       ],
                     )
@@ -355,7 +355,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
-                    readOnly: _applicationStatus == '승인 완료' || _applicationStatus == '반려',
+                    readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
                     decoration: const InputDecoration(
                       labelText: '비고',
                       border: OutlineInputBorder(),
@@ -470,7 +470,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           borderRadius: BorderRadius.circular(30.0), //둥근효과
                           color: const Color(0xffC1D3FF),
                           child: MaterialButton(
-                            onPressed: _applicationStatus == '승인 완료' || _applicationStatus == '반려' ? null : () {
+                            onPressed: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : () {
                               // 버튼 클릭 시 동작
                               print('저장 버튼이 클릭되었습니다.');
                               print('활동 종류: $_activityType');
@@ -500,7 +500,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         borderRadius: BorderRadius.circular(30.0), //둥근효과
                         color: const Color(0xffC1D3FF),
                         child: MaterialButton(
-                          onPressed: _applicationStatus == '승인 완료' || _applicationStatus == '반려'
+                          onPressed: _applicationStatus == '승인' || _applicationStatus == '반려'
                               ? null
                               : () {
                             // 여기에 저장 버튼 클릭 시 수행할 동작을 작성합니다.
