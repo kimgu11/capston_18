@@ -37,11 +37,6 @@ class _GScoreApcState extends State<GScoreApc> {
         if (!activityTypes.contains(gsinfoType)) {
           activityTypes.add(gsinfoType);
           activityNames[gsinfoType] = {};
-
-          setState(() {
-            activityTypes = activityTypes;
-            activityNames = activityNames;
-          });
         }
 
         String gsinfoName = item['gsinfo_name'];
@@ -51,6 +46,11 @@ class _GScoreApcState extends State<GScoreApc> {
           activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
         }
       }
+      setState(() {
+        activityTypes;
+        activityNames;
+      });
+
     } else {
       throw Exception('Failed to load posts');
     }
@@ -126,7 +126,6 @@ class _GScoreApcState extends State<GScoreApc> {
 
   bool isEditable = false;
   bool _isLoading = false;
-
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
 
