@@ -113,6 +113,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       userId = user['student_id'];
       userPermission = user['permission'];
 
+      setState(() {
+        userId;
+        userPermission;
+      });
+
     } else {
       throw Exception('예외 발생');
     }
