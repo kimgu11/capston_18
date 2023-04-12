@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -25,14 +27,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   @override
   void initState() {
     super.initState();
-    _fetchPosts();
+    _fetchGsInfo();
     _fetchContent();
+    _getUserInfo();
 
-    super.initState();
-    // do something with _post
   }
 
-  Future<void> _fetchPosts() async {
+  Future<void> _fetchGsInfo() async {
     final response = await http
         .get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
 
@@ -45,8 +46,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
           activityNames[gsinfoType] = {};
 
           setState(() {
-            activityTypes = activityTypes;
-            activityNames = activityNames;
+            activityTypes;
+            activityNames;
           });
         }
 
@@ -68,37 +69,57 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   void _fetchContent(){
     setState(() {
-      //_typeController.text = widget.post['gspost_type'].toString();
       _activityType = widget.post['gspost_category'];
 
-      //_nameController.text = widget.post['gspost_item'].toString();
       _activityName = widget.post['gspost_item'];
 
-      //_startDateController.text = widget.post['gspost_start_date'].toString();
       if(widget.post['gspost_start_date']!=null) {
-        _startDate = DateTime.parse(widget.post['gspost_start_date']);
-      }
-      //_endDateController.text = widget.post['gspost_end_date'].toString();
+        _startDate = DateTime.parse(widget.post['gspost_start_date']);}
+
       if(widget.post['gspost_end_date']!=null) {
-        _endDate = DateTime.parse(widget.post['gspost_end_date']);
-      }
-      //_scoreController.text = widget.post['gspost_score'].toString();
+        _endDate = DateTime.parse(widget.post['gspost_end_date']);}
+
       _activityScore = widget.post['gspost_score'].toString();
 
-      //_selfScoreController.text = widget.post[''].toString();
-      //_statusController.text = widget.post['gspost_pass'].toString();
       _applicationStatus = widget.post['gspost_pass'].toString();
 
       if(widget.post['gspost_content']!=null) {
-        _content = widget.post['gspost_content'].toString();
-      }
+        _content = widget.post['gspost_content'].toString();}
 
-      //_reasonController.text = widget.post['gspost_reason'].toString();
       if(widget.post['gspost_reason']!=null) {
         _rejectionReason = widget.post['gspost_reason'].toString();
       }
     });
   }
+
+
+  Future<void> _getUserInfo() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if(token == null){
+      return ;
+    }
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/user'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+      userId = user['student_id'];
+      userPermission = user['permission'];
+
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
+
+  int userId = 0;
+  int userPermission = 0;
 
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
