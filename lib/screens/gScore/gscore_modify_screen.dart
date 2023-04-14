@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -24,21 +24,21 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   String? _selectedActivityType;
 
   int _permissionValue = 0;
+
   @override
   void initState() {
     super.initState();
     _fetchGsInfo();
     _fetchContent();
     _getUserInfo();
-
   }
 
   Future<void> _fetchGsInfo() async {
-    final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
+    final response =
+        await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
 
     if (response.statusCode == 200) {
-      final funcResult =  jsonDecode(response.body);
+      final funcResult = jsonDecode(response.body);
       for (var item in funcResult) {
         String gsinfoType = item['gsinfo_type'];
         if (!activityTypes.contains(gsinfoType)) {
@@ -57,48 +57,46 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
         if (activityNames.containsKey(gsinfoType)) {
           activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
         }
-
       }
     } else {
       throw Exception('Failed to load posts');
     }
   }
 
-
-
-
-  void _fetchContent(){
+  void _fetchContent() {
     setState(() {
       _activityType = widget.post['gspost_category'];
 
       _activityName = widget.post['gspost_item'];
 
-      if(widget.post['gspost_start_date']!=null) {
-        _startDate = DateTime.parse(widget.post['gspost_start_date']);}
+      if (widget.post['gspost_start_date'] != null) {
+        _startDate = DateTime.parse(widget.post['gspost_start_date']);
+      }
 
-      if(widget.post['gspost_end_date']!=null) {
-        _endDate = DateTime.parse(widget.post['gspost_end_date']);}
+      if (widget.post['gspost_end_date'] != null) {
+        _endDate = DateTime.parse(widget.post['gspost_end_date']);
+      }
 
       _activityScore = widget.post['gspost_score'].toString();
 
       _applicationStatus = widget.post['gspost_pass'].toString();
 
-      if(widget.post['gspost_content']!=null) {
-        _content = widget.post['gspost_content'].toString();}
+      if (widget.post['gspost_content'] != null) {
+        _content = widget.post['gspost_content'].toString();
+      }
 
-      if(widget.post['gspost_reason']!=null) {
+      if (widget.post['gspost_reason'] != null) {
         _rejectionReason = widget.post['gspost_reason'].toString();
       }
     });
   }
 
-
   Future<void> _getUserInfo() async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
 
-    if(token == null){
-      return ;
+    if (token == null) {
+      return;
     }
     final response = await http.get(
       Uri.parse('http://3.39.88.187:3000/gScore/user'),
@@ -117,11 +115,119 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
         userId;
         userPermission;
       });
-
     } else {
       throw Exception('예외 발생');
     }
   }
+
+  /*void _updatePost() async {
+    if (_activityType == null || _activityName == null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('알림'),
+            content: Text('활동 종류와 활동명은 필수 선택 항목입니다.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // 경고창 닫기
+                },
+                child: Text('확인'),
+              ),
+            ],
+          );
+        },
+      );
+      return; // 함수 종료
+    }
+
+    setState(() => _isLoading = true);
+
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      setState(() {
+        _isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
+      });
+      return;
+    }
+
+    final Map<String, dynamic> postData = {
+      'gspost_category': _activityType,
+      'gspost_item': _activityName,
+      'gspost_score': int.tryParse(_activityScore),
+      'gspost_content': _content,
+      'gspost_pass': _applicationStatus,
+      'gspost_reason': _rejectionReason,
+      'gspost_start_date': _startDate?.toIso8601String(),
+      'gspost_end_date': _endDate?.toIso8601String(),
+
+      'gspost_file': null, //
+    };
+
+    final response = await http.put(
+      Uri.parse('http://3.39.88.187:3000/gScore/update/${widget.post.id}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+      body: jsonEncode(postData),
+    );
+
+    print(response.statusCode);
+
+    if (response.statusCode == 201) {
+      setState(() => _isLoading = false);
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => GScoreForm()),
+      );
+    } else {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('실패: ${response.reasonPhrase}')),
+      );
+    }
+  }
+
+  void _deletePost() async {
+    setState(() => _isLoading = true);
+
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      setState(() {
+        _isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
+      });
+      return;
+    }
+
+    final response = await http.delete(
+      Uri.parse('http://3.39.88.187:3000/gScore/delete/${widget.post.id}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 201) {
+      Navigator.pop(context);
+      Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext context) => GScoreForm()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('실패: ${response.reasonPhrase}')),
+      );
+    }
+  }*/
 
   int userId = 0;
   int userPermission = 0;
@@ -139,10 +245,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   DateTime? _endDate;
 
   //점수값
-  String _activityScore='';
+  String _activityScore = '';
 
   // 점수를 입력할 수 있는 박스에서 입력된 값
-  int? _score;
+  int? _mainscore;
+  int? _subscore;
 
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _applicationStatus;
@@ -155,6 +262,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   //파일이 저장값
   List<PlatformFile?> _attachmentFile = [];
 
+  bool _isLoading = false;
+
   //파일명
   final Map<String?, String?> _Filenames = {};
 
@@ -162,21 +271,57 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   Map<String, Map<String, int>> activityNames = {}; //카테고리:{활동명:점수,}
 
+
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _scoreController = TextEditingController();
+
+  //활동종류 드롭박스 눌렀을시 활동명을 초기화 해줘야 충돌이 안남
   void _onActivityTypeChanged(String? newValue) {
     setState(() {
       _activityType = newValue;
       _activityName = null;
+      _scoreController.text = '';
+      _activityScore = '';
     });
   }
-
-  final _formKey = GlobalKey<FormState>();
 
   void _onActivityNameChanged(String? newValue) {
     setState(() {
       _activityName = newValue;
+      _scoreController.text =
+          activityNames[_activityType]?[_activityName]?.toString() ?? '';
+      if(_activityName != '50일 이상' || _activityName !='TOPCIT') {
+        _activityScore =
+            activityNames[_activityType]?[_activityName]?.toString() ?? '';
+      }
+      else{
+        _activityScore = _subscore.toString();
+      }
     });
   }
-
+  void _subscore_function(String value){
+    if (value.isNotEmpty &&
+        _activityName == 'TOPCIT' ||
+        _activityName == '50일 이상') {
+      _subscore = int.parse(value) * 2;
+      if (_activityName == 'TOPCIT' &&
+          (_subscore ?? 0) > 1000) {
+        _subscore = 1000;
+      }
+      else if (_activityType == '인턴쉽' &&
+          (_subscore ?? 0) > 300) {
+        _subscore = 300;
+      }
+      else if (_activityType == '해외 연수' &&
+          (_subscore ?? 0) > 200) {
+        _subscore = 200;
+      }
+      if(_mainscore != null) {
+        _activityScore = _subscore.toString();
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,14 +353,20 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       labelText: '활동 종류',
                       border: OutlineInputBorder(),
                     ),
-                    value: _applicationStatus == '승인' || _applicationStatus == '반려' ? _activityType : _selectedActivityType ?? _activityType,
-                    onChanged: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : _onActivityTypeChanged,
+                    value:
+                        _applicationStatus == '승인' || _applicationStatus == '반려'
+                            ? _activityType
+                            : _selectedActivityType ?? _activityType,
+                    onChanged:
+                        _applicationStatus == '승인' || _applicationStatus == '반려'
+                            ? null
+                            : _onActivityTypeChanged,
                     items: activityTypes
                         .map<DropdownMenuItem<String>>(
                             (String value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ))
+                                  value: value,
+                                  child: Text(value),
+                                ))
                         .toList(),
                   ),
                 ), //padding1
@@ -228,15 +379,25 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       border: OutlineInputBorder(),
                     ),
                     value: _activityName,
-                    onChanged: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : _onActivityNameChanged,
-                    items: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : activityNames[_activityType]
-                        ?.entries
-                        .map<DropdownMenuItem<String>>((MapEntry<String, int> entry) => DropdownMenuItem<String>(
-                      value: entry.key,
-                      child: Text(entry.key),
-                    ))
-                        .toList(), // null일 경우에 대한 처리
-                    disabledHint: Text(_activityName ?? ''), // 비활성화 된 상태에서 선택된 값을 보여줌
+                    onChanged:
+                        _applicationStatus == '승인' || _applicationStatus == '반려'
+                            ? null
+                            : _onActivityNameChanged,
+                    items:
+                        _applicationStatus == '승인' || _applicationStatus == '반려'
+                            ? null
+                            : activityNames[_activityType]
+                                ?.entries
+                                .map<DropdownMenuItem<String>>(
+                                    (MapEntry<String, int> entry) =>
+                                        DropdownMenuItem<String>(
+                                          value: entry.key,
+                                          child: Text(entry.key),
+                                        ))
+                                .toList(),
+                    // null일 경우에 대한 처리
+                    disabledHint:
+                        Text(_activityName ?? ''), // 비활성화 된 상태에서 선택된 값을 보여줌
                   ),
                 ), //padding2
 
@@ -246,25 +407,27 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
+                          readOnly: _applicationStatus == '승인' ||
+                              _applicationStatus == '반려',
                           decoration: const InputDecoration(
                             labelText: '시작 날짜',
                             border: OutlineInputBorder(),
                             suffixIcon: Icon(Icons.date_range),
                           ),
-                          onTap: _applicationStatus == '승인' || _applicationStatus == '반려'
+                          onTap: _applicationStatus == '승인' ||
+                                  _applicationStatus == '반려'
                               ? null
                               : () async {
-                            final selectedDate = await showDatePicker(
-                              context: context,
-                              initialDate: _startDate ?? DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            setState(() {
-                              _startDate = selectedDate;
-                            });
-                          },
+                                  final selectedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: _startDate ?? DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  setState(() {
+                                    _startDate = selectedDate;
+                                  });
+                                },
                           controller: TextEditingController(
                             text: _startDate != null
                                 ? '${_startDate!.year}-${_startDate!.month}-${_startDate!.day}'
@@ -277,25 +440,27 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
+                          readOnly: _applicationStatus == '승인' ||
+                              _applicationStatus == '반려',
                           decoration: const InputDecoration(
                             labelText: '종료 날짜',
                             border: OutlineInputBorder(),
                             suffixIcon: Icon(Icons.date_range),
                           ),
-                          onTap: _applicationStatus == '승인' || _applicationStatus == '반려'
+                          onTap: _applicationStatus == '승인' ||
+                                  _applicationStatus == '반려'
                               ? null
                               : () async {
-                            final selectedDate = await showDatePicker(
-                              context: context,
-                              initialDate: _endDate ?? DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            setState(() {
-                              _endDate = selectedDate;
-                            });
-                          },
+                                  final selectedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: _endDate ?? DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  setState(() {
+                                    _endDate = selectedDate;
+                                  });
+                                },
                           controller: TextEditingController(
                             text: _endDate != null
                                 ? '${_endDate!.year}-${_endDate!.month}-${_endDate!.day}'
@@ -304,7 +469,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         ),
                       ),
                     ),
-
                   ],
                 ), //padding3
                 // 점수 출력박스와 입력박스
@@ -314,15 +478,20 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: true,
+                          readOnly: _activityName == 'TOPCIT' ||
+                              _activityName == '50일 이상'
+                              ? false
+                              : true,
                           decoration: const InputDecoration(
                             labelText: '점수',
                             border: OutlineInputBorder(),
                           ),
+                          onChanged: _subscore_function,
                           controller: TextEditingController(
-                              text: activityNames[_activityType]?[_activityName]
-                                  ?.toString() ??
-                                  ''),
+                              text: _activityName == 'TOPCIT' && _subscore != null ? _subscore.toString()
+                                  : _activityName == '50일 이상' && _subscore != null ? _subscore.toString()
+                                  : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                          ),
                         ),
                       ),
                     ),
@@ -330,15 +499,17 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
+                          readOnly: _applicationStatus == '승인' ||
+                              _applicationStatus == '반려',
                           decoration: const InputDecoration(
-                            labelText: '점수 입력',
+                            labelText: '승인 점수',
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              _score = int.tryParse(value);
+                              _mainscore = int.tryParse(value);
+                              _activityScore = _mainscore.toString();
                             });
                           },
                         ),
@@ -360,34 +531,43 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           ? (value) {
                         setState(() {
                           _applicationStatus = value ?? '';
+                          if (_applicationStatus == '대기' || _applicationStatus == '반려') {
+                            _mainscore = 0;
+                          }
                         });
                       }
                           : null,
+
                       items: (_permissionValue == 2)
                           ? [
-                        DropdownMenuItem(value: '대기', child: Text('대기')),
-                        DropdownMenuItem(value: '승인', child: Text('승인')),
-                        DropdownMenuItem(value: '반려', child: Text('반려')),
-                      ]
+                              DropdownMenuItem(value: '대기', child: Text('대기')),
+                              DropdownMenuItem(value: '승인', child: Text('승인')),
+                              DropdownMenuItem(value: '반려', child: Text('반려')),
+                            ]
                           : [
-                        DropdownMenuItem(value: '대기', child: Text('대기')),
-                        DropdownMenuItem(value: '승인', child: Text('승인', style: TextStyle(color: Colors.grey))),
-                        DropdownMenuItem(value: '반려', child: Text('반려', style: TextStyle(color: Colors.grey))),
-                      ],
-                    )
-                ),
+                              DropdownMenuItem(value: '대기', child: Text('대기')),
+                              DropdownMenuItem(
+                                  value: '승인',
+                                  child: Text('승인',
+                                      style: TextStyle(color: Colors.grey))),
+                              DropdownMenuItem(
+                                  value: '반려',
+                                  child: Text('반려',
+                                      style: TextStyle(color: Colors.grey))),
+                            ],
+                    )),
 
                 //비고란
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
-                    readOnly: _applicationStatus == '승인' || _applicationStatus == '반려',
+                    readOnly: _applicationStatus == '승인' ||
+                        _applicationStatus == '반려',
                     decoration: const InputDecoration(
                       labelText: '비고',
                       border: OutlineInputBorder(),
                     ),
-                    controller: TextEditingController(
-                        text: _content),
+                    controller: TextEditingController(text: _content),
                     onChanged: (value) {
                       setState(() {
                         _content = value;
@@ -413,8 +593,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           _rejectionReason = value;
                         });
                       },
-                    )
-                ),
+                    )),
                 SizedBox(height: 8.0),
                 // 첨부파일 업로드박스
                 Padding(
@@ -460,7 +639,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           color: Colors.grey.withOpacity(0.5),
                         ),
                         borderRadius:
-                        const BorderRadius.all(Radius.circular(4.0)),
+                            const BorderRadius.all(Radius.circular(4.0)),
                       ),
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -496,18 +675,22 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           borderRadius: BorderRadius.circular(30.0), //둥근효과
                           color: const Color(0xffC1D3FF),
                           child: MaterialButton(
-                            onPressed: _applicationStatus == '승인' || _applicationStatus == '반려' ? null : () {
-                              // 버튼 클릭 시 동작
-                              print('저장 버튼이 클릭되었습니다.');
-                              print('활동 종류: $_activityType');
-                              print('활동명: $_activityName');
-                              print('시작 날짜: $_startDate');
-                              print('종료 날짜: $_endDate');
-                              print('점수: $_score');
-                              print('신청 상태: $_applicationStatus');
-                              print('반려 사유: $_rejectionReason');
-                              print('첨부 파일: $_attachmentFile');
-                            },
+                            onPressed: /*_deletePost*/
+                                _applicationStatus == '승인' ||
+                                        _applicationStatus == '반려'
+                                    ? null
+                                    : () {
+                                        // 버튼 클릭 시 동작
+                                        print('저장 버튼이 클릭되었습니다.');
+                                        print('활동 종류: $_activityType');
+                                        print('활동명: $_activityName');
+                                        print('시작 날짜: $_startDate');
+                                        print('종료 날짜: $_endDate');
+                                        print('점수: $_activityScore');
+                                        print('신청 상태: $_applicationStatus');
+                                        print('반려 사유: $_rejectionReason');
+                                        print('첨부 파일: $_attachmentFile');
+                                      },
                             child: const Text(
                               "삭제하기",
                               style: TextStyle(
@@ -516,30 +699,31 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          )
-
-                      ),
-                    ),Padding(
+                          )),
+                    ),
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Material(
                         elevation: 5.0, //그림자효과
                         borderRadius: BorderRadius.circular(30.0), //둥근효과
                         color: const Color(0xffC1D3FF),
                         child: MaterialButton(
-                          onPressed: _applicationStatus == '승인' || _applicationStatus == '반려'
-                              ? null
-                              : () {
-                            // 여기에 저장 버튼 클릭 시 수행할 동작을 작성합니다.
-                            print('저장 버튼이 클릭되었습니다.');
-                            print('활동 종류: $_activityType');
-                            print('활동명: $_activityName');
-                            print('시작 날짜: $_startDate');
-                            print('종료 날짜: $_endDate');
-                            print('점수: $_score');
-                            print('신청 상태: $_applicationStatus');
-                            print('반려 사유: $_rejectionReason');
-                            print('첨부 파일: $_attachmentFile');
-                          },
+                          onPressed: /*_updatePost*/
+                              _applicationStatus == '승인' ||
+                                      _applicationStatus == '반려'
+                                  ? null
+                                  : () {
+                                      // 버튼 클릭 시 동작
+                                      print('저장 버튼이 클릭되었습니다.');
+                                      print('활동 종류: $_activityType');
+                                      print('활동명: $_activityName');
+                                      print('시작 날짜: $_startDate');
+                                      print('종료 날짜: $_endDate');
+                                      print('점수: $_activityScore');
+                                      print('신청 상태: $_applicationStatus');
+                                      print('반려 사유: $_rejectionReason');
+                                      print('첨부 파일: $_attachmentFile');
+                                    },
                           child: const Text(
                             "수정하기",
                             style: TextStyle(
@@ -549,12 +733,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             ),
                           ),
                         ),
-
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child:  Material(
+                      child: Material(
                         elevation: 5.0, //그림자효과
                         borderRadius: BorderRadius.circular(30.0), //둥근효과
                         color: const Color(0xffC1D3FF),

@@ -26,6 +26,8 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   String? _activityName;
 
+  int? _score;
+
   final List<Map<String, dynamic>> _save = [];
 
   int _total = 0;
@@ -36,21 +38,9 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   Map<String, Map<String,int>> activityNames = {
     '상담 실적': {'1':10,'2':20,'3':30,'4':40,'5':50,'6':60,'7':70,'8':80,'9':90,'10':100,'11':110,'12':120,'13':130,'14':140,'15':150},
-    '해외 연수': {'30~39일':50, '40~49일':80, '50일':100,'51일':102, '52일':104,'53일':106,'54일':108,'55일':110,'56일':112,'57일':124,'58일':126,
-      '59일':128,'60일':120,'61일':122,'62일':124,'63일':126,'64일':128,'65일':130,'66일':132,'67일':134,'68일':136,'69일':138, '70일':140,'71일':142,
-      '72일':144,'73일':146,'74일':148,'75일':150,'76일':152,'77일':154,'78일':156,'79일':158,'80일':160,'81일':162,'82일':164,'83일':166,'84일':168,
-      '85일':170,'86일':172, '87일':174,'88일':176,'89일':178,'90일':180,'91일':182,'92일':184,'93일':186,'94일':188,'95일':190,'96일':192,'97일':194,
-      '98일':196,'99일':198,'100일 이상':200
+    '해외 연수': {'30~39일':50, '40~49일':80, '50일 이상':0
     },
-    '인턴쉽': {'30~39일':50, '40~49일':80, '50일':100,'51일':102, '52일':104,'53일':106,'54일':108,'55일':110,'56일':112,'57일':124,'58일':126,
-      '59일':128,'60일':120,'61일':122,'62일':124,'63일':126,'64일':128,'65일':130,'66일':132,'67일':134,'68일':136,'69일':138, '70일':140,'71일':142,
-      '72일':144,'73일':146,'74일':148,'75일':150,'76일':152,'77일':154,'78일':156,'79일':158,'80일':160,'81일':162,'82일':164,'83일':166,'84일':168,
-      '85일':170,'86일':172, '87일':174,'88일':176,'89일':178,'90일':180,'91일':182,'92일':184,'93일':186,'94일':188,'95일':190,'96일':192,'97일':194,
-      '98일':196,'99일':198,'100일':200,'101일':202,'102일':204, '103일':206,'104일':208,'105일':210,'106일':212,'107일':214,'108일':216,'109일':218,
-      '110일':220,'111일':222,'112일':224,'113일':226, '114일':228,'115일':230,'116일':232,'117일':234,'118일':236,'119일':238,'120일':240,'121일':242,
-      '122일':244,'123일':246,'124일':248,'125일':250,'126일':252,'127일':254,'128일':256,'129일':258,'130일':260,'131일':262,'132일':264,'133일':266,
-      '134일':268,'135일':270,'136일':272,'137일':274,'138일':276,'139일':278, '140일':280,'141일':282,'142일':284,'143일':286,'144일':288,'145일':290,
-      '146일':292,'147일':294,'148일':296,'149일':298,'150일 이상':300
+    '인턴쉽': {'30~39일':50, '40~49일':80, '50일 이상':0
     },
   };
 
@@ -163,17 +153,35 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
             ),
             const SizedBox(height: 16),
 
-              TextFormField(
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: '점수',
-                  border: OutlineInputBorder(),
-                ),
-                controller: TextEditingController(
-                    text:
-              activityNames[_activityType]?[_activityName]?.toString() ?? ''
+            TextFormField(
+              readOnly: _activityName == 'TOPCIT' ||
+                  _activityName == '50일 이상'
+                  ? false : true,
+              decoration: const InputDecoration(
+                labelText: '점수',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                if (value.isNotEmpty) {
+                  _score = int.parse(value) * 2;
+                  if(_activityName == 'TOPCIT' && (_score ?? 0) > 1000){
+                    _score = 1000;
+                  }
+                  if(_activityType == '인턴쉽' && (_score ?? 0) > 300){
+                    _score = 300;
+                  }
+                  if(_activityType == '해외 연수' && (_score ?? 0) > 200){
+                    _score = 200;
+                  }
+                }
 
-    ),
+                else {
+                  _score = 0;
+                }
+              },
+              controller: TextEditingController(
+                  text: activityNames[_activityType]?[_activityName]?.toString() ?? ''
+              ),
             ),
             SizedBox(height: 16.0),
 
@@ -212,7 +220,27 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                 color: const Color(0xffC1D3FF),
                 child: MaterialButton(
                   onPressed: () {
-                    if (_activityName != null && _activityType != null) {
+                    if (_activityName == '50일 이상' || _activityName == 'TOPCIT' && _activityType != null) {
+                      setState(() {
+                        _save.add({
+                          'Type': _activityType!,
+                          'Name': _activityName!,
+                          'score': _score
+                        });
+                        _total +=
+                            _score ?? 0;
+                        if (_remainingScore > 0) {
+                          _remainingScore = 800 - _total;
+                          if (_remainingScore < 0) {
+                            _remainingScore = 0;
+                          }
+                        }
+                        _activityType = null;
+                        _activityName = null;
+                        print(_save);
+                      });
+                    }
+                    else if (_activityName != null && _activityType != null) {
                       setState(() {
                         _save.add({
                           'Type': _activityType!,
