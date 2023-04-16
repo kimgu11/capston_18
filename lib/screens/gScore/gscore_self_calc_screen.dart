@@ -38,10 +38,8 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   Map<String, Map<String,int>> activityNames = {
     '상담 실적': {'1':10,'2':20,'3':30,'4':40,'5':50,'6':60,'7':70,'8':80,'9':90,'10':100,'11':110,'12':120,'13':130,'14':140,'15':150},
-    '해외 연수': {'30~39일':50, '40~49일':80, '50일 이상':0
-    },
-    '인턴쉽': {'30~39일':50, '40~49일':80, '50일 이상':0
-    },
+    '해외 연수': {'참여 일수':0},
+    '인턴쉽': {'참여 일수':0},
   };
 
 
@@ -155,29 +153,32 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
             TextFormField(
               readOnly: _activityName == 'TOPCIT' ||
-                  _activityName == '50일 이상'
+                  _activityName == '참여 일수'
                   ? false : true,
               decoration: const InputDecoration(
                 labelText: '점수',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                if (value.isNotEmpty) {
-                  _score = int.parse(value) * 2;
-                  if(_activityName == 'TOPCIT' && (_score ?? 0) > 1000){
-                    _score = 1000;
-                  }
-                  if(_activityType == '인턴쉽' && (_score ?? 0) > 300){
-                    _score = 300;
-                  }
-                  if(_activityType == '해외 연수' && (_score ?? 0) > 200){
-                    _score = 200;
-                  }
-                }
+                _score= 0;
+                if (value.isNotEmpty && int.parse(value)>0) {
+                  int tempScore = int.parse(value);
 
-                else {
+                  if(_activityType == '인턴쉽' || _activityType == '해외 연수'){
+                    if(tempScore<30){ tempScore = 0;}
+                    else if(tempScore>=30 && tempScore<40){ tempScore = 25;}
+                    else if(tempScore>=40 && tempScore<50){ tempScore = 40;}
+                  }
+                  if(_activityName == 'TOPCIT' && tempScore>1000){ tempScore = 1000;}
+                  if(_activityType == '인턴쉽' && tempScore>150){ tempScore = 150;}
+                  if(_activityType == '해외 연수' && tempScore>100){ tempScore = 100;}
+
+                  _score = tempScore * 2;
+                }
+                else{
                   _score = 0;
                 }
+
               },
               controller: TextEditingController(
                   text: activityNames[_activityType]?[_activityName]?.toString() ?? ''
@@ -220,7 +221,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                 color: const Color(0xffC1D3FF),
                 child: MaterialButton(
                   onPressed: () {
-                    if (_activityName == '50일 이상' || _activityName == 'TOPCIT' && _activityType != null) {
+                    if (_activityName == '참여 일수' || _activityName == 'TOPCIT' && _activityType != null) {
                       setState(() {
                         _save.add({
                           'Type': _activityType!,
@@ -237,7 +238,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                         }
                         _activityType = null;
                         _activityName = null;
-                        print(_save);
+
                       });
                     }
                     else if (_activityName != null && _activityType != null) {
@@ -257,7 +258,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                         }
                         _activityType = null;
                         _activityName = null;
-                        print(_save);
+
                       });
                     }
                   },
