@@ -35,7 +35,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   Future<void> _fetchGsInfo() async {
     final response =
-        await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
+    await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
 
     if (response.statusCode == 200) {
       final funcResult = jsonDecode(response.body);
@@ -90,6 +90,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       }
     });
   }
+
 
   Future<void> _getUserInfo() async {
     final storage = FlutterSecureStorage();
@@ -286,6 +287,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     });
   }
 
+
   void _onActivityNameChanged(String? newValue) {
     setState(() {
       _activityName = newValue;
@@ -354,19 +356,19 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       border: OutlineInputBorder(),
                     ),
                     value:
-                        _applicationStatus == '승인' || _applicationStatus == '반려'
-                            ? _activityType
-                            : _selectedActivityType ?? _activityType,
+                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                        ? _activityType
+                        : _selectedActivityType ?? _activityType,
                     onChanged:
-                        _applicationStatus == '승인' || _applicationStatus == '반려'
-                            ? null
-                            : _onActivityTypeChanged,
+                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                        ? null
+                        : _onActivityTypeChanged,
                     items: activityTypes
                         .map<DropdownMenuItem<String>>(
                             (String value) => DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                ))
+                          value: value,
+                          child: Text(value),
+                        ))
                         .toList(),
                   ),
                 ), //padding1
@@ -380,24 +382,24 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                     ),
                     value: _activityName,
                     onChanged:
-                        _applicationStatus == '승인' || _applicationStatus == '반려'
-                            ? null
-                            : _onActivityNameChanged,
+                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                        ? null
+                        : _onActivityNameChanged,
                     items:
-                        _applicationStatus == '승인' || _applicationStatus == '반려'
-                            ? null
-                            : activityNames[_activityType]
-                                ?.entries
-                                .map<DropdownMenuItem<String>>(
-                                    (MapEntry<String, int> entry) =>
-                                        DropdownMenuItem<String>(
-                                          value: entry.key,
-                                          child: Text(entry.key),
-                                        ))
-                                .toList(),
+                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                        ? null
+                        : activityNames[_activityType]
+                        ?.entries
+                        .map<DropdownMenuItem<String>>(
+                            (MapEntry<String, int> entry) =>
+                            DropdownMenuItem<String>(
+                              value: entry.key,
+                              child: Text(entry.key),
+                            ))
+                        .toList(),
                     // null일 경우에 대한 처리
                     disabledHint:
-                        Text(_activityName ?? ''), // 비활성화 된 상태에서 선택된 값을 보여줌
+                    Text(_activityName ?? ''), // 비활성화 된 상태에서 선택된 값을 보여줌
                   ),
                 ), //padding2
 
@@ -415,19 +417,19 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             suffixIcon: Icon(Icons.date_range),
                           ),
                           onTap: _applicationStatus == '승인' ||
-                                  _applicationStatus == '반려'
+                              _applicationStatus == '반려'
                               ? null
                               : () async {
-                                  final selectedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: _startDate ?? DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  setState(() {
-                                    _startDate = selectedDate;
-                                  });
-                                },
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _startDate ?? DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            setState(() {
+                              _startDate = selectedDate;
+                            });
+                          },
                           controller: TextEditingController(
                             text: _startDate != null
                                 ? '${_startDate!.year}-${_startDate!.month}-${_startDate!.day}'
@@ -448,19 +450,19 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             suffixIcon: Icon(Icons.date_range),
                           ),
                           onTap: _applicationStatus == '승인' ||
-                                  _applicationStatus == '반려'
+                              _applicationStatus == '반려'
                               ? null
                               : () async {
-                                  final selectedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: _endDate ?? DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  setState(() {
-                                    _endDate = selectedDate;
-                                  });
-                                },
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _endDate ?? DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            setState(() {
+                              _endDate = selectedDate;
+                            });
+                          },
                           controller: TextEditingController(
                             text: _endDate != null
                                 ? '${_endDate!.year}-${_endDate!.month}-${_endDate!.day}'
@@ -499,8 +501,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _applicationStatus == '승인' ||
-                              _applicationStatus == '반려',
+                          readOnly: userPermission != 2,
                           decoration: const InputDecoration(
                             labelText: '승인 점수',
                             border: OutlineInputBorder(),
@@ -527,7 +528,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         border: OutlineInputBorder(),
                       ),
                       value: _applicationStatus,
-                      onChanged: (_permissionValue == 2)
+                      onChanged: (userPermission == 2)
                           ? (value) {
                         setState(() {
                           _applicationStatus = value ?? '';
@@ -540,21 +541,21 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
                       items: (_permissionValue == 2)
                           ? [
-                              DropdownMenuItem(value: '대기', child: Text('대기')),
-                              DropdownMenuItem(value: '승인', child: Text('승인')),
-                              DropdownMenuItem(value: '반려', child: Text('반려')),
-                            ]
+                        DropdownMenuItem(value: '대기', child: Text('대기')),
+                        DropdownMenuItem(value: '승인', child: Text('승인')),
+                        DropdownMenuItem(value: '반려', child: Text('반려')),
+                      ]
                           : [
-                              DropdownMenuItem(value: '대기', child: Text('대기')),
-                              DropdownMenuItem(
-                                  value: '승인',
-                                  child: Text('승인',
-                                      style: TextStyle(color: Colors.grey))),
-                              DropdownMenuItem(
-                                  value: '반려',
-                                  child: Text('반려',
-                                      style: TextStyle(color: Colors.grey))),
-                            ],
+                        DropdownMenuItem(value: '대기', child: Text('대기')),
+                        DropdownMenuItem(
+                            value: '승인',
+                            child: Text('승인',
+                                style: TextStyle(color: Colors.grey))),
+                        DropdownMenuItem(
+                            value: '반려',
+                            child: Text('반려',
+                                style: TextStyle(color: Colors.grey))),
+                      ],
                     )),
 
                 //비고란
@@ -587,7 +588,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         labelText: '반려 사유',
                         border: OutlineInputBorder(),
                       ),
-                      enabled: _permissionValue == 2,
+                      enabled: userPermission == 2,
                       onChanged: (value) {
                         setState(() {
                           _rejectionReason = value;
@@ -639,7 +640,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           color: Colors.grey.withOpacity(0.5),
                         ),
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(4.0)),
+                        const BorderRadius.all(Radius.circular(4.0)),
                       ),
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -673,24 +674,24 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Material(
                           elevation: 5.0, //그림자효과
                           borderRadius: BorderRadius.circular(30.0), //둥근효과
-                          color: const Color(0xffC1D3FF),
+                          color: (userPermission == 2 || _applicationStatus == '대기')
+                              ? const Color(0xffC1D3FF)
+                              : const Color(0xff808080),
                           child: MaterialButton(
                             onPressed: /*_deletePost*/
-                                _applicationStatus == '승인' ||
-                                        _applicationStatus == '반려'
-                                    ? null
-                                    : () {
-                                        // 버튼 클릭 시 동작
-                                        print('저장 버튼이 클릭되었습니다.');
-                                        print('활동 종류: $_activityType');
-                                        print('활동명: $_activityName');
-                                        print('시작 날짜: $_startDate');
-                                        print('종료 날짜: $_endDate');
-                                        print('점수: $_activityScore');
-                                        print('신청 상태: $_applicationStatus');
-                                        print('반려 사유: $_rejectionReason');
-                                        print('첨부 파일: $_attachmentFile');
-                                      },
+                            (userPermission == 2 || _applicationStatus == '대기') ? () {
+                              // 버튼 클릭 시 동작
+                              print('저장 버튼이 클릭되었습니다.');
+                              print('활동 종류: $_activityType');
+                              print('활동명: $_activityName');
+                              print('시작 날짜: $_startDate');
+                              print('종료 날짜: $_endDate');
+                              print('점수: $_activityScore');
+                              print('신청 상태: $_applicationStatus');
+                              print('반려 사유: $_rejectionReason');
+                              print('첨부 파일: $_attachmentFile');
+                            }
+                                : null,
                             child: const Text(
                               "삭제하기",
                               style: TextStyle(
@@ -706,24 +707,23 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Material(
                         elevation: 5.0, //그림자효과
                         borderRadius: BorderRadius.circular(30.0), //둥근효과
-                        color: const Color(0xffC1D3FF),
+                        color: (userPermission == 2 || _applicationStatus == '대기')
+                            ? const Color(0xffC1D3FF)
+                            : const Color(0xff808080),
                         child: MaterialButton(
-                          onPressed: /*_updatePost*/
-                              _applicationStatus == '승인' ||
-                                      _applicationStatus == '반려'
-                                  ? null
-                                  : () {
-                                      // 버튼 클릭 시 동작
-                                      print('저장 버튼이 클릭되었습니다.');
-                                      print('활동 종류: $_activityType');
-                                      print('활동명: $_activityName');
-                                      print('시작 날짜: $_startDate');
-                                      print('종료 날짜: $_endDate');
-                                      print('점수: $_activityScore');
-                                      print('신청 상태: $_applicationStatus');
-                                      print('반려 사유: $_rejectionReason');
-                                      print('첨부 파일: $_attachmentFile');
-                                    },
+                          onPressed: (userPermission == 2 || _applicationStatus == '대기')
+                              ? () {
+                            print('저장 버튼이 클릭되었습니다.');
+                            print('활동 종류: $_activityType');
+                            print('활동명: $_activityName');
+                            print('시작 날짜: $_startDate');
+                            print('종료 날짜: $_endDate');
+                            print('점수: $_activityScore');
+                            print('신청 상태: $_applicationStatus');
+                            print('반려 사유: $_rejectionReason');
+                            print('첨부 파일: $_attachmentFile');
+                          }
+                              : null,
                           child: const Text(
                             "수정하기",
                             style: TextStyle(

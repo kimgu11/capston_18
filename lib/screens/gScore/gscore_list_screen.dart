@@ -121,11 +121,11 @@ class _GScoreForm extends State<GScoreForm> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: Container(
           width: 200.0,
-          height: 100.0,
-          padding: EdgeInsets.all(16.0),
+          height: 70.0,
+          padding: EdgeInsets.all(13.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.0),
             color: Colors.white,

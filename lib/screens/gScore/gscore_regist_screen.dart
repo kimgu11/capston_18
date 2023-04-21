@@ -29,7 +29,7 @@ class _GScoreApcState extends State<GScoreApc> {
   Future<void> _fetchLists() async {
     //목록 불러오기
     final response =
-        await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
+    await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
 
     if (response.statusCode == 200) {
       final funcResult = jsonDecode(response.body);
@@ -256,9 +256,9 @@ class _GScoreApcState extends State<GScoreApc> {
                     items: activityTypes
                         .map<DropdownMenuItem<String>>(
                             (String value) => DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                ))
+                          value: value,
+                          child: Text(value),
+                        ))
                         .toList(),
                   ),
                 ), //padding1
@@ -276,10 +276,10 @@ class _GScoreApcState extends State<GScoreApc> {
                         ?.entries
                         .map<DropdownMenuItem<String>>(
                             (MapEntry<String, int> entry) =>
-                                DropdownMenuItem<String>(
-                                  value: entry.key,
-                                  child: Text(entry.key),
-                                ))
+                            DropdownMenuItem<String>(
+                              value: entry.key,
+                              child: Text(entry.key),
+                            ))
                         .toList(), // null일 경우에 대한 처리
                   ),
                 ), //padding2
@@ -354,7 +354,7 @@ class _GScoreApcState extends State<GScoreApc> {
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
                           readOnly: _activityName == 'TOPCIT' ||
-                                  _activityName == '50일 이상'
+                              _activityName == '50일 이상'
                               ? false
                               : true,
                           decoration: const InputDecoration(
@@ -374,6 +374,7 @@ class _GScoreApcState extends State<GScoreApc> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          readOnly: true,
                           decoration: const InputDecoration(
                             labelText: '승인 점수',
                             border: OutlineInputBorder(),
@@ -422,10 +423,10 @@ class _GScoreApcState extends State<GScoreApc> {
                     ],
                     onChanged: isEditable
                         ? (value) {
-                            setState(() {
-                              _applicationStatus = value ?? '';
-                            });
-                          }
+                      setState(() {
+                        _applicationStatus = value ?? '';
+                      });
+                    }
                         : null,
                   ),
                 ),
@@ -492,7 +493,7 @@ class _GScoreApcState extends State<GScoreApc> {
                           color: Colors.grey.withOpacity(0.5),
                         ),
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(4.0)),
+                        const BorderRadius.all(Radius.circular(4.0)),
                       ),
                       child: ListView.builder(
                         shrinkWrap: true,
