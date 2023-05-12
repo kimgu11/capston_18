@@ -6,59 +6,23 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 
 
-/*Future<void> _fetchMyPosts() async {
-  final storage = FlutterSecureStorage();
-  final token = await storage.read(key: 'token');
 
-  if (token == null) {
-    return;
-  }
-  final response = await http.get(
-    Uri.parse('http://3.39.88.187:3000/user'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': token,
-    },
-  );
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body) as List<dynamic>;
-    final allScore = data
-        .map((e) => e['graduation_score'] as int)
-        .reduce((value, element) => value + element);
-    print('All score: $allScore');
-  }
-}
-*/
+
+
+
 class MyScorePage extends StatefulWidget {
   @override
   State<MyScorePage> createState() => _MyScorePage();
 }
 
 class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
-  double percentage = 0.0;
-  double newPercentage = 0.0;
 
-  late AnimationController percentageAnimationController;
 
   @override
   void initState() {
-    super.initState();
+    //_getUserInfo();
+    //_getMaxScore();
 
-    percentageAnimationController =  AnimationController(
-        vsync: this,
-        duration: new Duration(milliseconds: 2000)
-    )
-      ..addListener((){
-        setState(() {
-          percentage=lerpDouble(percentage,newPercentage,percentageAnimationController.value)!;
-        });
-      });
-
-    setState(() {
-      percentage = newPercentage;
-      newPercentage=0.8;
-      percentageAnimationController.forward();
-    });
   }
 
   @override
@@ -110,34 +74,15 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                 ),
               ),
               SizedBox(height: 10,),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
                 children: [
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
+                  gScore_check(name: "인턴십", maxScore: 500),
                   SizedBox(width: 30),
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
+                  gScore_check(name: "자격증", maxScore: 500),
                   SizedBox(width: 30),
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
-                children: [
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
-                  SizedBox(width: 30),
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
-                  SizedBox(width: 30),
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
-                children: [
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
-                  SizedBox(width: 30),
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
-                  SizedBox(width: 30),
-                  gScore_check(percent: percentage, color: Color(0xffC1D3FF)),
+                  gScore_check(name: "취업 훈련", maxScore: 20),
                 ],
               ),
               SizedBox(height: 10,),
@@ -159,44 +104,99 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
   }
 }
 //floating border
-class gScore_check extends StatelessWidget {
-  const gScore_check({Key? key, required this.percent, required this.color})
+class gScore_check extends StatefulWidget {
+  const gScore_check({Key? key, required this.name, required this.maxScore})
       : super(key: key);
-  final percent;
-  final color;
+
+  final dynamic name;
+  final dynamic maxScore;
+
+  @override
+  _gScoreCheckState createState() => _gScoreCheckState();
+}
+
+class _gScoreCheckState extends State<gScore_check> {
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+  int? score;
+
+  Future<void> _getUserInfo() async {
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/user'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+
+      final allScoreTemp = user['graduation_score'];
+      final allScore = jsonDecode(allScoreTemp);
+      print(allScoreTemp);
+      print(allScore);
+      score = allScore[widget.name];
+
+
+      if (score! > widget.maxScore) {
+        score = widget.maxScore;
+      }
+
+
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserInfo();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return
-      Container(
-          padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-          height: 110,
-          width: 90,
-          decoration: BoxDecoration(
-            color: Colors.white,
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+      height: 110,
+      width: 90,
+      decoration: BoxDecoration(
+        color: Colors.white,
+      ),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Container(
+            child: Text(
+              widget.name,
+              style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
           ),
-          alignment: Alignment.center,
-          child:
-          Column(
-            children: [
-              Container(
-                child: Text(
-                    "항목명",
-                    style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center
-                ),
-              ),
-              SizedBox(height: 10),
-              Container(
-                color: Colors.white,
-                child: Text(
-                    "10/800",
-                    style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center
-                ),
-              )
-            ],
+          const SizedBox(height: 10),
+          Container(
+            color: Colors.white,
+            child: Text(
+              '${score ?? ''} / ${widget.maxScore}',
+              style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
           )
-      );
+        ],
+      ),
+    );
   }
 }
+

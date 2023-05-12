@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
     setState(() {
       percentage = newPercentage;
-      newPercentage=0.4;
+      newPercentage=0.77;
       percentageAnimationController.forward();
     });
   }

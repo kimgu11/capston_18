@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -262,6 +265,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   //파일이 저장값
   List<PlatformFile?> _attachmentFile = [];
+
+  String? _fileName;
 
   bool _isLoading = false;
 
@@ -630,38 +635,113 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
                 // 활동 종류에 대한 드롭다운형식의 콤보박스
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          width: 2.0,
-                          color: Colors.grey.withOpacity(0.5),
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
                         ),
-                        borderRadius:
-                        const BorderRadius.all(Radius.circular(4.0)),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _attachmentFile.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Dismissible(
-                            key: UniqueKey(),
-                            onDismissed: (direction) {
-                              setState(() {
-                                _attachmentFile.removeAt(index);
-                                _Filenames.removeWhere((key, value) => false);
-                              });
-                            },
-                            background: Container(color: Colors.red),
-                            child: ListTile(
-                              title: Text('$_Filenames'),
-                            ),
-                          );
+                      labelText: '첨부 파일',
+                      labelStyle: TextStyle(
+                        fontSize: 16.0,
+                      ),
+                      suffix: _attachmentFile.isNotEmpty
+                          ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _attachmentFile.clear();
+                          });
                         },
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.grey,
+                        ),
+                      )
+                          : null,
+                    ),
+                    readOnly: true,
+                    controller: TextEditingController(
+                        text: '${_attachmentFile.map((file) => file?.name).join(", ") ?? ""}'),
+                  ),
+                ),
+
+
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      labelText: '업로드된 파일',
+                      labelStyle: TextStyle(
+                        fontSize: 16.0,
+                      ),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_Filenames != null && _Filenames['file_name'] != null)
+                            IconButton(
+                              onPressed: () async {
+                                // 파일을 다운로드합니다.
+                                final directory = await getApplicationDocumentsDirectory();
+                                final filePath = '${directory.path}/${_Filenames['file_name']}';
+                                final response = await http.get(Uri.parse('API_URL'));
+                                final file = File(filePath);
+                                await file.writeAsBytes(response.bodyBytes);
+                                // 다운로드가 완료되면 해당 파일 경로를 출력합니다.
+                                print('File downloaded to $filePath');
+                              },
+                              icon: Icon(
+                                Icons.file_download,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          if (_Filenames != null && _Filenames['file_name'] != null)
+                            IconButton(
+                              onPressed: () async {
+                                // 파일을 삭제합니다.
+                                final directory = await getApplicationDocumentsDirectory();
+                                final filePath = '${directory.path}/${_Filenames['file_name']}';
+                                final file = File(filePath);
+                                await file.delete();
+                                setState(() {
+                                  _Filenames['file_name'] = null;
+                                });
+                              },
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.grey,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
+                    readOnly: true,
+                    controller: TextEditingController(text: _Filenames['file_name'] ?? ''),
+                    onTap: () async {
+                      // 파일 정보를 가져오는 API를 호출합니다.
+                      final response = await http.get(Uri.parse('API_URL'));
+                      if (response.statusCode == 200) {
+                        final data = jsonDecode(response.body);
+                        // 파일 이름과 URL을 가져옵니다.
+                        final fileName = data['file_name'];
+                        final fileUrl = data['file_url'];
+                        setState(() {
+                          _Filenames['file_name'] = fileName;
+                        });
+                      } else {
+                        print('Failed to get file info.');
+                      }
+                    },
                   ),
                 ),
 

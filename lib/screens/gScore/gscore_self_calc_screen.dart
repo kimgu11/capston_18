@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -77,6 +79,72 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     }
   }
 
+  Future<void> _getMaxScore() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://218.158.67.138:3000/gScore/maxScore'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final maxScoreTemp = jsonDecode(response.body);
+
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
+
+  void _addScore(){
+    if (_activityName == '참여 일수' || _activityName == 'TOPCIT' && _activityType != null) {
+      setState(() {
+        _save.add({
+          'Type': _activityType!,
+          'Name': _activityName!,
+          'score': _score
+        });
+        _total +=
+            _score ?? 0;
+        if (_remainingScore > 0) {
+          _remainingScore = 800 - _total;
+          if (_remainingScore < 0) {
+            _remainingScore = 0;
+          }
+        }
+        _activityType = null;
+        _activityName = null;
+
+      });
+    }
+    else if (_activityName != null && _activityType != null) {
+      setState(() {
+        _save.add({
+          'Type': _activityType!,
+          'Name': _activityName!,
+          'score': activityNames[_activityType]?[_activityName]
+        });
+        _total +=
+            activityNames[_activityType]?[_activityName] ?? 0;
+        if (_remainingScore > 0) {
+          _remainingScore = 800 - _total;
+          if (_remainingScore < 0) {
+            _remainingScore = 0;
+          }
+        }
+        _activityType = null;
+        _activityName = null;
+
+      });
+    }
+  }
 
 
   void _onActivityTypeChanged(String? newValue) {
@@ -221,46 +289,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                 color: const Color(0xffC1D3FF),
                 child: MaterialButton(
                   onPressed: () {
-                    if (_activityName == '참여 일수' || _activityName == 'TOPCIT' && _activityType != null) {
-                      setState(() {
-                        _save.add({
-                          'Type': _activityType!,
-                          'Name': _activityName!,
-                          'score': _score
-                        });
-                        _total +=
-                            _score ?? 0;
-                        if (_remainingScore > 0) {
-                          _remainingScore = 800 - _total;
-                          if (_remainingScore < 0) {
-                            _remainingScore = 0;
-                          }
-                        }
-                        _activityType = null;
-                        _activityName = null;
-
-                      });
-                    }
-                    else if (_activityName != null && _activityType != null) {
-                      setState(() {
-                        _save.add({
-                          'Type': _activityType!,
-                          'Name': _activityName!,
-                          'score': activityNames[_activityType]?[_activityName]
-                        });
-                        _total +=
-                            activityNames[_activityType]?[_activityName] ?? 0;
-                        if (_remainingScore > 0) {
-                          _remainingScore = 800 - _total;
-                          if (_remainingScore < 0) {
-                            _remainingScore = 0;
-                          }
-                        }
-                        _activityType = null;
-                        _activityName = null;
-
-                      });
-                    }
+                    _addScore();
                   },
                   child: const Text(
                     "추가하기",
