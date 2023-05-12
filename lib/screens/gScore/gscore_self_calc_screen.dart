@@ -26,11 +26,22 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   }
   String? _activityType;
 
+  String? _selectType;
+
   String? _activityName;
 
   int? _score;
 
   final List<Map<String, dynamic>> _save = [];
+
+  Map<String, dynamic> MaxScore = {"S/W 공모전":600,"상담 실적":150, "외국어 능력":500, "인턴쉽":300, "자격증":600,
+  "졸업작품 입상":100, "총점":1000, "취업 훈련":150, "취업/대학원 진학":850, "캡스톤 디자인":0,"학과 행사":150,"해외 연수":200};
+
+  Map<String?,int> eachMaxTotal = {"S/W 공모전":0,"상담 실적":0, "외국어 능력":0, "인턴쉽":0, "자격증":0,
+    "졸업작품 입상":0, "총점":0, "취업 훈련":0, "취업/대학원 진학":0, "캡스톤 디자인":0,"학과 행사":0,"해외 연수":0};
+
+  Map<String?,int> eachTotal = {"S/W 공모전":0,"상담 실적":0, "외국어 능력":0, "인턴쉽":0, "자격증":0,
+    "졸업작품 입상":0, "총점":0, "취업 훈련":0, "취업/대학원 진학":0, "캡스톤 디자인":0,"학과 행사":0,"해외 연수":0};
 
   int _total = 0;
 
@@ -43,8 +54,6 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     '해외 연수': {'참여 일수':0},
     '인턴쉽': {'참여 일수':0},
   };
-
-
 
   Future<void> _fetchPosts() async {
     final response = await http
@@ -79,6 +88,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     }
   }
 
+
   Future<void> _getMaxScore() async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
@@ -88,7 +98,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     }
 
     final response = await http.get(
-      Uri.parse('http://218.158.67.138:3000/gScore/maxScore'),
+      Uri.parse('http://192.168.219.170:3000/gScore/maxScore'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -97,10 +107,90 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
     if (response.statusCode == 200) {
       final maxScoreTemp = jsonDecode(response.body);
+      MaxScore = maxScoreTemp;
 
     } else {
       throw Exception('예외 발생');
     }
+  }
+
+
+  // Future<List<Map<String, dynamic>>> _getMaxScores() async {
+  //   final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
+  //
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body) as List<dynamic>;
+  //     List<Map<String, dynamic>> maxScores = [];
+  //     data.forEach((item) {
+  //       final maxCategory = item['max_category'] as String;
+  //       final maxScore = item['max_score'] as int;
+  //       maxScores.add({
+  //         maxCategory: maxScore,
+  //       });
+  //     });
+  //     return maxScores;
+  //   } else {
+  //     throw Exception('Failed to load max scores');
+  //   }
+  // }
+
+  // void setMaxscore() async {
+  //   List<Map<String, dynamic>> maxScores = await _getMaxScores(); // Retrieve maxScores using _getMaxScores function
+  //
+  //   int sum = 0;
+  //   for (final item in _save) {
+  //     if(item['Type'] == _selectType) {
+  //       sum += int.parse(item['score']);
+  //     }
+  //   }
+  //
+  //   if (maxScores.isNotEmpty) {
+  //     final maxScoreItem = maxScores.firstWhere((score) => score.containsKey(_activityType));
+  //     final maxScore = maxScoreItem[_activityType] as int;
+  //
+  //     if (maxScore != null && sum > maxScore) {
+  //       sum = maxScore;
+  //     }
+  //   }
+  //
+  //   _total += sum;
+  // }
+
+  // void setMaxscore() async{
+  //   List<Map<String, dynamic>> maxScores = await _getMaxScores();
+  //   int sum = 0;
+  //   for(final item in _save){
+  //     if(item['Type'] == _selectType){
+  //       sum += int.parse(item['score'].toString());
+  //     }
+  //   }
+  //   if (maxScores.isNotEmpty) {
+  //     final maxScoreItem = maxScores.firstWhere((score) => score.containsKey(_selectType));
+  //     final maxScore = maxScoreItem[_selectType] as int;
+  //     _setint = sum;
+  //
+  //     if (maxScore != null && sum > maxScore) {
+  //       sum = maxScore;
+  //     }
+  //   }
+  //   _total += sum;
+  // }
+  void setMaxscore() async{
+    int sum = 0;
+    _total = 0;
+    for(final item in _save){
+      if(item['Type'] == _selectType){
+        sum += int.parse(item['score'].toString());
+      }
+    }
+    eachTotal[_selectType] = sum;
+    if(MaxScore[_selectType] != null && sum >= MaxScore[_selectType]!){
+      sum = MaxScore[_selectType];
+    }
+    eachMaxTotal[_selectType] = sum;
+    eachMaxTotal.forEach((key, value) {
+      _total += value;
+    });
   }
 
   void _addScore(){
@@ -111,8 +201,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
           'Name': _activityName!,
           'score': _score
         });
-        _total +=
-            _score ?? 0;
+        setMaxscore();
         if (_remainingScore > 0) {
           _remainingScore = 800 - _total;
           if (_remainingScore < 0) {
@@ -131,8 +220,8 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
           'Name': _activityName!,
           'score': activityNames[_activityType]?[_activityName]
         });
-        _total +=
-            activityNames[_activityType]?[_activityName] ?? 0;
+        setMaxscore();
+
         if (_remainingScore > 0) {
           _remainingScore = 800 - _total;
           if (_remainingScore < 0) {
@@ -146,10 +235,18 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     }
   }
 
+  void printApp(){
+    print(_save);
+    print(eachTotal);
+    print(eachMaxTotal);
+  }
+
+
 
   void _onActivityTypeChanged(String? newValue) {
     setState(() {
       _activityType = newValue;
+      _selectType = _activityType;
       _activityName = null;
     });
   }
@@ -290,6 +387,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                 child: MaterialButton(
                   onPressed: () {
                     _addScore();
+                    printApp();
                   },
                   child: const Text(
                     "추가하기",
@@ -321,7 +419,17 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                       onDismissed: (direction) {
                         setState(() {
                           _save.removeAt(index);
-                          _total -= activity['score'] as int;
+                           print(activity['Type']);
+                          if (activity['score'] != null && eachTotal[activity['Type']] != null) {
+                            eachTotal[activity['Type']] = (eachTotal[activity['Type']] ?? 0) - activity['score'] as int;
+                          }
+                          if (eachTotal[activity['Type']] != null && eachMaxTotal[activity['Type']] != null && eachTotal[activity['Type']]! < eachMaxTotal[activity['Type']]!) {
+                            eachMaxTotal[activity['Type']] = eachTotal[activity['Type']]!;
+                          }
+                          _total = 0;
+                          eachMaxTotal.forEach((key, value) {
+                            _total += value;
+                          });
                           if (_remainingScore >= 0) {
                             _remainingScore = 800 - _total;
                             if (_remainingScore <= 0) {
