@@ -3,13 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:capstone/screens/gScore/gscore_list_screen.dart';
+//import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 
 import 'dart:io';
-import 'package:http_parser/http_parser.dart';
-
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
+//import 'package:http_parser/http_parser.dart';
+//import 'package:path_provider/path_provider.dart';
+//import 'package:open_file/open_file.dart';
 
 //신청창
 void main() {
@@ -62,7 +61,19 @@ class _GScoreApcState extends State<GScoreApc> {
     }
   }
 
-  void _writePost() async {
+
+  void _selectFile() async {
+    final FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        selectedFile = result.files.first;
+        fileCheck = 1;
+
+      });
+    }
+  }
+
+  void _writePostAndFile() async {
     if (_activityType == null || _activityName == null) {
       showDialog(
         context: context,
@@ -98,58 +109,67 @@ class _GScoreApcState extends State<GScoreApc> {
       return;
     }
 
-    // MultipartRequest 객체 생성
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('http://3.39.88.187:3000/gScore/write'),
+    final Map<String, dynamic> postData = {
+      'gspost_category': _activityType,
+      'gspost_item': _activityName,
+      'gspost_score': int.tryParse(_activityScore),
+      'gspost_content': _content,
+      'gspost_pass': _applicationStatus,
+      'gspost_reason': _rejectionReason,
+      'gspost_start_date': _startDate?.toIso8601String(),
+      'gspost_end_date': _endDate?.toIso8601String(),
+
+      'gspost_file': fileCheck,
+
+    };
+
+
+    final response = await http.post(
+      Uri.parse('http://218.158.67.138:3000/gScore/write'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+      body: jsonEncode(postData),
     );
 
-    // 헤더 설정
-    request.headers.addAll({
-      'Content-Type': 'multipart/form-data',
-      'Authorization': token,
-    });
+    print(response.statusCode);
 
-    // 폼 데이터 추가
-    request.fields['gspost_category'] = _activityType ?? '';
-    request.fields['gspost_item'] = _activityName ?? '';
-    request.fields['gspost_score'] = _activityScore;
-    request.fields['gspost_content'] = _content ?? '';
-    request.fields['gspost_pass'] = _applicationStatus;
-    request.fields['gspost_reason'] = _rejectionReason ?? '';
-    request.fields['gspost_start_date'] = _startDate?.toIso8601String() ?? '';
-    request.fields['gspost_end_date'] = _endDate?.toIso8601String() ?? '';
+    if (response.statusCode == 201 && fileCheck == 1) {
+      var jsonResponse = jsonDecode(response.body);
+      int post_id = jsonResponse['postId'];
 
-    // 첨부 파일이 있는 경우, 파일 추가
+      if(selectedFile == null){Navigator.pop(context);}
 
-    if (_files != null) {
-      for (final file in _files!.files) {
-        if (file.path != null) { // 추가된 null 검사
-          // 파일을 MultipartFile로 변환
-          final multipartFile = await http.MultipartFile.fromPath(
-            'gs_file', // 서버에서 요청을 처리하는 데 사용되는 필드 이름
-            file.path!, // Use the null assertion operator (!)
-            filename: file.name,
-          );
+      else if(selectedFile!=null){
+        final String fileName = selectedFile!.name;
+        final bytes = File(selectedFile!.path!).readAsBytesSync();
 
-          // MultipartRequest 객체에 파일 추가
-          request.files.add(multipartFile);
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse('http://218.158.67.138:3000/gScore/upload'),
+        );
+
+
+        request.files.add(
+          http.MultipartFile.fromBytes('file', bytes, filename: fileName),
+        );
+
+        request.fields['gspostid'] = post_id.toString();
+
+        final response = await request.send();
+
+        if (response.statusCode == 201) {
+          print("파일 등록 성공");
+          Navigator.pop(context);
+          //_writePostAndFile;
+        } else {
+          print("파일 등록 실패");
         }
+
       }
-    }
 
-    // 요청 전송
-    var response = await request.send();
 
-    if (response.statusCode == 201) {
-      // Success
-      Navigator.pop(context);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => GScoreForm(),
-        ),
-      );
     }
   }
 
@@ -184,12 +204,9 @@ class _GScoreApcState extends State<GScoreApc> {
   String? _rejectionReason;
 
   //파일이 저장값
-  List<PlatformFile?> _attachmentFile = [];
+  PlatformFile? selectedFile;
 
-  FilePickerResult? _files;
-
-  //파일명
-  final Map<String?, String?> _Filenames = {};
+  int fileCheck = 0;
 
   //활동종류 리스트
   List<String> activityTypes = [];
@@ -484,16 +501,8 @@ class _GScoreApcState extends State<GScoreApc> {
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
                     color: const Color(0xffC1D3FF),
                     child: MaterialButton(
-                      onPressed: () async {
-                        final result = await FilePicker.platform.pickFiles();
-                        if (result != null) {
-                          setState(() {
-                            _attachmentFile.add(result.files.single);
-                            _Filenames.addAll(
-                                {'파일명': result.files.single.name});
-                            _files = result;
-                          });
-                        }
+                      onPressed: () {
+                        _selectFile(); // 파일 선택 수행
                       },
                       child: const Text(
                         "첨부파일 업로드",
@@ -509,46 +518,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
                 const SizedBox(height: 16),
 
-/*
-                // 활동 종류에 대한 드롭다운형식의 콤보박스
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          width: 2.0,
-                          color: Colors.grey.withOpacity(0.5),
-                        ),
-                        borderRadius:
-                        const BorderRadius.all(Radius.circular(4.0)),
-                      ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _attachmentFile.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Dismissible(
-                            key: UniqueKey(),
-                            onDismissed: (direction) {
-                              setState(() {
-                                _attachmentFile.removeAt(index);
-                                _Filenames.removeWhere((key, value) => false);
-                                _files = null;
-                              });
-                            },
-                            background: Container(color: Colors.red),
-                            child: ListTile(
-                              title: Text('$_Filenames'),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
 
- */
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -565,11 +535,12 @@ class _GScoreApcState extends State<GScoreApc> {
                       labelStyle: TextStyle(
                         fontSize: 16.0,
                       ),
-                      suffix: _files != null && _files?.names != null
+                      suffix: selectedFile != null
                           ? IconButton(
                         onPressed: () {
                           setState(() {
-                            _files = null;
+                            selectedFile = null;
+                            fileCheck = 0;
                           });
                           // 버튼이 눌렸을 때 수행할 동작
                         },
@@ -581,7 +552,7 @@ class _GScoreApcState extends State<GScoreApc> {
                           : null,
                     ),
                     readOnly: true,
-                    controller: TextEditingController(text: '${_files?.names ?? ''}'),
+                    controller: TextEditingController(text: '${selectedFile?.name ?? ''}',),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -595,7 +566,7 @@ class _GScoreApcState extends State<GScoreApc> {
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
                     color: const Color(0xffC1D3FF),
                     child: MaterialButton(
-                      onPressed: _writePost,
+                      onPressed: _writePostAndFile,
                       child: const Text(
                         "신청하기",
                         style: TextStyle(
