@@ -8,6 +8,9 @@ import 'package:capstone/screens/login/profile.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'dart:ui';
 import 'dart:math';
 
@@ -29,6 +32,7 @@ class MyApp extends StatelessWidget {
 }
 
 
+
 class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -36,8 +40,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
+  final FlutterSecureStorage storage = FlutterSecureStorage();
   double percentage = 0.0;
   double newPercentage = 0.0;
+  int sumScore = 0;
+  double chartScore = 0;
+  int i =0;
 
   late AnimationController percentageAnimationController;
 
@@ -50,9 +58,72 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           (Route<dynamic> route) => false,
     );
   }
+
+  Future<List<Map<String, dynamic>>> _getMaxScores() async {
+    final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List<dynamic>;
+      List<Map<String, dynamic>> maxScores = [];
+      data.forEach((item) {
+        final maxCategory = item['max_category'] as String;
+        final maxScore = item['max_score'] as int;
+        maxScores.add({
+          maxCategory: maxScore,
+        });
+      });
+      return maxScores;
+    } else {
+      throw Exception('Failed to load max scores');
+    }
+  }
+
+  Future<void> _getUserInfo() async {
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      return;
+    }
+
+    final maxScores = await _getMaxScores();
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/user'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+      final allScoreTemp = user['graduation_score'];
+      final allScore = jsonDecode(allScoreTemp);
+
+      allScore.forEach((key, value) {
+        if (maxScores.any((score) => score.containsKey(key))) {
+          final maxScore = maxScores.firstWhere((score) => score.containsKey(key))[key] as int;
+          if (value > maxScore) {
+            allScore[key] = maxScore;
+          }
+        }
+      });
+      allScore.forEach((key, value){
+        sumScore += value as int;
+      });
+      chartScore = (sumScore / 1000) as double;
+    }
+    setState(() {
+      sumScore;
+    });
+    percentage = newPercentage;
+    newPercentage= chartScore;
+    percentageAnimationController.forward();
+  }
+
   @override
   void initState() {
     super.initState();
+    _getUserInfo();
 
     percentageAnimationController =  AnimationController(
         vsync: this,
@@ -63,12 +134,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           percentage=lerpDouble(percentage,newPercentage,percentageAnimationController.value)!;
         });
       });
-
-    setState(() {
-      percentage = newPercentage;
-      newPercentage=0.77;
-      percentageAnimationController.forward();
-    });
   }
 
   @override
