@@ -125,7 +125,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
 
     final response = await http.post(
-      Uri.parse('http://218.158.67.138:3000/gScore/write'),
+      Uri.parse('http://3.39.88.187:3000/gScore/write'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -147,7 +147,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse('http://218.158.67.138:3000/gScore/upload'),
+          Uri.parse('http://3.39.88.187:3000/gScore/upload'),
         );
 
 
@@ -164,6 +164,7 @@ class _GScoreApcState extends State<GScoreApc> {
           Navigator.pop(context);
           //_writePostAndFile;
         } else {
+          print(response.statusCode);
           print("파일 등록 실패");
         }
 

@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 
-
-
+import 'package:capstone/screens/gScore/gscore_list_screen.dart';
+import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 
 
 
@@ -22,7 +22,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
   int i =0;
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
-    final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
@@ -96,6 +96,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
     _getMaxScores();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -117,79 +118,127 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
           backgroundColor: Color(0xffC1D3FF),
         ),
         body: Center(
-          child:
-          Container(
-            padding: EdgeInsets.all(16),
-            constraints: BoxConstraints(maxWidth: 370, maxHeight: 550),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.0),
-              color: Colors.white,
-              border: Border.all(
-                width: 2,
-                color: Colors.black.withOpacity(1),
-              ),
-            ),
-            child: Column(children: [
-              Text(
-                "총점수",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height * 0.013,
+                  right: MediaQuery.of(context).size.width * 0.035,
+                  bottom: MediaQuery.of(context).size.height * 0.01,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SelfCalcScreen()),
+                        );
+                      },
+                      child: Text(
+                        '셀프 계산기',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        backgroundColor: Color(0xffC1D3FF),
+                      ),
+                    ),
+                    SizedBox(width: 10), // Add a space between the two buttons
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => GScoreForm()),
+                        );
+                      },
+                      child: Text(
+                        '신청 목록',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        backgroundColor: Color(0xffC1D3FF),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 10,),
-              Text(
-                "${sumScore} / 1000",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              Container(
+                padding: EdgeInsets.all(16),
+                constraints: BoxConstraints(maxWidth: 370, maxHeight: 550),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  color: Colors.white,
+                  border: Border.all(
+                    width: 2,
+                    color: Colors.black.withOpacity(1),
+                  ),
                 ),
-              ),
-              SizedBox(height: 10,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
-                children: [
-                  gScore_check(name: "자격증", maxScore: 600),
-                  SizedBox(width: 5),
-                  gScore_check(name: "외국어 능력", maxScore: 500),
-                  SizedBox(width: 5),
-                  gScore_check(name: "상담 실적", maxScore: 150),
-                ],
-              ),
-              SizedBox(height: 10,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
-                children: [
-                  gScore_check(name: "학과 행사", maxScore: 150),
-                  SizedBox(width: 5),
-                  gScore_check(name: "취업 훈련", maxScore: 150),
-                  SizedBox(width: 5),
-                  gScore_check(name: "해외 연수", maxScore: 200),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
-                children: [
-                  gScore_check(name: "졸업작품 입상", maxScore: 100),
-                  SizedBox(width: 5),
-                  gScore_check(name: "인턴십", maxScore: 300),
-                  SizedBox(width: 5),
-                  gScore_check(name: "S/W 공모전", maxScore: 600),
+                child: Column(children: [
+                  Text(
+                    "총점수",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  Text(
+                    "${sumScore} / 1000",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                    children: [
+                      gScore_check(name: "자격증", maxScore: 600),
+                      SizedBox(width: 5),
+                      gScore_check(name: "외국어 능력", maxScore: 500),
+                      SizedBox(width: 5),
+                      gScore_check(name: "상담 실적", maxScore: 150),
+                    ],
+                  ),
+                  SizedBox(height: 10,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                    children: [
+                      gScore_check(name: "학과 행사", maxScore: 150),
+                      SizedBox(width: 5),
+                      gScore_check(name: "취업 훈련", maxScore: 150),
+                      SizedBox(width: 5),
+                      gScore_check(name: "해외 연수", maxScore: 200),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                    children: [
+                      gScore_check(name: "졸업작품 입상", maxScore: 100),
+                      SizedBox(width: 5),
+                      gScore_check(name: "인턴십", maxScore: 300),
+                      SizedBox(width: 5),
+                      gScore_check(name: "S/W 공모전", maxScore: 600),
 
+                    ],
+                  ),
+                  Text(
+                    "${leftScore}",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
                 ],
-              ),
-              Text(
-                "${leftScore}",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
                 ),
               ),
             ],
-            ),
           ),
         ),
       ),

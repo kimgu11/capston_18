@@ -91,6 +91,14 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       if (widget.post['gspost_reason'] != null) {
         _rejectionReason = widget.post['gspost_reason'].toString();
       }
+
+      print(widget.post['gspost_file']);
+      if(widget.post['gspost_file'] == 1){
+        _getFileInfo();
+
+
+
+      }
     });
   }
 
@@ -118,6 +126,29 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       setState(() {
         userId;
         userPermission;
+      });
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
+
+  Future<void> _getFileInfo() async {
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/fileInfo?postId=${widget.post['gspost_id']}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      fileData = jsonDecode(response.body);
+      print(fileData);
+      fileName = fileData['file_original_name'];
+      print(fileName);
+      filePath = fileData['file_path'];
+      print(filePath);
+      setState(() {
+
       });
     } else {
       throw Exception('예외 발생');
@@ -266,11 +297,20 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   //파일이 저장값
   List<PlatformFile?> _attachmentFile = [];
 
-  String? _fileName;
 
   bool _isLoading = false;
 
-  //파일명
+
+  //파일관련
+  dynamic? fileData; //db에서 가져온 파일정보 json
+  String? filePath;
+  String? fileName;
+  int isOriginFile = 0; //기존 업로드된 파일이 있었는가?
+  int delOriginFile = 0; //기존 업로드된 파일을 지웠는가?
+  int isNewFile = 0; // 새로 업로드한 파일이 있는가?
+
+
+
   final Map<String?, String?> _Filenames = {};
 
   List<String> activityTypes = []; //활동 종류(카테고리)
@@ -688,7 +728,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       suffixIcon: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (_Filenames != null && _Filenames['file_name'] != null)
+                          if (fileName != null)
                             IconButton(
                               onPressed: () async {
                                 // 파일을 다운로드합니다.
@@ -705,16 +745,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                                 color: Colors.grey,
                               ),
                             ),
-                          if (_Filenames != null && _Filenames['file_name'] != null)
+                          if (fileName!=null)
                             IconButton(
                               onPressed: () async {
-                                // 파일을 삭제합니다.
-                                final directory = await getApplicationDocumentsDirectory();
-                                final filePath = '${directory.path}/${_Filenames['file_name']}';
-                                final file = File(filePath);
-                                await file.delete();
                                 setState(() {
-                                  _Filenames['file_name'] = null;
+                                  fileName = null;
+
                                 });
                               },
                               icon: Icon(
@@ -726,7 +762,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       ),
                     ),
                     readOnly: true,
-                    controller: TextEditingController(text: _Filenames['file_name'] ?? ''),
+                    controller: TextEditingController(text: fileName ?? ''),
                     onTap: () async {
                       // 파일 정보를 가져오는 API를 호출합니다.
                       final response = await http.get(Uri.parse('API_URL'));

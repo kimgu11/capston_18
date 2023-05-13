@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   }
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
-    final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
@@ -269,7 +269,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
               ),
               SizedBox(height: 20.0),
               PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
-        ],
+            ],
           ),
         ),
       ),
