@@ -8,7 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 //신청글 목록 창
 final client = HttpClient();
-String dropdownValue = '전체';
+String postFilter = '전체';
 String searchText = '';
 int userId = 0;
 int userPermission = 0;
@@ -236,18 +236,17 @@ class _GScoreForm extends State<GScoreForm> {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Container(
-            color: Color(0xffC1D3FF),
-            child: Text(
+          title: Text(
               '  졸업인증점수 신청/관리  ',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
               ),
-            ),
           ),
+          backgroundColor: Color(0xffC1D3FF),
           centerTitle: true,
+          elevation: 0.0,
         ),
         body:ListView(children: [
           Container(height: MediaQuery.of(context).size.height * 0.01),
@@ -286,38 +285,59 @@ class _GScoreForm extends State<GScoreForm> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Container(width: 10,),
-              DropdownButton<String>(
-                value: dropdownValue,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: <String>['전체', '승인', '미승인']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              SizedBox(width: 6,),
-              Expanded(
-                flex: 1,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => GScoreForm()),
-                    );
-                  },
-                  icon: Icon(Icons.refresh),
-                  color: Colors.grey,
-                  iconSize: 22.0,
+              Container(
+                width: 120,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
+                padding: const EdgeInsets.fromLTRB(10.0, 6.0, 4.0, 6.0),
+                child: Row(children: [
+                  DropdownButton<String>(
+                    value: postFilter,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        postFilter = newValue!;
+                      });
+                    },
+                    items: <String>['전체', '승인', '미승인']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    icon: Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.black,
+                    ),
+                    underline: Container(), // 드롭다운 버튼 하단의 선 제거
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => GScoreForm()),
+                        );
+                      },
+                      icon: Icon(Icons.refresh),
+                      color: Colors.grey,
+                      iconSize: 22.0,
+                    ),
+                  ),
+                ],)
               ),
-                    SizedBox(width: 10,),
+                    SizedBox(width: 12,),
               Expanded(
                 flex: 7,
                 child: Visibility(

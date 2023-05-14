@@ -32,8 +32,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   String? _selectedActivityType;
 
-  int userId = 0;
-  int userPermission = 0;
+  int? userId;
+  int? userPermission;
+  String? userName;
+  int? postUserId;
+  String? postUserName;
 
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
@@ -94,7 +97,26 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     _fetchGsInfo();
     _fetchContent();
     _getUserInfo();
+  }
 
+  Future<void> _getWriterInfo() async {
+
+    final response = await http.get(
+        Uri.parse('http://192.168.35.134:3000/gScore/writer?student_id=${widget.post['gsuser_id']}'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+        );
+
+        if (response.statusCode == 200) {
+      final writer = jsonDecode(response.body);
+
+      setState(() {
+        postUserName = writer['name'];
+      });
+    } else {
+    throw Exception('예외 발생');
+    }
   }
 
   Future<void> _fetchGsInfo() async {
@@ -133,6 +155,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
       _activityName = widget.post['gspost_item'];
 
+      postUserId = widget.post['gsuser_id'];
+
       if (widget.post['gspost_start_date'] != null) {
         _startDate = DateTime.parse(widget.post['gspost_start_date']);
       }
@@ -156,13 +180,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       }
 
       wasUploadedFile = widget.post['gspost_file'];
-
+      _getWriterInfo();
       if(wasUploadedFile == 1){
         _getFileInfo();
-
       }
     });
   }
+
 
   Future<void> _getUserInfo() async {
     final storage = FlutterSecureStorage();
@@ -183,10 +207,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       final user = jsonDecode(response.body);
       userId = user['student_id'];
       userPermission = user['permission'];
+      userName = user['name'];
 
       setState(() {
         userId;
         userPermission;
+        userName;
       });
     } else {
       throw Exception('예외 발생');
@@ -311,7 +337,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
       if (response.statusCode == 201) {
         print("파일 등록 성공");
-        Navigator.pop(context);
 
       } else {
         print(response.statusCode);
@@ -340,116 +365,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     }
 
   }
-
-
-  /*void _updatePost() async {
-    if (_activityType == null || _activityName == null) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('알림'),
-            content: Text('활동 종류와 활동명은 필수 선택 항목입니다.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // 경고창 닫기
-                },
-                child: Text('확인'),
-              ),
-            ],
-          );
-        },
-      );
-      return; // 함수 종료
-    }
-
-    setState(() => _isLoading = true);
-
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    if (token == null) {
-      setState(() {
-        _isLoading = false;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
-      });
-      return;
-    }
-
-    final Map<String, dynamic> postData = {
-      'gspost_category': _activityType,
-      'gspost_item': _activityName,
-      'gspost_score': int.tryParse(_activityScore),
-      'gspost_content': _content,
-      'gspost_pass': _applicationStatus,
-      'gspost_reason': _rejectionReason,
-      'gspost_start_date': _startDate?.toIso8601String(),
-      'gspost_end_date': _endDate?.toIso8601String(),
-
-      'gspost_file': null, //
-    };
-
-    final response = await http.put(
-      Uri.parse('http://3.39.88.187:3000/gScore/update/${widget.post.id}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
-      },
-      body: jsonEncode(postData),
-    );
-
-    print(response.statusCode);
-
-    if (response.statusCode == 201) {
-      setState(() => _isLoading = false);
-      Navigator.pop(context);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (BuildContext context) => GScoreForm()),
-      );
-    } else {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${response.reasonPhrase}')),
-      );
-    }
-  }
-
-  void _deletePost() async {
-    setState(() => _isLoading = true);
-
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    if (token == null) {
-      setState(() {
-        _isLoading = false;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
-      });
-      return;
-    }
-
-    final response = await http.delete(
-      Uri.parse('http://3.39.88.187:3000/gScore/delete/${widget.post.id}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
-      },
-    );
-
-    if (response.statusCode == 201) {
-      Navigator.pop(context);
-      Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (BuildContext context) => GScoreForm()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${response.reasonPhrase}')),
-      );
-    }
-  }*/
 
 
   //활동종류 드롭박스 눌렀을시 활동명을 초기화 해줘야 충돌이 안남
@@ -526,46 +441,44 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
               children: <Widget>[
                 Row(
                   children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          readOnly: _activityName == 'TOPCIT' ||
-                              _activityName == '50일 이상'
-                              ? false
-                              : true,
-                          decoration: const InputDecoration(
-                            labelText: '점수',
-                            border: OutlineInputBorder(),
-                          ),
-                          onChanged: _subscore_function,
-                          controller: TextEditingController(
-                              text: _activityName == 'TOPCIT' && _subscore != null ? _subscore.toString()
-                                  : _activityName == '50일 이상' && _subscore != null ? _subscore.toString()
-                                  : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                    if (userPermission == 2)
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('학번: $postUserId'),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          readOnly: userPermission != 2,
-                          decoration: const InputDecoration(
-                            labelText: '승인 점수',
-                            border: OutlineInputBorder(),
+                    if (userPermission == 2)
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('이름: $postUserName'),
+                            ),
                           ),
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            setState(() {
-                              _mainscore = int.tryParse(value);
-                              _activityScore = _mainscore.toString();
-                            });
-                          },
                         ),
                       ),
-                    ),
                   ],
                 ),
                 Padding(
