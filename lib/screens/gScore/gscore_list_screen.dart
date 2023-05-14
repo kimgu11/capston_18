@@ -8,10 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 //신청글 목록 창
 final client = HttpClient();
-String postFilter = '전체';
-String searchText = '';
-int userId = 0;
-int userPermission = 0;
+
 
 
 void main() {
@@ -29,7 +26,17 @@ class GScoreForm extends StatefulWidget {
 
 class _GScoreForm extends State<GScoreForm> {
 
+  String postFilter = '전체';
+  String searchText = '';
+  int userId = 0;
+  int userPermission = 0;
+
   late Future<dynamic> _posts =  Future(() => null);
+
+  List<dynamic> allPosts = [];
+  List<dynamic> filteredPosts = [];
+
+
 
   @override
   void initState() {
@@ -99,8 +106,13 @@ class _GScoreForm extends State<GScoreForm> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       _posts = Future.value(data);
+      allPosts = await _posts;
+      filteredPosts = allPosts;
+
       setState(() {
         _posts;
+        allPosts;
+        filteredPosts;
       });
     } else if(response.statusCode == 401){
       throw Exception('로그인 정보 만료됨');
@@ -109,6 +121,33 @@ class _GScoreForm extends State<GScoreForm> {
       throw Exception('서버 에러');
     }
   }
+
+  void _filterStatus(String value){
+    if(value == '전체'){
+      filteredPosts = allPosts;
+    }else if(value == '승인'){
+      filteredPosts = allPosts.where((post) => post['gspost_pass'] == '승인').toList();
+    }else if(value == '미승인'){
+      filteredPosts = allPosts.where((post) => post['gspost_pass'] != '승인').toList();
+    }
+    setState(() {
+      filteredPosts;
+    });
+  }
+
+  void _filterWriter(String value) async {
+
+    allPosts = await _posts;
+    allPosts = allPosts.where((post) => post['gsuser_id'].toString() == value).toList();
+    filteredPosts = allPosts;
+    postFilter = '전체';
+
+    setState(() {
+      filteredPosts;
+      postFilter;
+    });
+  }
+
 
   Future<void> _getUserInfo() async {
     final storage = FlutterSecureStorage();
@@ -299,8 +338,10 @@ class _GScoreForm extends State<GScoreForm> {
                   DropdownButton<String>(
                     value: postFilter,
                     onChanged: (String? newValue) {
+                      _filterStatus(newValue ?? '');
                       setState(() {
-                        postFilter = newValue!;
+                        postFilter = newValue ?? '' ;
+
                       });
                     },
                     items: <String>['전체', '승인', '미승인']
@@ -357,7 +398,7 @@ class _GScoreForm extends State<GScoreForm> {
                         suffixIcon: IconButton(
                           onPressed: () {
                             // 검색 버튼 동작
-                            // TODO: 검색 버튼 동작 구현
+                            _filterWriter(searchText);
                           },
                           icon: Icon(Icons.search),
                         ),
@@ -467,9 +508,9 @@ class _GScoreForm extends State<GScoreForm> {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(10.0), // 상하좌우 10.0씩 padding 적용
+                    padding: EdgeInsets.all(10.0),
                     child: FutureBuilder<dynamic>(
-                      future: _posts,
+                      future: Future.value(filteredPosts),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           final posts = snapshot.data!;
