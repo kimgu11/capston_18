@@ -34,14 +34,14 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   final List<Map<String, dynamic>> _save = [];
 
-  Map<String, dynamic> MaxScore = {"S/W 공모전":600,"상담 실적":150, "외국어 능력":500, "인턴쉽":300, "자격증":600,
-  "졸업작품 입상":100, "총점":1000, "취업 훈련":150, "취업/대학원 진학":850, "캡스톤 디자인":0,"학과 행사":150,"해외 연수":200};
+  Map<String, dynamic> MaxScore = {"S/W공모전":600,"상담실적":150, "외국어능력":500, "인턴십":300, "자격증":600,
+  "졸업작품입상":100, "총점":1000, "취업훈련":150, "취업/대학원진학":850, "캡스톤디자인":0,"학과행사":150,"해외연수":200};
 
-  Map<String?,int> eachMaxTotal = {"S/W 공모전":0,"상담 실적":0, "외국어 능력":0, "인턴쉽":0, "자격증":0,
-    "졸업작품 입상":0, "총점":0, "취업 훈련":0, "취업/대학원 진학":0, "캡스톤 디자인":0,"학과 행사":0,"해외 연수":0};
+  Map<String?,int> eachMaxTotal = {"S/W공모전":0,"상담실적":0, "외국어능력":0, "인턴쉽":0, "자격증":0,
+    "졸업작품입상":0, "총점":0, "취업훈련":0, "취업/대학원진학":0, "캡스톤디자인":0,"학과행사":0,"해외연수":0};
 
-  Map<String?,int> eachTotal = {"S/W 공모전":0,"상담 실적":0, "외국어 능력":0, "인턴쉽":0, "자격증":0,
-    "졸업작품 입상":0, "총점":0, "취업 훈련":0, "취업/대학원 진학":0, "캡스톤 디자인":0,"학과 행사":0,"해외 연수":0};
+  Map<String?,int> eachTotal = {"S/W공모전":0,"상담실적":0, "외국어능력":0, "인턴쉽":0, "자격증":0,
+    "졸업작품입상":0, "총점":0, "취업훈련":0, "취업/대학원진학":0, "캡스톤디자인":0,"학과행사":0,"해외연수":0};
 
   int _total = 0;
 
@@ -50,9 +50,9 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   List<String> activityTypes = [];
 
   Map<String, Map<String,int>> activityNames = {
-    '상담 실적': {'1':10,'2':20,'3':30,'4':40,'5':50,'6':60,'7':70,'8':80,'9':90,'10':100,'11':110,'12':120,'13':130,'14':140,'15':150},
-    '해외 연수': {'참여 일수':0},
-    '인턴쉽': {'참여 일수':0},
+    '상담실적': {'1':10,'2':20,'3':30,'4':40,'5':50,'6':60,'7':70,'8':80,'9':90,'10':100,'11':110,'12':120,'13':130,'14':140,'15':150},
+    '해외연수': {'참여 일수':0},
+    '인턴십': {'참여 일수':0},
   };
 
   Future<void> _fetchPosts() async {
@@ -65,7 +65,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
         String gsinfoType = item['gsinfo_type'];
         if (!activityTypes.contains(gsinfoType)) {
           activityTypes.add(gsinfoType);
-          if(!['상담 실적', '해외 연수', '인턴쉽'].contains(gsinfoType)){
+          if(!['상담실적', '해외연수', '인턴십'].contains(gsinfoType)){
             activityNames[gsinfoType] = {};
           }
 
@@ -78,7 +78,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
         String gsinfoName = item['gsinfo_name'];
         int gsinfoScore = item['gsinfo_score'];
 
-        if (!['상담 실적', '해외 연수', '인턴쉽'].contains(gsinfoType) &&activityNames.containsKey(gsinfoType)) {
+        if (!['상담실적', '해외연수', '인턴십'].contains(gsinfoType) &&activityNames.containsKey(gsinfoType)) {
           activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
         }
 
@@ -329,14 +329,14 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                 if (value.isNotEmpty && int.parse(value)>0) {
                   int tempScore = int.parse(value);
 
-                  if(_activityType == '인턴쉽' || _activityType == '해외 연수'){
+                  if(_activityType == '인턴십' || _activityType == '해외연수'){
                     if(tempScore<30){ tempScore = 0;}
                     else if(tempScore>=30 && tempScore<40){ tempScore = 25;}
                     else if(tempScore>=40 && tempScore<50){ tempScore = 40;}
                   }
                   if(_activityName == 'TOPCIT' && tempScore>1000){ tempScore = 1000;}
-                  if(_activityType == '인턴쉽' && tempScore>150){ tempScore = 150;}
-                  if(_activityType == '해외 연수' && tempScore>100){ tempScore = 100;}
+                  if(_activityType == '인턴십' && tempScore>150){ tempScore = 150;}
+                  if(_activityType == '해외연수' && tempScore>100){ tempScore = 100;}
 
                   _score = tempScore * 2;
                 }
