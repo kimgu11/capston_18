@@ -5,8 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-
-
+import 'package:intl/intl.dart';
 
 
 
@@ -54,12 +53,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   String _activityScore = '';
 
   // 점수를 입력할 수 있는 박스에서 입력된 값
-  int? _mainscore;
+  int? _acceptedScore;
   int? _subscore;
-
+  int? wasUploadedacceptedScore;
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _applicationStatus;
-
+  String? wasUploadedpass;
   String? _content;
 
   // 반려 사유를 입력할 수 있는 텍스트 입력박스에서 입력된 값
@@ -89,7 +88,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _scoreController = TextEditingController();
+  late Future<dynamic> _posts =  Future(() => null);
 
+  List<dynamic> allPosts = [];
+  List<dynamic> filteredPosts = [];
 
   @override
   void initState() {
@@ -98,24 +100,56 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     _fetchContent();
     _getUserInfo();
   }
+  Future<void> _fetchMyPosts() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
 
+    if(token == null){
+      return ;
+    }
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/posts'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      _posts = Future.value(data);
+      allPosts = await _posts;
+      filteredPosts = allPosts;
+
+      setState(() {
+        _posts;
+        allPosts;
+        filteredPosts;
+      });
+    } else if(response.statusCode == 401){
+      throw Exception('로그인 정보 만료됨');
+    }
+    else if(response.statusCode == 500){
+      throw Exception('서버 에러');
+    }
+  }
   Future<void> _getWriterInfo() async {
 
     final response = await http.get(
-        Uri.parse('http://192.168.35.134:3000/gScore/writer?student_id=${widget.post['gsuser_id']}'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-        );
+      Uri.parse('http://192.168.0.100:3000/gScore/writer?student_id=${widget.post['gsuser_id']}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
 
-        if (response.statusCode == 200) {
+    if (response.statusCode == 200) {
       final writer = jsonDecode(response.body);
 
       setState(() {
         postUserName = writer['name'];
       });
     } else {
-    throw Exception('예외 발생');
+      throw Exception('예외 발생');
     }
   }
 
@@ -365,8 +399,91 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     }
 
   }
+  void updatePost() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      setState(() {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
+      });
+      return;
+    }
+    if(_activityName == 'TOPCIT' || _activityName == '50일 이상'){
+      print(_acceptedScore);
+    }
+    else{
+      _acceptedScore = int.tryParse(_activityScore);
+    }
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final Map<String, dynamic> postData = {
+      'postId': widget.post['gspost_id'],
+      'gs_user': widget.post['gsuser_id'],
+      'gspost_category': _activityType,
+      'gspost_item': _activityName,
+      'gspost_content': _content,
+      'prev_gspost_pass': widget.post['gspost_pass'],
+      'gspost_pass': _applicationStatus,
+      'gspost_reason': _rejectionReason,
+      'gspost_start_date': _startDate != null ? formatter.format(_startDate!) : null,
+      'gspost_end_date': _endDate != null ? formatter.format(_endDate!) : null,
+      'gspost_file': fileCheck,
+      'prev_acceptedScore': widget.post['gspost_accepted_score'],
+      'acceptedScore': _acceptedScore,
+    };
+    final response = await http.post(
+      Uri.parse('http://192.168.0.100:3000/gScore/update'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+      body: jsonEncode(postData),
+    );
 
+    if (response.statusCode == 200) {
+      print("게시글 업데이트 성공");
+      print(postData);
+      Navigator.pop(context);
+    } else {
+      print(response.statusCode);
+      print(postData);
+      print("게시글 업데이트 실패");
+    }
+    await _fetchMyPosts();
+  }
+  void deletePost() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      setState(() {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
+      });
+      return;
+    }
 
+    final postData = {
+      'postId': widget.post['gspost_id'],
+    };
+
+    final response = await http.delete(
+      Uri.parse('http://192.168.0.100:3000/gScore/deletePost'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+      body: jsonEncode(postData),
+    );
+
+    if (response.statusCode == 200) {
+      print("게시글 삭제 성공");
+      print(postData);
+      Navigator.pop(context);
+    } else {
+      print(response.statusCode);
+      print( widget.post['gspost_id']);
+      print("게시글 삭제 실패");
+    }
+    await _fetchMyPosts();
+  }
   //활동종류 드롭박스 눌렀을시 활동명을 초기화 해줘야 충돌이 안남
   void _onActivityTypeChanged(String? newValue) {
     setState(() {
@@ -393,6 +510,39 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     });
   }
 
+  void deletePostConfirmation() async {
+    final result = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("게시물 삭제"),
+          content: Text("진짜 삭제하시겠습니까?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // "Yes" 버튼 클릭 시 true 반환
+              },
+              child: Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // "No" 버튼 클릭 시 false 반환
+              },
+              child: Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
+      deletePost(); // 게시물 삭제 함수 호출
+      if (wasUploadedFile == 1) {
+        deleteFile(); // 파일 삭제 함수 호출
+      }
+      Navigator.pop(context);
+    }
+  }
   void _subscore_function(String value){
     if (value.isNotEmpty &&
         _activityName == 'TOPCIT' ||
@@ -410,7 +560,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
           (_subscore ?? 0) > 200) {
         _subscore = 200;
       }
-      if(_mainscore != null) {
+      if(_acceptedScore != null) {
         _activityScore = _subscore.toString();
       }
     }
@@ -634,7 +784,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
+                        child: _activityName == 'TOPCIT' || _activityName == '50일 이상'
+                            ? TextFormField(
                           readOnly: userPermission != 2,
                           decoration: const InputDecoration(
                             labelText: '승인 점수',
@@ -643,11 +794,14 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              _mainscore = int.tryParse(value);
-                              _activityScore = _mainscore.toString();
+                              if (_activityName == 'TOPCIT' || _activityName == '50일 이상')
+                              {
+                                _acceptedScore = int.tryParse(value);
+                              }
                             });
                           },
-                        ),
+                        )
+                            : Container(),
                       ),
                     ),
                   ],
@@ -667,7 +821,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         setState(() {
                           _applicationStatus = value ?? '';
                           if (_applicationStatus == '대기' || _applicationStatus == '반려') {
-                            _mainscore = 0;
+                            _acceptedScore = 0;
                           }
                         });
                       }
@@ -849,17 +1003,9 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                               ? const Color(0xffC1D3FF)
                               : const Color(0xff808080),
                           child: MaterialButton(
-                            onPressed: /*_deletePost*/
-                            (userPermission == 2 || _applicationStatus == '대기') ? () {
-                              // 버튼 클릭 시 동작
-                              //삭제 api
-                              if(wasUploadedFile == 1){
-                                deleteFile();
-                              }
-
-
-                            }
-                                : null,
+                            onPressed: (userPermission == 2 || _applicationStatus == '대기') ? () {
+                              deletePostConfirmation();
+                            } : null,
                             child: const Text(
                               "삭제하기",
                               style: TextStyle(
@@ -882,9 +1028,9 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           onPressed: (userPermission == 2 || _applicationStatus == '대기')
                               ? () {
                             updateFile();
-                            Navigator.pop(context);
-
+                            updatePost();
                             //수정 api
+                            Navigator.pop(context);
 
                           }
                               : null,
