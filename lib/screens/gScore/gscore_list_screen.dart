@@ -44,6 +44,7 @@ class _GScoreForm extends State<GScoreForm> {
     checkUserLoginStatus();
     _fetchMyPosts();
     _getUserInfo();
+
   }
 
 
@@ -125,10 +126,13 @@ class _GScoreForm extends State<GScoreForm> {
   void _filterStatus(String value){
     if(value == '전체'){
       filteredPosts = allPosts;
-    }else if(value == '승인'){
-      filteredPosts = allPosts.where((post) => post['gspost_pass'] == '승인').toList();
-    }else if(value == '미승인'){
-      filteredPosts = allPosts.where((post) => post['gspost_pass'] != '승인').toList();
+    }else if(value == '승인') {
+      filteredPosts =
+          allPosts.where((post) => post['gspost_pass'] == '승인').toList();
+    }else if (value == '미승인') {
+      List<dynamic> waitingPosts = allPosts.where((post) => post['gspost_pass'] == '대기').toList();
+      List<dynamic> rejectedPosts = allPosts.where((post) => post['gspost_pass'] == '반려').toList();
+      filteredPosts = [...waitingPosts, ...rejectedPosts];
     }
     setState(() {
       filteredPosts;
@@ -136,10 +140,10 @@ class _GScoreForm extends State<GScoreForm> {
   }
 
   void _filterWriter(String value) async {
-
     allPosts = await _posts;
-    allPosts = allPosts.where((post) => post['gsuser_id'].toString() == value).toList();
-    filteredPosts = allPosts;
+    filteredPosts = allPosts
+        .where((post) => post['gsuser_id'].toString().contains(value))
+        .toList();
     postFilter = '전체';
 
     setState(() {
