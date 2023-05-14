@@ -117,9 +117,10 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
           centerTitle: true,
           backgroundColor: Color(0xffC1D3FF),
         ),
-        body: Center(
-          child: Column(
-            children: [
+        body: SingleChildScrollView(
+         child: Center(
+            child: Column(
+              children: [
               Padding(
                 padding: EdgeInsets.only(
                   top: MediaQuery.of(context).size.height * 0.013,
@@ -200,30 +201,30 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                     children: [
                       gScore_check(name: "자격증", maxScore: 600),
                       SizedBox(width: 5),
-                      gScore_check(name: "외국어 능력", maxScore: 500),
+                      gScore_check(name: "외국어능력", maxScore: 500),
                       SizedBox(width: 5),
-                      gScore_check(name: "상담 실적", maxScore: 150),
+                      gScore_check(name: "상담실적", maxScore: 150),
                     ],
                   ),
                   SizedBox(height: 10,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
                     children: [
-                      gScore_check(name: "학과 행사", maxScore: 150),
+                      gScore_check(name: "학과행사", maxScore: 150),
                       SizedBox(width: 5),
-                      gScore_check(name: "취업 훈련", maxScore: 150),
+                      gScore_check(name: "취업훈련", maxScore: 150),
                       SizedBox(width: 5),
-                      gScore_check(name: "해외 연수", maxScore: 200),
+                      gScore_check(name: "해외연수", maxScore: 200),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
                     children: [
-                      gScore_check(name: "졸업작품 입상", maxScore: 100),
+                      gScore_check(name: "졸업작품입상", maxScore: 100),
                       SizedBox(width: 5),
                       gScore_check(name: "인턴십", maxScore: 300),
                       SizedBox(width: 5),
-                      gScore_check(name: "S/W 공모전", maxScore: 600),
+                      gScore_check(name: "S/W공모전", maxScore: 600),
 
                     ],
                   ),
@@ -241,6 +242,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
             ],
           ),
         ),
+      ),
       ),
     );
   }
