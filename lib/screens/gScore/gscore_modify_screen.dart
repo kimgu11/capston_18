@@ -524,6 +524,50 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
           child: Center(
             child: ListView(
               children: <Widget>[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          readOnly: _activityName == 'TOPCIT' ||
+                              _activityName == '50일 이상'
+                              ? false
+                              : true,
+                          decoration: const InputDecoration(
+                            labelText: '점수',
+                            border: OutlineInputBorder(),
+                          ),
+                          onChanged: _subscore_function,
+                          controller: TextEditingController(
+                              text: _activityName == 'TOPCIT' && _subscore != null ? _subscore.toString()
+                                  : _activityName == '50일 이상' && _subscore != null ? _subscore.toString()
+                                  : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          readOnly: userPermission != 2,
+                          decoration: const InputDecoration(
+                            labelText: '승인 점수',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              _mainscore = int.tryParse(value);
+                              _activityScore = _mainscore.toString();
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   // 활동 종류에 대한 드롭다운형식의 콤보박스

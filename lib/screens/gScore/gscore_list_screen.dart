@@ -8,6 +8,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 //신청글 목록 창
 final client = HttpClient();
+String dropdownValue = '전체';
+String searchText = '';
+int userId = 0;
+int userPermission = 0;
 
 
 void main() {
@@ -32,6 +36,7 @@ class _GScoreForm extends State<GScoreForm> {
     super.initState();
     checkUserLoginStatus();
     _fetchMyPosts();
+    _getUserInfo();
   }
 
 
@@ -105,6 +110,34 @@ class _GScoreForm extends State<GScoreForm> {
     }
   }
 
+  Future<void> _getUserInfo() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      return;
+    }
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/user'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+      userId = user['student_id'];
+      userPermission = user['permission'];
+
+      setState(() {
+        userId;
+        userPermission;
+      });
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
 
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
@@ -216,7 +249,7 @@ class _GScoreForm extends State<GScoreForm> {
           ),
           centerTitle: true,
         ),
-        body:Column(children: [
+        body:ListView(children: [
           Container(height: MediaQuery.of(context).size.height * 0.01),
           Container(
               padding: EdgeInsets.all(16.0), // 상하좌우 16.0씩 padding 적용
@@ -252,8 +285,66 @@ class _GScoreForm extends State<GScoreForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.60,
+              Container(width: 10,),
+              DropdownButton<String>(
+                value: dropdownValue,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dropdownValue = newValue!;
+                  });
+                },
+                items: <String>['전체', '승인', '미승인']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              SizedBox(width: 6,),
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GScoreForm()),
+                    );
+                  },
+                  icon: Icon(Icons.refresh),
+                  color: Colors.grey,
+                  iconSize: 22.0,
+                ),
+              ),
+                    SizedBox(width: 10,),
+              Expanded(
+                flex: 7,
+                child: Visibility(
+                  visible: userPermission == 2, // permission 값이 2인 경우에만 보이도록 설정
+                  child: Container(
+                    margin: EdgeInsets.only(right: 8.0),
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          searchText = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: '학번 검색',
+                        hintText: '검색',
+                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            // 검색 버튼 동작
+                            // TODO: 검색 버튼 동작 구현
+                          },
+                          icon: Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -271,9 +362,7 @@ class _GScoreForm extends State<GScoreForm> {
                   fixedSize: Size(width * 0.08, height * 0.055),
                 ),
               ),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.05
-              )
+              Container(width: 10,),
             ],
           ),
           Container(
