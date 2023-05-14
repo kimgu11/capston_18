@@ -135,41 +135,55 @@ class _GScoreApcState extends State<GScoreApc> {
 
     print(response.statusCode);
 
-    if (response.statusCode == 201 && fileCheck == 1) {
-      var jsonResponse = jsonDecode(response.body);
-      int post_id = jsonResponse['postId'];
-
-      if(selectedFile == null){Navigator.pop(context);}
-
-      else if(selectedFile!=null){
-        final String fileName = selectedFile!.name;
-        final bytes = File(selectedFile!.path!).readAsBytesSync();
-
-        final request = http.MultipartRequest(
-          'POST',
-          Uri.parse('http://3.39.88.187:3000/gScore/upload'),
-        );
-
-
-        request.files.add(
-          http.MultipartFile.fromBytes('file', bytes, filename: fileName),
-        );
-
-        request.fields['gspostid'] = post_id.toString();
-
-        final response = await request.send();
-
-        if (response.statusCode == 201) {
-          print("파일 등록 성공");
-          Navigator.pop(context);
-          //_writePostAndFile;
-        } else {
-          print(response.statusCode);
-          print("파일 등록 실패");
-        }
-
+    if (response.statusCode == 201) {
+      if(fileCheck==1) {
+        var jsonResponse = jsonDecode(response.body);
+        final post_id = jsonResponse['postId'];
+        print('게시글작성성공 파일업로드로 가요');
+        uploadFile(post_id);
       }
+      else{
+        Navigator.pop(context);
+      }
+    }else{
+      print(response.statusCode);
+      print('에러');
+    }
+  }
 
+  void uploadFile(dynamic postId) async{
+    print(postId.toString());
+
+    if(selectedFile == null){Navigator.pop(context);}
+
+    else if(selectedFile!=null){
+      final String fileName = selectedFile!.name;
+      final bytes = File(selectedFile!.path!).readAsBytesSync();
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://218.158.67.138:3000/gScore/upload'),
+      );
+
+
+      request.files.add(
+        http.MultipartFile.fromBytes('file', bytes, filename: fileName),
+      );
+
+      request.fields['gspostid'] = postId.toString();
+
+
+      final response = await request.send();
+
+
+      if (response.statusCode == 201) {
+        print("파일 등록 성공");
+        Navigator.pop(context);
+
+      } else {
+        print(response.statusCode);
+        print("파일 등록 실패");
+      }
 
     }
   }
