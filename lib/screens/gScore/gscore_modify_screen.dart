@@ -136,7 +136,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   Future<void> _getWriterInfo() async {
 
     final response = await http.get(
-      Uri.parse('http://192.168.0.100:3000/gScore/writer?student_id=${widget.post['gsuser_id']}'),
+      Uri.parse('http://3.39.88.187:3000/gScore/writer?student_id=${widget.post['gsuser_id']}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -214,6 +214,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       }
 
       wasUploadedFile = widget.post['gspost_file'];
+      fileCheck = widget.post['gspost_file'];
       _getWriterInfo();
       if(wasUploadedFile == 1){
         _getFileInfo();
@@ -281,6 +282,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     if (result != null && result.files.isNotEmpty) {
       setState(() {
         selectedFile = result.files.first;
+        fileCheck = 1;
 
       });
     }
@@ -289,7 +291,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   Future<String?> downloadFile() async {
 
     final response = await http.get(
-      Uri.parse('http://218.158.67.138:3000/gScore/download?reqPath=${Uri.encodeComponent(uploadedFilePath ?? '')}'),
+      Uri.parse('http://3.39.88.187:3000/gScore/download?reqPath=${Uri.encodeComponent(uploadedFilePath ?? '')}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -357,7 +359,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://218.158.67.138:3000/gScore/upload'),
+        Uri.parse('http://3.39.88.187:3000/gScore/upload'),
       );
 
 
@@ -385,7 +387,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   void deleteFile() async {
 
     final response = await http.delete(
-      Uri.parse('http://218.158.67.138:3000/gScore/deleteFile?reqPath=${Uri.encodeComponent(uploadedFilePath ?? '')}'),
+      Uri.parse('http://3.39.88.187:3000/gScore/deleteFile?reqPath=${Uri.encodeComponent(uploadedFilePath ?? '')}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -431,7 +433,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       'acceptedScore': _acceptedScore,
     };
     final response = await http.post(
-      Uri.parse('http://192.168.0.100:3000/gScore/update'),
+      Uri.parse('http://3.39.88.187:3000/gScore/update'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -465,7 +467,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     };
 
     final response = await http.delete(
-      Uri.parse('http://192.168.0.100:3000/gScore/deletePost'),
+      Uri.parse('http://3.39.88.187:3000/gScore/deletePost'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,

@@ -139,7 +139,6 @@ class _GScoreApcState extends State<GScoreApc> {
       if(fileCheck==1) {
         var jsonResponse = jsonDecode(response.body);
         final post_id = jsonResponse['postId'];
-        print('게시글작성성공 파일업로드로 가요');
         uploadFile(post_id);
       }
       else{
@@ -162,7 +161,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://218.158.67.138:3000/gScore/upload'),
+        Uri.parse('http://3.39.88.187:3000/gScore/upload'),
       );
 
 
