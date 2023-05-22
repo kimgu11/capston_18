@@ -73,7 +73,7 @@ class _GScoreApcState extends State<GScoreApc> {
     }
   }
 
-  void _writePostAndFile() async {
+  Future<void> _writePostAndFile() async {
     if (_activityType == null || _activityName == null) {
       showDialog(
         context: context,
@@ -96,13 +96,11 @@ class _GScoreApcState extends State<GScoreApc> {
       return; // 함수 종료
     }
 
-    setState(() => _isLoading = true);
 
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
       setState(() {
-        _isLoading = false;
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
       });
@@ -138,8 +136,8 @@ class _GScoreApcState extends State<GScoreApc> {
     if (response.statusCode == 201) {
       if(fileCheck==1) {
         var jsonResponse = jsonDecode(response.body);
-        final post_id = jsonResponse['postId'];
-        uploadFile(post_id);
+        postId = jsonResponse['postId'];
+        //uploadFile();
       }
       else{
         Navigator.pop(context);
@@ -150,45 +148,103 @@ class _GScoreApcState extends State<GScoreApc> {
     }
   }
 
-  void uploadFile(dynamic postId) async{
+  Future<void> uploadFile() async {
     print(postId.toString());
 
-    if(selectedFile == null){Navigator.pop(context);}
-
-    else if(selectedFile!=null){
+    if (selectedFile == null) {
+      Navigator.pop(context);
+    } else if (selectedFile != null) {
       final String fileName = selectedFile!.name;
       final bytes = File(selectedFile!.path!).readAsBytesSync();
 
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('http://3.39.88.187:3000/gScore/upload'),
-      );
+      final maxRetries = 3; // 최대 재시도 횟수
+      var retryCount = 0; // 현재 재시도 횟수
 
+      while (retryCount < maxRetries) {
+        try {
+          final request = http.MultipartRequest(
+            'POST',
+            Uri.parse('http://3.39.88.187:3000/gScore/upload'),
+          );
 
-      request.files.add(
-        http.MultipartFile.fromBytes('file', bytes, filename: fileName),
-      );
+          request.files.add(
+            http.MultipartFile.fromBytes('file', bytes, filename: fileName),
+          );
 
-      request.fields['gspostid'] = postId.toString();
+          request.fields['gspostid'] = postId.toString();
 
+          final response = await request.send();
+          print(response.statusCode);
 
-      final response = await request.send();
+          if (response.statusCode == 201) {
+            print("파일 등록 성공");
 
+            var responseData = await response.stream.bytesToString();
+            var decodedData = json.decode(responseData);
+            var file = decodedData['file'];
 
-      if (response.statusCode == 201) {
-        print("파일 등록 성공");
-        Navigator.pop(context);
+            fileInfo = {
+              'post_id': postId,
+              'file_name': file['filename'],
+              'file_original_name': file['originalname'],
+              'file_size': file['size'],
+              'file_path': file['path'],
+            };
+            fileUploadCheck = 1;
 
-      } else {
-        print(response.statusCode);
-        print("파일 등록 실패");
+            print(fileInfo);
+            return; // 성공적으로 요청을 보냈으면 메서드를 종료
+          } else {
+            print(response.statusCode);
+            print("파일 등록 실패");
+          }
+        } catch (error) {
+          print('네트워크 연결 오류: $error');
+        }
+
+        retryCount++;
+        await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
       }
 
+      print('재시도 횟수 초과');
     }
   }
 
+  Future<void> _uploadfileToDB() async {
+    final maxRetries = 3; // 최대 재시도 횟수
+    var retryCount = 0; // 현재 재시도 횟수
+
+    while (retryCount < maxRetries) {
+      try {
+        final response = await http.post(
+          Uri.parse('http://3.39.88.187:3000/gScore/fileToDB'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(fileInfo),
+        );
+
+        if (response.statusCode == 201) {
+          print('DB저장 완료');
+          return; // 성공적으로 요청을 보냈으면 메서드를 종료
+        } else {
+          print(response.statusCode);
+          print('에러');
+        }
+      } catch (error) {
+        print('네트워크 연결 오류: $error');
+      }
+
+      retryCount++;
+      await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
+    }
+
+    print('재시도 횟수 초과'); // 최대 재시도 횟수를 초과하면 에러 메시지 출력
+  }
+
+
   bool isEditable = false;
-  bool _isLoading = false;
+
 
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
@@ -221,6 +277,18 @@ class _GScoreApcState extends State<GScoreApc> {
   PlatformFile? selectedFile;
 
   int fileCheck = 0;
+
+
+
+  //작성된 게시글 번호
+  int postId= 0;
+
+  //파일이 정상적으로 서버에 업로드 되었는지 체크
+  int fileUploadCheck = 0;
+
+  //업로드한 파일의 정보
+  Map<String, dynamic> fileInfo={};
+
 
   //활동종류 리스트
   List<String> activityTypes = [];
@@ -580,7 +648,16 @@ class _GScoreApcState extends State<GScoreApc> {
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
                     color: const Color(0xffC1D3FF),
                     child: MaterialButton(
-                      onPressed: _writePostAndFile,
+                      onPressed: () async{
+                        await _writePostAndFile();
+                        if(fileCheck ==1){
+                          await uploadFile();
+                        }
+                        if(fileUploadCheck == 1){
+                          await _uploadfileToDB();
+                        }
+                        Navigator.of(context).pop();
+                        },
                       child: const Text(
                         "신청하기",
                         style: TextStyle(
