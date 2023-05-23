@@ -140,9 +140,6 @@ class _GScoreApcState extends State<GScoreApc> {
         postId = jsonResponse['postId'];
         //uploadFile();
       }
-      else{
-        Navigator.pop(context);
-      }
     }else{
       print(response.statusCode);
       print('에러');
@@ -652,7 +649,7 @@ class _GScoreApcState extends State<GScoreApc> {
                     child: MaterialButton(
                       onPressed: () async{
                         await _writePostAndFile();
-                        if(fileCheck ==1){
+                        if(postUploadCheck ==1 && fileCheck ==1){
                           await uploadFile();
                         }
                         if(fileUploadCheck == 1){
