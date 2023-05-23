@@ -134,6 +134,7 @@ class _GScoreApcState extends State<GScoreApc> {
     print(response.statusCode);
 
     if (response.statusCode == 201) {
+      postUploadCheck = 1;
       if(fileCheck==1) {
         var jsonResponse = jsonDecode(response.body);
         postId = jsonResponse['postId'];
@@ -151,9 +152,7 @@ class _GScoreApcState extends State<GScoreApc> {
   Future<void> uploadFile() async {
     print(postId.toString());
 
-    if (selectedFile == null) {
-      Navigator.pop(context);
-    } else if (selectedFile != null) {
+    if (selectedFile != null) {
       final String fileName = selectedFile!.name;
       final bytes = File(selectedFile!.path!).readAsBytesSync();
 
@@ -282,6 +281,9 @@ class _GScoreApcState extends State<GScoreApc> {
 
   //작성된 게시글 번호
   int postId= 0;
+
+  //게시글이 정상적으로 업로드 되었는지 체크
+  int postUploadCheck = 0;
 
   //파일이 정상적으로 서버에 업로드 되었는지 체크
   int fileUploadCheck = 0;
@@ -656,7 +658,12 @@ class _GScoreApcState extends State<GScoreApc> {
                         if(fileUploadCheck == 1){
                           await _uploadfileToDB();
                         }
-                        Navigator.of(context).pop();
+                        if(postUploadCheck ==1){
+                          Navigator.of(context).pop();
+                        }else{
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
+                        }
+
                         },
                       child: const Text(
                         "신청하기",
