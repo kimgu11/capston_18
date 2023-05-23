@@ -410,42 +410,38 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                   ),
                   borderRadius: const BorderRadius.all(Radius.circular(4.0)),
                 ),
-                child: ListView.builder(
-                  itemCount: _save.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final activity = _save[index];
-                    return Dismissible(
-                      key: UniqueKey(),
-                      onDismissed: (direction) {
-                        setState(() {
-                          _save.removeAt(index);
-                           print(activity['Type']);
-                          if (activity['score'] != null && eachTotal[activity['Type']] != null) {
-                            eachTotal[activity['Type']] = (eachTotal[activity['Type']] ?? 0) - activity['score'] as int;
-                          }
-                          if (eachTotal[activity['Type']] != null && eachMaxTotal[activity['Type']] != null && eachTotal[activity['Type']]! < eachMaxTotal[activity['Type']]!) {
-                            eachMaxTotal[activity['Type']] = eachTotal[activity['Type']]!;
-                          }
-                          _total = 0;
-                          eachMaxTotal.forEach((key, value) {
-                            _total += value;
-                          });
-                          if (_remainingScore >= 0) {
-                            _remainingScore = 800 - _total;
-                            if (_remainingScore <= 0) {
-                              _remainingScore = 0;
-                            }
-                          }
-                        });
-                      },
-                      background: Container(color: Colors.red),
-                      child: ListTile(
-                        title:
-                            Text('${activity['Type']} - ${activity['Name']}'),
-                        trailing: Text('${activity['score']}점'),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _save.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final activity = _save[index];
+                          return Dismissible(
+                            key: UniqueKey(),
+                            onDismissed: (direction) {
+                              setState(() {
+                                // 삭제 로직
+                              });
+                            },
+                            background: Container(color: Colors.red),
+                            child: ListTile(
+                              title: Text('${activity['Type']} - ${activity['Name']}'),
+                              trailing: Text('${activity['score']}점'),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        '슬라이드로 항목 삭제',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
