@@ -74,7 +74,7 @@ class _GScoreForm extends State<GScoreForm> {
     }
   }
 
-  
+
 /*
   //전체 게시글 로드
   Future<List<dynamic>> _fetchAllPosts() async {
@@ -87,7 +87,7 @@ class _GScoreForm extends State<GScoreForm> {
     }
   }
 */
-  
+
 
   Future<void> _fetchMyPosts() async {
     final storage = FlutterSecureStorage();
@@ -297,34 +297,38 @@ class _GScoreForm extends State<GScoreForm> {
         ),
         body:ListView(children: [
           Container(height: MediaQuery.of(context).size.height * 0.01),
-          Container(
-              padding: EdgeInsets.all(16.0), // 상하좌우 16.0씩 padding 적용
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Container(
               width: MediaQuery.of(context).size.width * 0.97,
               height: MediaQuery.of(context).size.height * 0.2,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: Colors.black,
-                  width: 2,
-                ),
+                color: Color(0xFFF4F5F9),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
-                  children:[
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(fontSize: 13.0, color: Colors.black),
-                        children: <TextSpan>[
-                          TextSpan(text: '1. 각 항목별 점수를 확인해주세요.\n'),
-                          TextSpan(text: '2. TOPCIT 점수는 수기 입력을 통해 계산됩니다. \n', style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.'),
-                        ],
-                      ),
-                    )
-
-                  ]
-              )
-
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 13.0, color: Colors.black),
+                      children: <TextSpan>[
+                        TextSpan(text: '1. 각 항목별 점수를 확인해주세요.\n'),
+                        TextSpan(
+                          text: '2. TOPCIT 점수는 수기 입력을 통해 계산됩니다. \n',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+
+
           Container(
               height: MediaQuery.of(context).size.height * 0.01
           ),
