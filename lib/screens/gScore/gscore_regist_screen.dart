@@ -641,7 +641,6 @@ class _GScoreApcState extends State<GScoreApc> {
                 ),
                 const SizedBox(height: 8),
 
-
                 // 저장 버튼
                 Padding(
                   //세번째 padding
