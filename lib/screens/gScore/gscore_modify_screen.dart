@@ -55,6 +55,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   // 점수를 입력할 수 있는 박스에서 입력된 값
   int? _acceptedScore;
   int? _subscore;
+  int? _inputscore;
   int? wasUploadedacceptedScore;
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _applicationStatus;
@@ -68,13 +69,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
 
   //파일관련
-  dynamic? uploadedFileData; //db에서 가져온 파일정보 json
+  dynamic? uploadedFileData; //db에서 가져온 파일정보
   String? uploadedFilePath;
   String? uploadedFileName;
 
 
-  int wasUploadedFile = 0; //업로드된 파일이 있었는가? 할당완료
-  int fileCheck = 0; // 첨부파일이 있는가? 위 2개 변수 null인지 or연산자로 비교해서 대체 가능, 1이랑 같이 할당
+  int wasUploadedFile = 0; //업로드된 파일이 있었는가?
+  int fileCheck = 0; // 첨부파일이 있는가?
 
   PlatformFile? selectedFile; //저장소에서 선택한 파일
 
@@ -88,10 +89,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _scoreController = TextEditingController();
-  late Future<dynamic> _posts =  Future(() => null);
-
-  List<dynamic> allPosts = [];
-  List<dynamic> filteredPosts = [];
 
   @override
   void initState() {
@@ -99,39 +96,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     _fetchGsInfo();
     _fetchContent();
     _getUserInfo();
-  }
-  Future<void> _fetchMyPosts() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-
-    if(token == null){
-      return ;
-    }
-    final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/posts'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      _posts = Future.value(data);
-      allPosts = await _posts;
-      filteredPosts = allPosts;
-
-      setState(() {
-        _posts;
-        allPosts;
-        filteredPosts;
-      });
-    } else if(response.statusCode == 401){
-      throw Exception('로그인 정보 만료됨');
-    }
-    else if(response.statusCode == 500){
-      throw Exception('서버 에러');
-    }
   }
   Future<void> _getWriterInfo() async {
 
@@ -412,9 +376,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     }
     if(_activityName == 'TOPCIT' || _activityName == '50일 이상'){
       print(_acceptedScore);
+      _subscore = _inputscore;
     }
     else{
-      _acceptedScore = int.tryParse(_activityScore);
+      _subscore = int.tryParse(_activityScore);
     }
     final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
     final Map<String, dynamic> postData = {
@@ -423,6 +388,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       'gspost_category': _activityType,
       'gspost_item': _activityName,
       'gspost_content': _content,
+      'gspost_score': _subscore,
       'prev_gspost_pass': widget.post['gspost_pass'],
       'gspost_pass': _applicationStatus,
       'gspost_reason': _rejectionReason,
@@ -430,7 +396,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       'gspost_end_date': _endDate != null ? formatter.format(_endDate!) : null,
       'gspost_file': fileCheck,
       'prev_acceptedScore': widget.post['gspost_accepted_score'],
-      'acceptedScore': _acceptedScore,
     };
     final response = await http.post(
       Uri.parse('http://3.39.88.187:3000/gScore/update'),
@@ -440,18 +405,17 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       },
       body: jsonEncode(postData),
     );
-
+    print("api 실행?");
     if (response.statusCode == 200) {
       print("게시글 업데이트 성공");
       print(postData);
-      Navigator.pop(context);
     } else {
       print(response.statusCode);
       print(postData);
       print("게시글 업데이트 실패");
     }
-    await _fetchMyPosts();
   }
+
   void deletePost() async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
@@ -462,29 +426,23 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       return;
     }
 
-    final postData = {
-      'postId': widget.post['gspost_id'],
-    };
+    final postId = widget.post['gspost_id'];
+    final url = Uri.parse('http://3.39.88.187:3000/gScore/deletePost?postId=$postId');
 
     final response = await http.delete(
-      Uri.parse('http://3.39.88.187:3000/gScore/deletePost'),
+      url,
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
       },
-      body: jsonEncode(postData),
     );
 
     if (response.statusCode == 200) {
       print("게시글 삭제 성공");
-      print(postData);
       Navigator.pop(context);
     } else {
-      print(response.statusCode);
-      print( widget.post['gspost_id']);
       print("게시글 삭제 실패");
+      print(response.statusCode);
     }
-    await _fetchMyPosts();
   }
   //활동종류 드롭박스 눌렀을시 활동명을 초기화 해줘야 충돌이 안남
   void _onActivityTypeChanged(String? newValue) {
@@ -536,15 +494,14 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
         );
       },
     );
-
     if (result == true) {
       deletePost(); // 게시물 삭제 함수 호출
       if (wasUploadedFile == 1) {
         deleteFile(); // 파일 삭제 함수 호출
       }
-      Navigator.pop(context);
     }
   }
+
   void _subscore_function(String value){
     if (value.isNotEmpty &&
         _activityName == 'TOPCIT' ||
@@ -646,7 +603,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         ? _activityType
                         : _selectedActivityType ?? _activityType,
                     onChanged:
-                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                    (userPermission == 2) || (_applicationStatus == '승인' || _applicationStatus == '반려')
                         ? null
                         : _onActivityTypeChanged,
                     items: activityTypes
@@ -668,7 +625,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                     ),
                     value: _activityName,
                     onChanged:
-                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                    (userPermission == 2) || (_applicationStatus == '승인' || _applicationStatus == '반려')
                         ? null
                         : _onActivityNameChanged,
                     items:
@@ -798,7 +755,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             setState(() {
                               if (_activityName == 'TOPCIT' || _activityName == '50일 이상')
                               {
-                                _acceptedScore = int.tryParse(value);
+                                _inputscore = int.tryParse(value);
                               }
                             });
                           },
