@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
 void main() {
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     title: '졸업점수 셀프 계산기',
     home: SelfCalcScreen(),
   ));
@@ -23,7 +23,6 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   void initState(){
     super.initState();
     _fetchPosts();
-    _getMaxScore();
   }
   String? _activityType;
 
@@ -35,7 +34,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   final List<Map<String, dynamic>> _save = [];
 
-  Map<String, dynamic> maxScore = {"S/W공모전":600,"상담실적":150, "외국어능력":500, "인턴십":300, "자격증":600,
+  Map<String, dynamic> MaxScore = {"S/W공모전":600,"상담실적":150, "외국어능력":500, "인턴십":300, "자격증":600,
   "졸업작품입상":100, "총점":1000, "취업훈련":150, "취업/대학원진학":850, "캡스톤디자인":0,"학과행사":150,"해외연수":200};
 
   Map<String?,int> eachMaxTotal = {"S/W공모전":0,"상담실적":0, "외국어능력":0, "인턴쉽":0, "자격증":0,
@@ -91,7 +90,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
 
   Future<void> _getMaxScore() async {
-    const storage = FlutterSecureStorage();
+    final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
 
     if (token == null) {
@@ -108,13 +107,74 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
     if (response.statusCode == 200) {
       final maxScoreTemp = jsonDecode(response.body);
-      maxScore = maxScoreTemp;
+      MaxScore = maxScoreTemp;
 
     } else {
       throw Exception('예외 발생');
     }
   }
 
+
+  // Future<List<Map<String, dynamic>>> _getMaxScores() async {
+  //   final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
+  //
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body) as List<dynamic>;
+  //     List<Map<String, dynamic>> maxScores = [];
+  //     data.forEach((item) {
+  //       final maxCategory = item['max_category'] as String;
+  //       final maxScore = item['max_score'] as int;
+  //       maxScores.add({
+  //         maxCategory: maxScore,
+  //       });
+  //     });
+  //     return maxScores;
+  //   } else {
+  //     throw Exception('Failed to load max scores');
+  //   }
+  // }
+
+  // void setMaxscore() async {
+  //   List<Map<String, dynamic>> maxScores = await _getMaxScores(); // Retrieve maxScores using _getMaxScores function
+  //
+  //   int sum = 0;
+  //   for (final item in _save) {
+  //     if(item['Type'] == _selectType) {
+  //       sum += int.parse(item['score']);
+  //     }
+  //   }
+  //
+  //   if (maxScores.isNotEmpty) {
+  //     final maxScoreItem = maxScores.firstWhere((score) => score.containsKey(_activityType));
+  //     final maxScore = maxScoreItem[_activityType] as int;
+  //
+  //     if (maxScore != null && sum > maxScore) {
+  //       sum = maxScore;
+  //     }
+  //   }
+  //
+  //   _total += sum;
+  // }
+
+  // void setMaxscore() async{
+  //   List<Map<String, dynamic>> maxScores = await _getMaxScores();
+  //   int sum = 0;
+  //   for(final item in _save){
+  //     if(item['Type'] == _selectType){
+  //       sum += int.parse(item['score'].toString());
+  //     }
+  //   }
+  //   if (maxScores.isNotEmpty) {
+  //     final maxScoreItem = maxScores.firstWhere((score) => score.containsKey(_selectType));
+  //     final maxScore = maxScoreItem[_selectType] as int;
+  //     _setint = sum;
+  //
+  //     if (maxScore != null && sum > maxScore) {
+  //       sum = maxScore;
+  //     }
+  //   }
+  //   _total += sum;
+  // }
   void setMaxscore() async{
     int sum = 0;
     _total = 0;
@@ -124,8 +184,8 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
       }
     }
     eachTotal[_selectType] = sum;
-    if(maxScore[_selectType] != null && sum >= maxScore[_selectType]!){
-      sum = maxScore[_selectType];
+    if(MaxScore[_selectType] != null && sum >= MaxScore[_selectType]!){
+      sum = MaxScore[_selectType];
     }
     eachMaxTotal[_selectType] = sum;
     eachMaxTotal.forEach((key, value) {
@@ -175,6 +235,12 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     }
   }
 
+  void printApp(){
+    print(_save);
+    print(eachTotal);
+    print(eachMaxTotal);
+  }
+
 
 
   void _onActivityTypeChanged(String? newValue) {
@@ -195,7 +261,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           '졸업점수 셀프 계산기',
           style: TextStyle(
             color: Colors.white,
@@ -203,7 +269,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xffC1D3FF),
+        backgroundColor: Color(0xffC1D3FF),
         centerTitle: true,
         elevation: 0.0,
       ),
@@ -283,7 +349,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                   text: activityNames[_activityType]?[_activityName]?.toString() ?? ''
               ),
             ),
-            const SizedBox(height: 16.0),
+            SizedBox(height: 16.0),
 
             Row(
               children: [
@@ -321,6 +387,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                 child: MaterialButton(
                   onPressed: () {
                     _addScore();
+                    printApp();
                   },
                   child: const Text(
                     "추가하기",
@@ -335,41 +402,51 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: _save.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final activity = _save[index];
-                  return Card(
-                    child: ListTile(
-                      leading: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            _save.removeAt(index);
-                            if (activity['score'] != null && eachTotal[activity['Type']] != null) {
-                              eachTotal[activity['Type']] = (eachTotal[activity['Type']] ?? 0) - activity['score'] as int;
-                            }
-                            if (eachTotal[activity['Type']] != null && eachMaxTotal[activity['Type']] != null && eachTotal[activity['Type']]! < eachMaxTotal[activity['Type']]!) {
-                              eachMaxTotal[activity['Type']] = eachTotal[activity['Type']]!;
-                            }
-                            _total = 0;
-                            eachMaxTotal.forEach((key, value) {
-                              _total += value;
-                            });
-                            if (_remainingScore >= 0) {
-                              _remainingScore = 800 - _total;
-                              if (_remainingScore <= 0) {
-                                _remainingScore = 0;
-                              }
-                            }
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 1.0,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                ),
+                child: ListView.builder(
+                  itemCount: _save.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final activity = _save[index];
+                    return Dismissible(
+                      key: UniqueKey(),
+                      onDismissed: (direction) {
+                        setState(() {
+                          _save.removeAt(index);
+                           print(activity['Type']);
+                          if (activity['score'] != null && eachTotal[activity['Type']] != null) {
+                            eachTotal[activity['Type']] = (eachTotal[activity['Type']] ?? 0) - activity['score'] as int;
+                          }
+                          if (eachTotal[activity['Type']] != null && eachMaxTotal[activity['Type']] != null && eachTotal[activity['Type']]! < eachMaxTotal[activity['Type']]!) {
+                            eachMaxTotal[activity['Type']] = eachTotal[activity['Type']]!;
+                          }
+                          _total = 0;
+                          eachMaxTotal.forEach((key, value) {
+                            _total += value;
                           });
-                        },
+                          if (_remainingScore >= 0) {
+                            _remainingScore = 800 - _total;
+                            if (_remainingScore <= 0) {
+                              _remainingScore = 0;
+                            }
+                          }
+                        });
+                      },
+                      background: Container(color: Colors.red),
+                      child: ListTile(
+                        title:
+                            Text('${activity['Type']} - ${activity['Name']}'),
+                        trailing: Text('${activity['score']}점'),
                       ),
-                      title: Text('${activity['Type']} - ${activity['Name']}'),
-                      subtitle: Text('${activity['score']}점'),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ],
