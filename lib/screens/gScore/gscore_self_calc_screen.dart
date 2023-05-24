@@ -109,7 +109,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   Future<void> _fetchPosts() async {
     final response =
-        await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
+        await http.get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
 
     if (response.statusCode == 200) {
       final funcResult = jsonDecode(response.body);
