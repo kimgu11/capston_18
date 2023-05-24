@@ -34,7 +34,7 @@ class _GScoreApcState extends State<GScoreApc> {
   Future<void> _fetchLists() async {
     //목록 불러오기
     final response =
-    await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
+    await http.get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
 
     if (response.statusCode == 200) {
       final funcResult = jsonDecode(response.body);
@@ -111,7 +111,7 @@ class _GScoreApcState extends State<GScoreApc> {
       'gspost_category': _activityType,
       'gspost_item': _activityName,
       'gspost_score': int.tryParse(_activityScore),
-      'gspost_content': _content,
+      'gspost_content': _contentController.text,
       'gspost_pass': _applicationStatus,
       'gspost_reason': _rejectionReason,
       'gspost_start_date': _startDate?.toIso8601String(),
@@ -264,7 +264,7 @@ class _GScoreApcState extends State<GScoreApc> {
   String _applicationStatus = '대기';
 
   //비고란
-  String? _content;
+  TextEditingController _contentController = TextEditingController();
 
   // 반려 사유를 입력할 수 있는 텍스트 입력박스에서 입력된 값
   String? _rejectionReason;
@@ -523,12 +523,8 @@ class _GScoreApcState extends State<GScoreApc> {
                       labelText: '비고',
                       border: OutlineInputBorder(),
                     ),
-                    controller: TextEditingController(text: _content),
-                    onChanged: (value) {
-                      setState(() {
-                        _content = value;
-                      });
-                    },
+                    controller: _contentController,
+
                   ),
                 ),
 
