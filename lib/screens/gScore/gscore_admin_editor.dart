@@ -22,6 +22,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
 void initState(){
   super.initState();
   _fetchLists();
+  _getMaxScore();
 }
 
   @override
@@ -64,20 +65,27 @@ void initState(){
   TextEditingController _activityScoreController = TextEditingController();
   TextEditingController _maxScoreController = TextEditingController();
 
-Map<String, dynamic> MaxScore = {
-  "S/W공모전": 600,
-  "상담실적": 150,
-  "외국어능력": 500,
-  "인턴십": 300,
-  "자격증": 600,
-  "졸업작품입상": 100,
-  "총점": 1000,
-  "취업훈련": 150,
-  "취업/대학원진학": 850,
-  "캡스톤디자인": 0,
-  "학과행사": 150,
-  "해외연수": 200,
-};
+Map<String, dynamic> MaxScore = {};
+
+Future<void> _getMaxScore() async {
+  final response = await http.get(
+    Uri.parse('http://218.158.67.138:3000/gScore/maxScore'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final maxScoreTemp = jsonDecode(response.body);
+    for (var item in maxScoreTemp) {
+      String categoryName = item['max_category'];
+      int categoryScore = item['max_score'];
+      MaxScore[categoryName] = categoryScore;
+    }
+  } else {
+    throw Exception('예외 발생');
+  }
+}
 
   void addActivityType() {
     String newActivityType = _activityTypeController.text;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -22,6 +21,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   void initState() {
     super.initState();
     _fetchPosts();
+    _getMaxScore();
   }
 
   String? _activityType;
@@ -34,20 +34,8 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   final List<Map<String, dynamic>> _save = [];
 
-  Map<String, dynamic> MaxScore = {
-    "S/W공모전": 600,
-    "상담실적": 150,
-    "외국어능력": 500,
-    "인턴십": 300,
-    "자격증": 600,
-    "졸업작품입상": 100,
-    "총점": 1000,
-    "취업훈련": 150,
-    "취업/대학원진학": 850,
-    "캡스톤디자인": 0,
-    "학과행사": 150,
-    "해외연수": 200
-  };
+  //카테고리별 max값 저장
+  Map<String, dynamic> MaxScore = {};
 
   Map<String?, int> eachMaxTotal = {
     "S/W공모전": 0,
@@ -141,89 +129,26 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   }
 
   Future<void> _getMaxScore() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-
-    if (token == null) {
-      return;
-    }
-
     final response = await http.get(
-      Uri.parse('http://192.168.219.170:3000/gScore/maxScore'),
+      Uri.parse('http://218.158.67.138:3000/gScore/maxScore'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
       },
     );
 
     if (response.statusCode == 200) {
       final maxScoreTemp = jsonDecode(response.body);
-      MaxScore = maxScoreTemp;
+      for (var item in maxScoreTemp) {
+        String categoryName = item['max_category'];
+        int categoryScore = item['max_score'];
+        MaxScore[categoryName] = categoryScore;
+      }
     } else {
       throw Exception('예외 발생');
     }
   }
 
-  // Future<List<Map<String, dynamic>>> _getMaxScores() async {
-  //   final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
-  //
-  //   if (response.statusCode == 200) {
-  //     final data = jsonDecode(response.body) as List<dynamic>;
-  //     List<Map<String, dynamic>> maxScores = [];
-  //     data.forEach((item) {
-  //       final maxCategory = item['max_category'] as String;
-  //       final maxScore = item['max_score'] as int;
-  //       maxScores.add({
-  //         maxCategory: maxScore,
-  //       });
-  //     });
-  //     return maxScores;
-  //   } else {
-  //     throw Exception('Failed to load max scores');
-  //   }
-  // }
 
-  // void setMaxscore() async {
-  //   List<Map<String, dynamic>> maxScores = await _getMaxScores(); // Retrieve maxScores using _getMaxScores function
-  //
-  //   int sum = 0;
-  //   for (final item in _save) {
-  //     if(item['Type'] == _selectType) {
-  //       sum += int.parse(item['score']);
-  //     }
-  //   }
-  //
-  //   if (maxScores.isNotEmpty) {
-  //     final maxScoreItem = maxScores.firstWhere((score) => score.containsKey(_activityType));
-  //     final maxScore = maxScoreItem[_activityType] as int;
-  //
-  //     if (maxScore != null && sum > maxScore) {
-  //       sum = maxScore;
-  //     }
-  //   }
-  //
-  //   _total += sum;
-  // }
-
-  // void setMaxscore() async{
-  //   List<Map<String, dynamic>> maxScores = await _getMaxScores();
-  //   int sum = 0;
-  //   for(final item in _save){
-  //     if(item['Type'] == _selectType){
-  //       sum += int.parse(item['score'].toString());
-  //     }
-  //   }
-  //   if (maxScores.isNotEmpty) {
-  //     final maxScoreItem = maxScores.firstWhere((score) => score.containsKey(_selectType));
-  //     final maxScore = maxScoreItem[_selectType] as int;
-  //     _setint = sum;
-  //
-  //     if (maxScore != null && sum > maxScore) {
-  //       sum = maxScore;
-  //     }
-  //   }
-  //   _total += sum;
-  // }
   void setMaxscore() async {
     int sum = 0;
     _total = 0;
