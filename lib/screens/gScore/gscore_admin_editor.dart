@@ -97,28 +97,43 @@ Future<void> _getMaxScore() async {
     throw Exception('예외 발생');
   }
 }
-
-  void addActivityType() {
-    String newActivityType = _activityTypeController.text;
-    if (newActivityType.isNotEmpty &&
-        !activityTypes.contains(newActivityType)) {
-      setState(() {
-        activityTypes.add(newActivityType);
-        activityNames[newActivityType] = {};
-        _activityTypeController.clear();
-      });
-    }
-  }
+  String? _activityNameSave;
 
   void addActivityName() {
-    String selectedActivityType = activityTypes.first;
+    String selectedActivityType = _activityTypeController.text;
     String newActivityName = _activityNameController.text;
-    int newActivityScore = int.tryParse(_activityScoreController.text) ?? 0;
+    int newActivityScore = int.tryParse(_activityScoreController.text) ?? -1;
     if (newActivityName.isNotEmpty &&
         !activityNames[selectedActivityType]!.containsKey(newActivityName)) {
       setState(() {
         activityNames[selectedActivityType]![newActivityName] =
             newActivityScore;
+        _activityNameController.clear();
+        _activityScoreController.clear();
+      });
+    }
+  }
+  void fixActivityName() {
+    String selectedActivityType = _activityTypeController.text;
+    String newActivityName = _activityNameController.text;
+    int newActivityScore = int.tryParse(_activityScoreController.text) ?? -1;
+    if (newActivityName.isNotEmpty) {
+      setState(() {
+        activityNames[_activityTypeController.text]?.remove(_activityNameSave);
+        activityNames[selectedActivityType]![newActivityName] =
+            newActivityScore;
+        _activityNameController.clear();
+        _activityScoreController.clear();
+        _activityNameSave = null;
+      });
+    }
+  }
+  void removeActivityName() {
+    String selectedActivityType = _activityTypeController.text;
+    String newActivityName = _activityNameController.text;
+    if (newActivityName.isNotEmpty ) {
+      setState(() {
+        activityNames[selectedActivityType]?.remove(_activityNameController.text);
         _activityNameController.clear();
         _activityScoreController.clear();
       });
@@ -168,6 +183,8 @@ Future<void> _getMaxScore() async {
                           setState(() {
                             _activityTypeController.text = type;
                             _fetchNamesAndScores(_activityTypeController.text);
+                            _activityNameController.clear();
+                            _activityScoreController.clear();
                           });
                         },
                         style: ElevatedButton.styleFrom(
@@ -180,18 +197,70 @@ Future<void> _getMaxScore() async {
                   ),
                 ),
 
-
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   // 활동 종류에 대한 드롭다운형식의 콤보박스
                   child: Text(
-                    '활동명 삭제및 추가',
+                    '활동명 설정',
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0), // 내부 여백 설정
+                        child: Wrap(
+                          spacing: 8.0,
+                          runSpacing: 8.0,
+                          children: activityNames[_activityTypeController.text]?.entries.map((entry) {
+                            String name = entry.key;
+                            int score = entry.value;
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: _activityNameController.text == name ? Colors.blue : Colors.transparent,
+                                  width: 2.0,
+                                ),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _activityNameController.text = name;
+                                    _activityScoreController.text = score.toString();
+                                    _activityNameSave = name;
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _activityNameController.text == name ? Color(0xffbabfcc) : Color(0xffC1D3FF),
+                                  elevation: _activityNameController.text == name ? 2.0 : 0.0,
+                                ),
+                                child: Text('$name ($score)'),
+                              ),
+                            );
+                          }).toList() ?? <Widget>[],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+
+
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   // 활동 종류에 대한 드롭다운형식의 콤보박스
@@ -220,60 +289,80 @@ Future<void> _getMaxScore() async {
                       SizedBox(width: 8.0),
                       ElevatedButton(
                         onPressed: addActivityName,
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                        ),
                         child: Text('추가'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('확인'),
+                                content: Text('정말로 수정하시겠습니까?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('취소'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      fixActivityName();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('수정'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                        ),
+                        child: Text('수정'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('확인'),
+                                content: Text('정말로 삭제하시겠습니까?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('취소'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      removeActivityName();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('삭제'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                        ),
+                        child: Text('삭제'),
                       ),
                     ],
                   ),
                 ),
-
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 200,  // 세로 크기 제한
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,  // 세로 스크롤 가능
-                      child: Wrap(
-                        spacing: 8.0,
-                        children: activityNames[_activityTypeController.text]?.entries.map((entry) {
-                          String name = entry.key;
-                          int score = entry.value;
-                          return Chip(
-                            label: Text('$name ($score)'),
-                            onDeleted: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('삭제'),
-                                    content: Text('정말로 활동명과 점수를 삭제하시겠습니까? 정말로?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text('취소'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            activityNames[_activityTypeController.text]?.remove(name);
-                                          });
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text('삭제'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        }).toList() ?? <Widget>[],
-                      ),
-                    ),
-                  ),
-                ),
-
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -312,6 +401,9 @@ Future<void> _getMaxScore() async {
                           });
                           print(MaxScore);
                         },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                        ),
                         child: Text('수정'),
                       ),
                     ],
