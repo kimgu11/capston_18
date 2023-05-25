@@ -32,32 +32,43 @@ class _GScoreApcState extends State<GScoreApc> {
   }
 
   Future<void> _fetchLists() async {
-    //목록 불러오기
-    final response =
-    await http.get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
-
-    if (response.statusCode == 200) {
-      final funcResult = jsonDecode(response.body);
-      for (var item in funcResult) {
-        String gsinfoType = item['gsinfo_type'];
-        if (!activityTypes.contains(gsinfoType)) {
-          activityTypes.add(gsinfoType);
-          activityNames[gsinfoType] = {};
+    if (activityTypes.isEmpty) {
+      final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      if (typeResponse.statusCode == 200) {
+        final typeResult = jsonDecode(typeResponse.body);
+        for (var typeItem in typeResult) {
+          String gsinfoType = typeItem['gsinfo_type'];
+          if (!activityTypes.contains(gsinfoType)) {
+            activityTypes.add(gsinfoType);
+          }
         }
-
-        String gsinfoName = item['gsinfo_name'];
-        int gsinfoScore = item['gsinfo_score'];
-
-        if (activityNames.containsKey(gsinfoType)) {
-          activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
-        }
+        setState(() {
+          activityTypes;
+        });
+      } else {
+        throw Exception('Failed to load types');
       }
-      setState(() {
-        activityTypes;
-        activityNames;
-      });
-    } else {
-      throw Exception('Failed to load posts');
+    }
+  }
+
+  Future<void> _fetchNamesAndScores(String selectedType) async {
+    if (!activityNames.containsKey(selectedType)) {
+      final encodedType = Uri.encodeComponent(selectedType);
+      final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      if (infoResponse.statusCode == 200) {
+        final infoResult = jsonDecode(infoResponse.body);
+        activityNames[selectedType] = {};
+        for (var infoItem in infoResult) {
+          String gsinfoName = infoItem['gsinfo_name'];
+          int gsinfoScore = infoItem['gsinfo_score'];
+          activityNames[selectedType]![gsinfoName] = gsinfoScore;
+        }
+        setState(() {
+          activityNames;
+        });
+      } else {
+        throw Exception('Failed to load names and scores');
+      }
     }
   }
 
@@ -195,7 +206,7 @@ class _GScoreApcState extends State<GScoreApc> {
             print("파일 등록 실패");
           }
         } catch (error) {
-          print('네트워크 연결 오류: $error');
+          print('등록 네트워크 연결 오류: $error');
         }
 
         retryCount++;
@@ -228,7 +239,7 @@ class _GScoreApcState extends State<GScoreApc> {
           print('에러');
         }
       } catch (error) {
-        print('네트워크 연결 오류: $error');
+        print('DB 네트워크 연결 오류: $error');
       }
 
       retryCount++;
@@ -305,6 +316,10 @@ class _GScoreApcState extends State<GScoreApc> {
       _scoreController.text = '';
       _activityScore = '';
     });
+
+    if (newValue != null) {
+      _fetchNamesAndScores(newValue);
+    }
   }
 
   final _formKey = GlobalKey<FormState>();

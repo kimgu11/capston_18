@@ -72,7 +72,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   int _remainingScore = 800;
 
   List<String> activityTypes = [];
-
+  Map<String, bool> loadedTypes = {};
   Map<String, Map<String, int>> activityNames = {
     '상담실적': {
       '1': 10,
@@ -95,42 +95,61 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     '인턴십': {'참여 일수': 0},
   };
 
-  Future<void> _fetchPosts() async {
-    final response =
-        await http.get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
-
-    if (response.statusCode == 200) {
-      final funcResult = jsonDecode(response.body);
-      for (var item in funcResult) {
-        String gsinfoType = item['gsinfo_type'];
+  Future<void> _fetchLists() async {
+    final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+    if (typeResponse.statusCode == 200) {
+      final typeResult = jsonDecode(typeResponse.body);
+      for (var typeItem in typeResult) {
+        String gsinfoType = typeItem['gsinfo_type'];
         if (!activityTypes.contains(gsinfoType)) {
           activityTypes.add(gsinfoType);
-          if (!['상담실적', '해외연수', '인턴십'].contains(gsinfoType)) {
-            activityNames[gsinfoType] = {};
-          }
-
-          setState(() {
-            activityTypes;
-            activityNames;
-          });
-        }
-
-        String gsinfoName = item['gsinfo_name'];
-        int gsinfoScore = item['gsinfo_score'];
-
-        if (!['상담실적', '해외연수', '인턴십'].contains(gsinfoType) &&
-            activityNames.containsKey(gsinfoType)) {
-          activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
         }
       }
+      setState(() {
+        activityTypes;
+      });
     } else {
-      throw Exception('Failed to load posts');
+      throw Exception('Failed to load types');
     }
   }
 
+  Future<void> _fetchNamesAndScores(String selectedType) async {
+    if (!loadedTypes.containsKey(selectedType)) {
+      final encodedType = Uri.encodeComponent(selectedType);
+      final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      if (infoResponse.statusCode == 200) {
+        final infoResult = jsonDecode(infoResponse.body);
+        activityNames[selectedType] = {};
+        for (var infoItem in infoResult) {
+          String gsinfoName = infoItem['gsinfo_name'];
+          int gsinfoScore = infoItem['gsinfo_score'];
+          activityNames[selectedType]![gsinfoName] = gsinfoScore;
+        }
+        setState(() {
+          activityNames;
+        });
+      } else {
+        throw Exception('Failed to load names and scores');
+      }
+      loadedTypes[selectedType] = true;
+    }
+  }
+
+  Future<void> _fetchPosts() async {
+    await _fetchLists();
+
+    for (var type in activityTypes) {
+      if (!['상담실적', '해외연수', '인턴십'].contains(type)) {
+        await _fetchNamesAndScores(type);
+      }
+    }
+  }
+
+
+
   Future<void> _getMaxScore() async {
     final response = await http.get(
-      Uri.parse('http://218.158.67.138:3000/gScore/maxScore'),
+      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -215,6 +234,10 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
       _activityType = newValue;
       _selectType = _activityType;
       _activityName = null;
+
+      if (_activityType != null && !['상담실적', '해외연수', '인턴십'].contains(_activityType!)) {
+        _fetchNamesAndScores(_activityType!);
+      }
     });
   }
 
@@ -227,6 +250,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           '졸업점수 셀프 계산기',
@@ -390,6 +414,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                   children: [
                     Expanded(
                       child: ListView.builder(
+                        physics: AlwaysScrollableScrollPhysics(),
                         itemCount: _save.length,
                         itemBuilder: (BuildContext context, int index) {
                           final activity = _save[index];

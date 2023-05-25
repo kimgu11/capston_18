@@ -131,32 +131,43 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<void> _fetchGsInfo() async {
-    final response =
-    await http.get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
-
-    if (response.statusCode == 200) {
-      final funcResult = jsonDecode(response.body);
-      for (var item in funcResult) {
-        String gsinfoType = item['gsinfo_type'];
-        if (!activityTypes.contains(gsinfoType)) {
-          activityTypes.add(gsinfoType);
-          activityNames[gsinfoType] = {};
-
-          setState(() {
-            activityTypes;
-            activityNames;
-          });
+    if (activityTypes.isEmpty) {
+      final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      if (typeResponse.statusCode == 200) {
+        final typeResult = jsonDecode(typeResponse.body);
+        for (var typeItem in typeResult) {
+          String gsinfoType = typeItem['gsinfo_type'];
+          if (!activityTypes.contains(gsinfoType)) {
+            activityTypes.add(gsinfoType);
+          }
         }
-
-        String gsinfoName = item['gsinfo_name'];
-        int gsinfoScore = item['gsinfo_score'];
-
-        if (activityNames.containsKey(gsinfoType)) {
-          activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
-        }
+        setState(() {
+          activityTypes;
+        });
+      } else {
+        throw Exception('Failed to load types');
       }
-    } else {
-      throw Exception('Failed to load posts');
+    }
+  }
+
+  Future<void> _fetchNamesAndScores(String selectedType) async {
+    if (!activityNames.containsKey(selectedType)) {
+      final encodedType = Uri.encodeComponent(selectedType);
+      final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      if (infoResponse.statusCode == 200) {
+        final infoResult = jsonDecode(infoResponse.body);
+        activityNames[selectedType] = {};
+        for (var infoItem in infoResult) {
+          String gsinfoName = infoItem['gsinfo_name'];
+          int gsinfoScore = infoItem['gsinfo_score'];
+          activityNames[selectedType]![gsinfoName] = gsinfoScore;
+        }
+        setState(() {
+          activityNames;
+        });
+      } else {
+        throw Exception('Failed to load names and scores');
+      }
     }
   }
 
@@ -364,7 +375,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
             var file = decodedData['file'];
 
             fileInfo = {
-              'post_id': postUserId,
+              'post_id': widget.post['gspost_id'],
               'file_name': file['filename'],
               'file_original_name': file['originalname'],
               'file_size': file['size'],
@@ -379,7 +390,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
             print("파일 등록 실패");
           }
         } catch (error) {
-          print('네트워크 연결 오류: $error');
+          print('등록 네트워크 연결 오류: $error');
         }
 
         retryCount++;
@@ -409,10 +420,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
           return; // 성공적으로 요청을 보냈으면 메서드를 종료
         } else {
           print(response.statusCode);
-          print('에러');
+          print('DB 에러');
         }
       } catch (error) {
-        print('네트워크 연결 오류: $error');
+        print('db 네트워크 연결 오류: $error');
       }
 
       retryCount++;
@@ -423,35 +434,37 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<void> deleteFile() async {
-    final maxRetries = 3; // 최대 재시도 횟수
-    var retryCount = 0; // 현재 재시도 횟수
+    if(wasUploadedFile==1) {
+      final maxRetries = 3; // 최대 재시도 횟수
+      var retryCount = 0; // 현재 재시도 횟수
+      while (retryCount < maxRetries) {
+        try {
+          final response = await http.delete(
+            Uri.parse(
+                'http://3.39.88.187:3000/gScore/deleteFile?reqPath=${Uri
+                    .encodeComponent(uploadedFilePath ?? '')}'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+          );
 
-    while (retryCount < maxRetries) {
-      try {
-        final response = await http.delete(
-          Uri.parse(
-              'http://3.39.88.187:3000/gScore/deleteFile?reqPath=${Uri.encodeComponent(uploadedFilePath ?? '')}'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-        );
-
-        if (response.statusCode == 200) {
-          print('파일 삭제 성공');
-          return; // 성공적으로 요청을 보냈으면 메서드를 종료
-        } else {
-          print(response.statusCode);
-          print('파일 삭제 실패');
+          if (response.statusCode == 200) {
+            print('파일 삭제 성공');
+            return; // 성공적으로 요청을 보냈으면 메서드를 종료
+          } else {
+            print(response.statusCode);
+            print('파일 삭제 실패');
+          }
+        } catch (error) {
+          print('삭제 네트워크 연결 오류: $error');
         }
-      } catch (error) {
-        print('네트워크 연결 오류: $error');
+
+        retryCount++;
+        await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
       }
 
-      retryCount++;
-      await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
+      print('재시도 횟수 초과');
     }
-
-    print('재시도 횟수 초과');
   }
   Future<void> updatePost() async {
     final storage = FlutterSecureStorage();
@@ -546,6 +559,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       _scoreController.text = '';
       _activityScore = '';
     });
+
+    if (newValue != null) {
+      _fetchNamesAndScores(newValue);
+    }
   }
 
 

@@ -21,41 +21,52 @@ class GScoreEditor extends StatefulWidget {
 class _GScoreEditorState extends State<GScoreEditor> {
 void initState(){
   super.initState();
-  _fetchLists();
+  _fetchGsInfo();
   _getMaxScore();
 }
 
   @override
 
-  Future<void> _fetchLists() async {
-    //목록 불러오기
-    final response =
-    await http.get(Uri.parse('http://218.158.67.138:3000/gScore/info'));
-
-    if (response.statusCode == 200) {
-      final funcResult = jsonDecode(response.body);
-      for (var item in funcResult) {
-        String gsinfoType = item['gsinfo_type'];
-        if (!activityTypes.contains(gsinfoType)) {
-          activityTypes.add(gsinfoType);
-          activityNames[gsinfoType] = {};
+  Future<void> _fetchGsInfo() async {
+    if (activityTypes.isEmpty) {
+      final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      if (typeResponse.statusCode == 200) {
+        final typeResult = jsonDecode(typeResponse.body);
+        for (var typeItem in typeResult) {
+          String gsinfoType = typeItem['gsinfo_type'];
+          if (!activityTypes.contains(gsinfoType)) {
+            activityTypes.add(gsinfoType);
+          }
         }
+        setState(() {
+          activityTypes;
+        });
+      } else {
+        throw Exception('Failed to load types');
+      }
+    }
+  }
 
-        String gsinfoName = item['gsinfo_name'];
-        int gsinfoScore = item['gsinfo_score'];
-
-        if (activityNames.containsKey(gsinfoType)) {
-          activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
-        }
+Future<void> _fetchNamesAndScores(String selectedType) async {
+  if (!activityNames.containsKey(selectedType)) {
+    final encodedType = Uri.encodeComponent(selectedType);
+    final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+    if (infoResponse.statusCode == 200) {
+      final infoResult = jsonDecode(infoResponse.body);
+      activityNames[selectedType] = {};
+      for (var infoItem in infoResult) {
+        String gsinfoName = infoItem['gsinfo_name'];
+        int gsinfoScore = infoItem['gsinfo_score'];
+        activityNames[selectedType]![gsinfoName] = gsinfoScore;
       }
       setState(() {
-        activityTypes;
         activityNames;
       });
     } else {
-      throw Exception('Failed to load posts');
+      throw Exception('Failed to load names and scores');
     }
   }
+}
 
   List<String> activityTypes = [];
   Map<String, Map<String, int>> activityNames = {};
@@ -69,7 +80,7 @@ Map<String, dynamic> MaxScore = {};
 
 Future<void> _getMaxScore() async {
   final response = await http.get(
-    Uri.parse('http://218.158.67.138:3000/gScore/maxScore'),
+    Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -156,6 +167,7 @@ Future<void> _getMaxScore() async {
                         onPressed: () {
                           setState(() {
                             _activityTypeController.text = type;
+                            _fetchNamesAndScores(_activityTypeController.text);
                           });
                         },
                         style: ElevatedButton.styleFrom(
