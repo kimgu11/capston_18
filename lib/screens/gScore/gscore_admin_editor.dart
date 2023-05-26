@@ -39,6 +39,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
         }
         setState(() {
           activityTypes;
+          activityTypes.add("총점");
         });
       } else {
         throw Exception('Failed to load types');
@@ -319,6 +320,14 @@ class _GScoreEditorState extends State<GScoreEditor> {
                           keyboardType: TextInputType.number,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  // 활동 종류에 대한 드롭다운형식의 콤보박스
+                  child: Row(
+                    children: [
                       SizedBox(width: 8.0),
                       ElevatedButton(
                         onPressed: () {
@@ -418,6 +427,8 @@ class _GScoreEditorState extends State<GScoreEditor> {
                     ],
                   ),
                 ),
+
+
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   // 활동 종류에 대한 드롭다운형식의 콤보박스
