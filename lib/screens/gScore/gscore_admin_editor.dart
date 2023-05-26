@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 void main() {
   runApp(MaterialApp(
     title: '관리자 목록 편집',
@@ -19,17 +18,17 @@ class GScoreEditor extends StatefulWidget {
 }
 
 class _GScoreEditorState extends State<GScoreEditor> {
-void initState(){
-  super.initState();
-  _fetchGsInfo();
-  _getMaxScore();
-}
+  void initState() {
+    super.initState();
+    _fetchGsInfo();
+    _getMaxScore();
+  }
 
   @override
-
   Future<void> _fetchGsInfo() async {
     if (activityTypes.isEmpty) {
-      final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      final typeResponse =
+          await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
       if (typeResponse.statusCode == 200) {
         final typeResult = jsonDecode(typeResponse.body);
         for (var typeItem in typeResult) {
@@ -47,26 +46,27 @@ void initState(){
     }
   }
 
-Future<void> _fetchNamesAndScores(String selectedType) async {
-  if (!activityNames.containsKey(selectedType)) {
-    final encodedType = Uri.encodeComponent(selectedType);
-    final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
-    if (infoResponse.statusCode == 200) {
-      final infoResult = jsonDecode(infoResponse.body);
-      activityNames[selectedType] = {};
-      for (var infoItem in infoResult) {
-        String gsinfoName = infoItem['gsinfo_name'];
-        int gsinfoScore = infoItem['gsinfo_score'];
-        activityNames[selectedType]![gsinfoName] = gsinfoScore;
+  Future<void> _fetchNamesAndScores(String selectedType) async {
+    if (!activityNames.containsKey(selectedType)) {
+      final encodedType = Uri.encodeComponent(selectedType);
+      final infoResponse = await http.get(Uri.parse(
+          'http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      if (infoResponse.statusCode == 200) {
+        final infoResult = jsonDecode(infoResponse.body);
+        activityNames[selectedType] = {};
+        for (var infoItem in infoResult) {
+          String gsinfoName = infoItem['gsinfo_name'];
+          int gsinfoScore = infoItem['gsinfo_score'];
+          activityNames[selectedType]![gsinfoName] = gsinfoScore;
+        }
+        setState(() {
+          activityNames;
+        });
+      } else {
+        throw Exception('Failed to load names and scores');
       }
-      setState(() {
-        activityNames;
-      });
-    } else {
-      throw Exception('Failed to load names and scores');
     }
   }
-}
 
   List<String> activityTypes = [];
   Map<String, Map<String, int>> activityNames = {};
@@ -76,34 +76,40 @@ Future<void> _fetchNamesAndScores(String selectedType) async {
   TextEditingController _activityScoreController = TextEditingController();
   TextEditingController _maxScoreController = TextEditingController();
 
-Map<String, dynamic> MaxScore = {};
+  Map<String, dynamic> MaxScore = {};
 
-Future<void> _getMaxScore() async {
-  final response = await http.get(
-    Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-  );
+  Future<void> _getMaxScore() async {
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final maxScoreTemp = jsonDecode(response.body);
-    for (var item in maxScoreTemp) {
-      String categoryName = item['max_category'];
-      int categoryScore = item['max_score'];
-      MaxScore[categoryName] = categoryScore;
+    if (response.statusCode == 200) {
+      final maxScoreTemp = jsonDecode(response.body);
+      for (var item in maxScoreTemp) {
+        String categoryName = item['max_category'];
+        int categoryScore = item['max_score'];
+        MaxScore[categoryName] = categoryScore;
+      }
+    } else {
+      throw Exception('예외 발생');
     }
-  } else {
-    throw Exception('예외 발생');
   }
-}
+
   String? _activityNameSave;
+  String? _activityscoreSave;
+  String? _selectedActivityType;
+  String? _selectedActivityName;
+  String? _selectedActivityScore;
+  int? _selectedMaxScore;
 
   void addActivityName() {
     String selectedActivityType = _activityTypeController.text;
     String newActivityName = _activityNameController.text;
     int newActivityScore = int.tryParse(_activityScoreController.text) ?? -1;
-    if (newActivityName.isNotEmpty &&
+    if (_selectedActivityName == null &&
         !activityNames[selectedActivityType]!.containsKey(newActivityName)) {
       setState(() {
         activityNames[selectedActivityType]![newActivityName] =
@@ -113,6 +119,7 @@ Future<void> _getMaxScore() async {
       });
     }
   }
+
   void fixActivityName() {
     String selectedActivityType = _activityTypeController.text;
     String newActivityName = _activityNameController.text;
@@ -128,12 +135,14 @@ Future<void> _getMaxScore() async {
       });
     }
   }
+
   void removeActivityName() {
     String selectedActivityType = _activityTypeController.text;
     String newActivityName = _activityNameController.text;
-    if (newActivityName.isNotEmpty ) {
+    if (newActivityName.isNotEmpty) {
       setState(() {
-        activityNames[selectedActivityType]?.remove(_activityNameController.text);
+        activityNames[selectedActivityType]
+            ?.remove(_activityNameController.text);
         _activityNameController.clear();
         _activityScoreController.clear();
       });
@@ -181,6 +190,11 @@ Future<void> _getMaxScore() async {
                       return ElevatedButton(
                         onPressed: () {
                           setState(() {
+                            _selectedActivityType = type;
+                            _selectedActivityName = null;
+                            _selectedActivityScore = null;
+                            _selectedMaxScore = MaxScore[type];
+                            _maxScoreController.text = MaxScore[type].toString();
                             _activityTypeController.text = type;
                             _fetchNamesAndScores(_activityTypeController.text);
                             _activityNameController.clear();
@@ -188,15 +202,17 @@ Future<void> _getMaxScore() async {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _activityTypeController.text == type ? Color(0xffbabfcc) : Color(0xffC1D3FF),
-                          elevation: _activityTypeController.text == type ? 2.0 : 0.0,
+                          backgroundColor: _activityTypeController.text == type
+                              ? Color(0xffbabfcc)
+                              : Color(0xffC1D3FF),
+                          elevation:
+                              _activityTypeController.text == type ? 2.0 : 0.0,
                         ),
                         child: Text(type),
                       );
                     }).toList(),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   // 활동 종류에 대한 드롭다운형식의 콤보박스
@@ -208,7 +224,6 @@ Future<void> _getMaxScore() async {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
@@ -227,39 +242,57 @@ Future<void> _getMaxScore() async {
                         child: Wrap(
                           spacing: 8.0,
                           runSpacing: 8.0,
-                          children: activityNames[_activityTypeController.text]?.entries.map((entry) {
-                            String name = entry.key;
-                            int score = entry.value;
-                            return Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: _activityNameController.text == name ? Colors.blue : Colors.transparent,
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _activityNameController.text = name;
-                                    _activityScoreController.text = score.toString();
-                                    _activityNameSave = name;
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _activityNameController.text == name ? Color(0xffbabfcc) : Color(0xffC1D3FF),
-                                  elevation: _activityNameController.text == name ? 2.0 : 0.0,
-                                ),
-                                child: Text('$name ($score)'),
-                              ),
-                            );
-                          }).toList() ?? <Widget>[],
+                          children: activityNames[_activityTypeController.text]
+                                  ?.entries
+                                  .map((entry) {
+                                String name = entry.key;
+                                int score = entry.value;
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color:
+                                          _activityNameController.text == name ?
+                                          Colors.blue : Colors.transparent,
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if(_selectedActivityName == name){
+                                        setState(() {
+                                        _selectedActivityName = null;
+                                        _selectedActivityScore = null;
+                                        _activityNameController.clear();
+                                        _activityScoreController.clear();
+                                        });
+                                      }
+                                      else {
+                                        setState(() {
+                                          _selectedActivityName = name;
+                                          _selectedActivityScore =
+                                              score.toString();
+                                          _activityNameController.text = name;
+                                          _activityScoreController.text =
+                                              score.toString();
+                                          _activityNameSave = name;
+                                        });
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _selectedActivityName == name
+                                              ? Color(0xffbabfcc) : Color(0xffC1D3FF),
+                                      elevation: _selectedActivityName == name ? 2.0 : 0.0,
+                                    ),
+                                    child: Text('$name ($score)'),
+                                  ),
+                                );
+                              }).toList() ??
+                              <Widget>[],
                         ),
                       ),
                     ),
                   ),
                 ),
-
-
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -288,82 +321,103 @@ Future<void> _getMaxScore() async {
                       ),
                       SizedBox(width: 8.0),
                       ElevatedButton(
-                        onPressed: addActivityName,
+                        onPressed: () {
+                          if (_selectedActivityName == null) {
+                            addActivityName();
+                          }
+                        },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            _selectedActivityName == null
+                                ? Color(0xffC1D3FF)
+                                : Color(0xffbabfcc),
+                          ),
                         ),
                         child: Text('추가'),
                       ),
                       SizedBox(width: 8.0),
                       ElevatedButton(
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('확인'),
-                                content: Text('정말로 수정하시겠습니까?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('취소'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      fixActivityName();
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('수정'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          if (_selectedActivityName != null) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('확인'),
+                                  content: Text('정말로 수정하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('취소'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        fixActivityName();
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('수정'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                          backgroundColor:
+                          MaterialStateProperty.all<Color>(
+                            _selectedActivityName != null
+                                ? Color(0xffC1D3FF)
+                                : Color(0xffbabfcc),
+                          ),
                         ),
                         child: Text('수정'),
                       ),
                       SizedBox(width: 8.0),
                       ElevatedButton(
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('확인'),
-                                content: Text('정말로 삭제하시겠습니까?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('취소'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      removeActivityName();
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('삭제'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          if (_selectedActivityName != null) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('확인'),
+                                  content: Text('정말로 삭제하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('취소'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        removeActivityName();
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('삭제'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                          backgroundColor:
+                          MaterialStateProperty.all<Color>(
+                            _selectedActivityName != null
+                                ? Color(0xffC1D3FF)
+                                : Color(0xffbabfcc),
+                          ),
                         ),
                         child: Text('삭제'),
                       ),
                     ],
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   // 활동 종류에 대한 드롭다운형식의 콤보박스
@@ -375,12 +429,22 @@ Future<void> _getMaxScore() async {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   // 활동 종류에 대한 드롭다운형식의 콤보박스
                   child: Row(
                     children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _activityTypeController,
+                          readOnly: true, // readOnly를 true로 설정하여 읽기 전용으로 만듭니다.
+                          decoration: InputDecoration(
+                            labelText: '활동종류',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.0),
                       Expanded(
                         child: TextFormField(
                           controller: _maxScoreController,
@@ -394,15 +458,21 @@ Future<void> _getMaxScore() async {
                       SizedBox(width: 8.0),
                       ElevatedButton(
                         onPressed: () {
+                          if(_selectedMaxScore != null){
                           String selectedType = _activityTypeController.text;
-                          int newScore = int.tryParse(_maxScoreController.text) ?? 0;
+                          _selectedMaxScore =
+                              int.tryParse(_maxScoreController.text) ?? 0;
                           setState(() {
-                            MaxScore[selectedType] = newScore;
+                            MaxScore[selectedType] = _selectedMaxScore;
                           });
-                          print(MaxScore);
+                          }
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffC1D3FF)),
+                          backgroundColor:
+                          MaterialStateProperty.all<Color>(
+                            _selectedMaxScore == null
+                                ? Color(0xffbabfcc) : Color(0xffC1D3FF),
+                          ),
                         ),
                         child: Text('수정'),
                       ),
