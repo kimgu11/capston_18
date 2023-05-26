@@ -25,7 +25,6 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     super.initState();
   }
 
-
   Future<void> _writePostAndFile() async {
     if (_activityType == null || _activityName == null) {
       showDialog(
@@ -62,12 +61,9 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     final Map<String, dynamic> postData = {
       'gspost_category': _activityType,
       'gspost_item': _activityName,
-      'gspost_score': int.tryParse(_activityScore),
       'gspost_content': _contentController.text,
       'gspost_pass': _applicationStatus,
       'gspost_reason': _rejectionReason,
-      'gspost_start_date': _startDate?.toIso8601String(),
-      'gspost_end_date': _endDate?.toIso8601String(),
       'gspost_file': fileCheck,
     };
 
@@ -209,27 +205,41 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   //학생정보 리스트
   Map<int, String> userInfo = {
     20180621: "김민구",
-    20160620: "곽예빈",
-    20170619: "이나훈",
+    20180620: "곽예빈",
+    20180619: "이나훈",
+    20170621: "김민구2",
+    20170620: "곽예빈2",
+    20170619: "이나훈2",
+    20160621: "김민구3",
+    20160620: "곽예빈3",
+    20160619: "이나훈3",
     20180618: "박태수"
   };
+
+  //선택한 학생 정보 저장
   Map<int, String> userInfosave = {};
   TextEditingController _userid = TextEditingController();
   int? _searchId;
 
+  //활동종류
+  String _activityType = "관리자 승인";
+
+  //활동명
+  TextEditingController _activityNamecontroller = TextEditingController();
+  String? _activityName;
+
+  //점수
+  TextEditingController _scoreController = TextEditingController();
+  String? _score;
+
+  void testPrint(){
+    print(userInfosave);
+    print(_activityType);
+    print(_activityName);
+    print(_score);
+  }
+
   bool isEditable = false;
-
-  //점수값
-  String _activityScore = '';
-
-  // 시작 날짜 선택박스에서 선택된 값
-  DateTime? _startDate;
-
-  // 종료 날짜 선택박스에서 선택된 값
-  DateTime? _endDate;
-
-  // 점수를 입력할 수 있는 박스에서 입력된 값
-  int? _subscore;
 
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String _applicationStatus = '대기';
@@ -257,19 +267,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   //업로드한 파일의 정보
   Map<String, dynamic> fileInfo = {};
 
-  //활동종류
-  String _activityType = "관리자 승인";
-  // 활동명에 대한 드롭다운형식의 콤보박스에서 선택된 값
-
-
-  //활동명 리스트
-  TextEditingController _activityNames = TextEditingController();
-  String? _activityName;
-
-  TextEditingController _scoreController = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
-
 
   @override
   Widget build(BuildContext context) {
@@ -296,27 +294,28 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Expanded(
-                    child: TextFormField(
-                      readOnly: true,
-                      initialValue: _activityType, // 값을 넣어줍니다.
-                      decoration: InputDecoration(
-                        labelText: '활동종류',
-                        border: OutlineInputBorder(),
-                      ),
+                  child: TextFormField(
+                    readOnly: true,
+                    initialValue: _activityType,
+                    decoration: InputDecoration(
+                      labelText: '활동종류',
+                      border: OutlineInputBorder(),
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Expanded(
-                    child: TextFormField(
-                      controller: _activityNames, // 값을 넣어줍니다.
-                      decoration: InputDecoration(
-                        labelText: '활동명',
-                        border: OutlineInputBorder(),
-                      ),
+                  child: TextFormField(
+                    controller: _activityNamecontroller,
+                    decoration: InputDecoration(
+                      labelText: '활동명',
+                      border: OutlineInputBorder(),
                     ),
+                    onChanged: (value) {
+                      setState(() {
+                        _activityName = value;
+                      });
+                    },
                   ),
                 ),
                 Row(
@@ -331,7 +330,12 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
-                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _score = value;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     Expanded(
@@ -361,11 +365,16 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () {
-                                    // 버튼을 눌렀을 때 동작할 코드를 추가하세요.
-                                    // 예를 들면, 학생을 추가하는 로직을 구현할 수 있습니다.
-                                    if (_searchId != null) {
-                                      print('검색 키워드: $_searchId');
+                                    if (_searchId != null &&
+                                        !userInfosave!
+                                            .containsKey(_userid.text)) {
+                                      int userid = int.parse(_userid.text);
+                                      setState(() {
+                                        userInfosave[userid] =
+                                        userInfo[userid]!;
+                                      });
                                     }
+                                    testPrint();
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -382,27 +391,65 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: userInfo.length,
-                    itemBuilder: (context, index) {
-                      int key = userInfo.keys.elementAt(index);
-                      String? name = userInfo[key];
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      constraints: BoxConstraints(
+                        minHeight: 0, // 최소 수직 크기
+                        maxHeight: 300, // 최대 수직 크기
+                      ),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: userInfo.length,
+                        itemBuilder: (context, index) {
+                          int key = userInfo.keys.elementAt(index);
+                          String? name = userInfo[key];
 
-                      if (_searchId != null && key.toString().startsWith(_searchId.toString())) {
-                        return ListTile(
-                          title: Text('$name($key)'),
-                          onTap: () {
-                            setState(() {
-                              _userid.text = key.toString();
-                            });
-                          },
-                        );
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    },
+                          if (_searchId != null &&
+                              key.toString().startsWith(_searchId.toString())) {
+                            return ListTile(
+                              title: Text('$name($key)'),
+                              onTap: () {
+                                setState(() {
+                                  _userid.text = key.toString();
+                                });
+                              },
+                            );
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        },
+                      ),
+                    )),
+
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey, // 경계선 색상 설정
+                        width: 2.0, // 경계선 두께 설정
+                      ),
+                      borderRadius: BorderRadius.circular(8.0), // 경계선을 둥글게 만듦
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Wrap(
+                        spacing: 8.0,
+                        children: userInfosave.entries.map((entry) {
+                          int key = entry.key;
+                          String value = entry.value;
+                          return Chip(
+                            label: Text('$value($key)'),
+                            onDeleted: () {
+                              setState(() {
+                                userInfosave.remove(key);
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
                 ),
 
@@ -424,7 +471,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                   child: Material(
                     elevation: 5.0, //그림자효과
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
-                    color: const Color(0xffC1D3FF),
+                    color: (_activityName != null && _score != null) ? const Color(0xffC1D3FF) : const Color(0xff808080),
                     child: MaterialButton(
                       onPressed: () async {
                         await _writePostAndFile();
@@ -441,7 +488,6 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                       child: const Text(
                         "저장",
                         style: TextStyle(
-                          color: Colors.white,
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
                         ),

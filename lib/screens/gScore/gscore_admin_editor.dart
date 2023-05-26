@@ -110,8 +110,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
     String selectedActivityType = _activityTypeController.text;
     String newActivityName = _activityNameController.text;
     int newActivityScore = int.tryParse(_activityScoreController.text) ?? -1;
-    if (_selectedActivityName == null &&
-        !activityNames[selectedActivityType]!.containsKey(newActivityName)) {
+    if (!activityNames[selectedActivityType]!.containsKey(newActivityName)) {
       setState(() {
         activityNames[selectedActivityType]![newActivityName] =
             newActivityScore;
