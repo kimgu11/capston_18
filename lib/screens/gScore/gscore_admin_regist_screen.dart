@@ -27,14 +27,14 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
 
 
   Future<void> _writePostAndFile() async {
-    if (_activityType == null || _activityName == null) {
+    if ( _activityName == null|| _score == null || int.parse(_score ?? '0') <= 0) {
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('알림'),
-            content: Text('활동 종류와 활동명은 필수 선택 항목입니다.'),
+            content: Text('활동명과 점수를 확인해주세요.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -59,17 +59,31 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
       return;
     }
 
+    List<int> stuId = [];
+
+    userInfosave.keys.forEach((key) {
+      stuId.add(key);
+    });
+
+    print(stuId);
     final Map<String, dynamic> postData = {
+      'gspost_student' : stuId,
       'gspost_category': _activityType,
       'gspost_item': _activityName,
+      'gspost_score': _contentController.text,
       'gspost_content': _contentController.text,
       'gspost_pass': '승인',
       'gspost_reason': '',
+
+      'gspost_start_date': '',
+      'gspost_end_date':'',
+
       'gspost_file': '0',
+
     };
 
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/gScore/write'),
+      Uri.parse('http://엄'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -120,7 +134,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   int? _searchId;
 
   //활동종류
-  String _activityType = "관리자 승인";
+  String _activityType = "관리자승인";
 
   //활동명
   TextEditingController _activityNamecontroller = TextEditingController();
