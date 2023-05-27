@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 //신청창
@@ -24,7 +23,6 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     super.initState();
     _getuserInfo();
   }
-
 
   Future<void> _writePostAndFile() async {
     if (_activityType == null || _activityName == null) {
@@ -112,7 +110,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   //학생정보 리스트
   Map<int, String> userInfo = {};
 
-  Map<int,Map<String,int>> userInfo2 = {};
+  Map<int, Map<String, int>> userInfo2 = {};
 
   //선택한 학생 정보 저장
   Map<int, String> userInfosave = {};
@@ -267,7 +265,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                                       int userid = int.parse(_userid.text);
                                       setState(() {
                                         userInfosave[userid] =
-                                        userInfo[userid]!;
+                                            userInfo[userid]!;
                                       });
                                     }
                                     testPrint();
@@ -389,23 +387,26 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                       ),
                       borderRadius: BorderRadius.circular(8.0), // 경계선을 둥글게 만듦
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Wrap(
-                        spacing: 8.0,
-                        children: userInfosave.entries.map((entry) {
-                          int key = entry.key;
-                          String value = entry.value;
-                          int? grade = userInfo2[key]![value];
-                          return Chip(
-                            label: Text('$value($key) $grade학년'),
-                            onDeleted: () {
-                              setState(() {
-                                userInfosave.remove(key);
-                              });
-                            },
-                          );
-                        }).toList(),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Wrap(
+                          spacing: 8.0,
+                          children: userInfosave.entries.map((entry) {
+                            int key = entry.key;
+                            String value = entry.value;
+                            int? grade = userInfo2[key]![value];
+                            return Chip(
+                              label: Text('$value($key) $grade학년'),
+                              onDeleted: () {
+                                setState(() {
+                                  userInfosave.remove(key);
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
                   ),
