@@ -447,13 +447,13 @@ class _GScoreEditorState extends State<GScoreEditor> {
                       SizedBox(width: 8.0),
                       ElevatedButton(
                         onPressed: () {
-                          if (_selectedActivityType !=null && _selectedActivityName == null) {
+                          if (_selectedActivityType !=null && _selectedActivityName == null && _selectedActivityType != "총점") {
                             addActivityName();
                           }
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                            _selectedActivityType !=null && _selectedActivityName == null
+                            _selectedActivityType !=null && _selectedActivityName == null &&_selectedActivityType != "총점"
                                 ? Color(0xffC1D3FF)
                                 : Color(0xffbabfcc),
                           ),
