@@ -319,64 +319,67 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  // 활동 종류에 대한 드롭다운형식의 콤보박스
-                  child: Row(
-                    children: [
-                      SizedBox(width: 8.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          addUserInfo(1);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffC1D3FF),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal, // 좌우 스크롤 가능하도록 설정
+                    child: Row(
+                      children: [
+                        SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            addUserInfo(1);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
+                          child: Text('1학년'),
                         ),
-                        child: Text('1학년'),
-                      ),
-                      SizedBox(width: 8.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          addUserInfo(2);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffC1D3FF),
+                        SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            addUserInfo(2);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
+                          child: Text('2학년'),
                         ),
-                        child: Text('2학년'),
-                      ),
-                      SizedBox(width: 8.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          addUserInfo(3);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffC1D3FF),
+                        SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            addUserInfo(3);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
+                          child: Text('3학년'),
                         ),
-                        child: Text('3학년'),
-                      ),
-                      SizedBox(width: 8.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          addUserInfo(4);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffC1D3FF),
+                        SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            addUserInfo(4);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
+                          child: Text('4학년'),
                         ),
-                        child: Text('4학년'),
-                      ),
-                      SizedBox(width: 8.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            userInfosave.clear();
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffC1D3FF),
+                        SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              userInfosave.clear();
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
+                          child: Text('비우기'),
                         ),
-                        child: Text('비우기'),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -384,32 +387,36 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                     height: 200,
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey, // 경계선 색상 설정
-                        width: 2.0, // 경계선 두께 설정
+                        color: Colors.grey,
+                        width: 2.0,
                       ),
-                      borderRadius: BorderRadius.circular(8.0), // 경계선을 둥글게 만듦
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Wrap(
-                        spacing: 8.0,
-                        children: userInfosave.entries.map((entry) {
-                          int key = entry.key;
-                          String value = entry.value;
-                          int? grade = userInfo2[key]![value];
-                          return Chip(
-                            label: Text('$value($key) $grade학년'),
-                            onDeleted: () {
-                              setState(() {
-                                userInfosave.remove(key);
-                              });
-                            },
-                          );
-                        }).toList(),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Wrap(
+                          spacing: 8.0,
+                          children: userInfosave.entries.map((entry) {
+                            int key = entry.key;
+                            String value = entry.value;
+                            int? grade = userInfo2[key]![value];
+                            return Chip(
+                              label: Text('$value($key) $grade학년'),
+                              onDeleted: () {
+                                setState(() {
+                                  userInfosave.remove(key);
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
                   ),
                 ),
+
+
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
