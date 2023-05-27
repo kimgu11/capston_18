@@ -364,6 +364,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
           request.fields['gspostid'] = widget.post['gspost_id'].toString();
           final response = await request.send();
+
           print(response.statusCode);
 
           if (response.statusCode == 201) {
