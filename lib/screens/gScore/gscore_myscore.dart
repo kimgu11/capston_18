@@ -22,6 +22,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
   int a = 0;
   int i = 0;
   List<Map<String, dynamic>> maxScores = [];
+  Map<String,int> Maxscore = {};
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
     final response = await http.get(
@@ -35,6 +36,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
         maxScores.add({
           maxCategory: maxScore,
         });
+        Maxscore[maxCategory] = maxScore;
       });
       return maxScores;
     } else {
@@ -84,7 +86,9 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
         sumScore += value as int;
       });
     }
-    a = 1000 - sumScore;
+
+    a = (Maxscore?["총점"] ?? 0) - sumScore;
+
     if (a < 0) {
       leftScore = '졸업이 가능해요 축하해요';
     } else {
