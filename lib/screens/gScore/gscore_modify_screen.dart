@@ -835,19 +835,14 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _activityName == 'TOPCIT' ||
-                              _activityName == '50일 이상'
-                              ? false
-                              : true,
+                          readOnly: _activityName == 'TOPCIT' || _activityName == '50일 이상' ? false : true,
                           decoration: const InputDecoration(
                             labelText: '점수',
                             border: OutlineInputBorder(),
                           ),
                           onChanged: _subscore_function,
                           controller: TextEditingController(
-                              text: _activityName == 'TOPCIT' && _subscore != null ? _subscore.toString()
-                                  : _activityName == '50일 이상' && _subscore != null ? _subscore.toString()
-                                  : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                            text: _activityScore != null ? _activityScore : activityNames[_activityType]?[_activityName]?.toString() ?? '',
                           ),
                         ),
                       ),
@@ -857,7 +852,9 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         padding: const EdgeInsets.all(8.0),
                         child: _activityName == 'TOPCIT' || _activityName == '50일 이상'
                             ? TextFormField(
-                          readOnly: userPermission != 2,
+                          enabled: userPermission == 2,
+                          readOnly: widget.post['gspost_accepted_score'] == null,
+                          initialValue: widget.post['gspost_accepted_score']?.toString() ?? '',
                           decoration: const InputDecoration(
                             labelText: '승인 점수',
                             border: OutlineInputBorder(),
@@ -865,14 +862,18 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              if (_activityName == 'TOPCIT' || _activityName == '50일 이상')
-                              {
-                                _inputscore = int.tryParse(value);
-                              }
+                              _inputscore = int.tryParse(value);
                             });
                           },
                         )
-                            : Container(),
+                            : TextFormField(
+                          enabled: false,
+                          initialValue: widget.post['gspost_accepted_score']?.toString() ?? '',
+                          decoration: const InputDecoration(
+                            labelText: '승인 점수',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
                       ),
                     ),
                   ],

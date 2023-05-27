@@ -101,7 +101,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
       final typeResult = jsonDecode(typeResponse.body);
       for (var typeItem in typeResult) {
         String gsinfoType = typeItem['gsinfo_type'];
-        if (!activityTypes.contains(gsinfoType)) {
+        if (gsinfoType != '관리자승인' && !activityTypes.contains(gsinfoType)) {
           activityTypes.add(gsinfoType);
         }
       }
