@@ -68,7 +68,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     final Map<String, dynamic> postData = {
       'gspost_student' : stuId,
       'gspost_category': _activityType,
-      'gspost_item': _activityName,
+      'gspost_item': _activityNamecontroller.text,
       'gspost_score': _contentController.text,
       'gspost_content': _contentController.text,
       'gspost_pass': '승인',
