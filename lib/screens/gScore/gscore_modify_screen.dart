@@ -362,7 +362,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
             http.MultipartFile.fromBytes('file', bytes, filename: fileName),
           );
 
-          request.fields['gspostid'] = postUserId.toString();
+          request.fields['gspostid'] = widget.post['gspost_id'].toString();
 
           final response = await request.send();
           print(response.statusCode);
