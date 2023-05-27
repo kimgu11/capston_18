@@ -447,7 +447,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                   child: Material(
                     elevation: 5.0, //그림자효과
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
-                    color: (_activityName != null && _score != null && _activityName != "" && _score != "")
+                    color: (_activityName != null && _score != null && _activityName != "" && _score != "" && userInfosave.isNotEmpty)
                         ? const Color(0xffC1D3FF)
                         : const Color(0xff808080),
                     child: MaterialButton(
