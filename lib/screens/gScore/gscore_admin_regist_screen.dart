@@ -447,11 +447,12 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                   child: Material(
                     elevation: 5.0, //그림자효과
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
-                    color: (_activityName != null && _score != null)
+                    color: (_activityName != null && _score != null && _activityName != "" && _score != "")
                         ? const Color(0xffC1D3FF)
                         : const Color(0xff808080),
                     child: MaterialButton(
                       onPressed: () async {
+                        testPrint();
                         await _writePostAndFile();
                         if (postUploadCheck == 1) {
                           Navigator.of(context).pop();
