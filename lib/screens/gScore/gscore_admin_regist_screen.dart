@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 //신청창
 void main() {
   runApp(MaterialApp(
@@ -25,6 +24,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     super.initState();
     _getuserInfo();
   }
+
 
   Future<void> _writePostAndFile() async {
     if (_activityType == null || _activityName == null) {
@@ -81,15 +81,11 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
 
     if (response.statusCode == 201) {
       postUploadCheck = 1;
-
     } else {
       print(response.statusCode);
       print('에러');
     }
   }
-
-
-
 
   Future<void> _getuserInfo() async {
     final response = await http.get(
@@ -105,18 +101,18 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
         int userId = item['student_id'];
         int userGrade = item['grade'];
         userInfo[userId] = userName;
-        //userInfo2[userId] = userInfo2[userId] = {userName: userGrade};
+        userInfo2[userId] = userInfo2[userId] = {userName: userGrade};
       }
-      //print(userInfo2);
+      print(userInfo2);
     } else {
       throw Exception('예외 발생');
     }
   }
 
   //학생정보 리스트
-  Map<int, String> userInfo = { };
+  Map<int, String> userInfo = {};
 
-  //Map<int,Map<String,int>> userInfo2 = {};
+  Map<int,Map<String,int>> userInfo2 = {};
 
   //선택한 학생 정보 저장
   Map<int, String> userInfosave = {};
@@ -134,7 +130,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   TextEditingController _scoreController = TextEditingController();
   String? _score;
 
-  void testPrint(){
+  void testPrint() {
     print(userInfosave);
     print(_activityType);
     print(_activityName);
@@ -144,11 +140,8 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
 
   bool isEditable = false;
 
-
   //비고란
   TextEditingController _contentController = TextEditingController();
-
-
 
   //작성된 게시글 번호
   int postId = 0;
@@ -156,9 +149,21 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   //게시글이 정상적으로 업로드 되었는지 체크
   int postUploadCheck = 0;
 
-
-
   final _formKey = GlobalKey<FormState>();
+
+  void addUserInfo(int grade) {
+    for (var entry in userInfo2.entries) {
+      var innerMap = entry.value;
+      for (var innerEntry in innerMap.entries) {
+        if (innerEntry.value == grade && !userInfosave.containsKey(entry.key)) {
+          setState(() {
+            userInfosave[entry.key] = innerEntry.key;
+          });
+          break;
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -294,11 +299,11 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                         itemBuilder: (context, index) {
                           int key = userInfo.keys.elementAt(index);
                           String? name = userInfo[key];
-
+                          int? grade = userInfo2[key]![name];
                           if (_searchId != null &&
                               key.toString().startsWith(_searchId.toString())) {
                             return ListTile(
-                              title: Text('$name($key)'),
+                              title: Text('$name($key) $grade학년'),
                               onTap: () {
                                 setState(() {
                                   _userid.text = key.toString();
@@ -311,6 +316,67 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                         },
                       ),
                     )),
+
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  // 활동 종류에 대한 드롭다운형식의 콤보박스
+                  child: Row(
+                    children: [
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          addUserInfo(1);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffC1D3FF),
+                        ),
+                        child: Text('1학년'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          addUserInfo(2);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffC1D3FF),
+                        ),
+                        child: Text('2학년'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          addUserInfo(3);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffC1D3FF),
+                        ),
+                        child: Text('3학년'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          addUserInfo(4);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffC1D3FF),
+                        ),
+                        child: Text('4학년'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            userInfosave.clear();
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffC1D3FF),
+                        ),
+                        child: Text('비우기'),
+                      ),
+                    ],
+                  ),
+                ),
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -330,8 +396,9 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                         children: userInfosave.entries.map((entry) {
                           int key = entry.key;
                           String value = entry.value;
+                          int? grade = userInfo2[key]![value];
                           return Chip(
-                            label: Text('$value($key)'),
+                            label: Text('$value($key) $grade학년'),
                             onDeleted: () {
                               setState(() {
                                 userInfosave.remove(key);
@@ -362,7 +429,9 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                   child: Material(
                     elevation: 5.0, //그림자효과
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
-                    color: (_activityName != null && _score != null) ? const Color(0xffC1D3FF) : const Color(0xff808080),
+                    color: (_activityName != null && _score != null)
+                        ? const Color(0xffC1D3FF)
+                        : const Color(0xff808080),
                     child: MaterialButton(
                       onPressed: () async {
                         await _writePostAndFile();
