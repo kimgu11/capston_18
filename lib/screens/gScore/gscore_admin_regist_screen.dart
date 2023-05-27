@@ -25,6 +25,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     _getuserInfo();
   }
 
+
   Future<void> _writePostAndFile() async {
     if (_activityType == null || _activityName == null) {
       showDialog(
