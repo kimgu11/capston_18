@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-//import 'package:capstone/screens/gScore/gscore_list_screen.dart';
-
+import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'dart:io';
 //import 'package:http_parser/http_parser.dart';
 //import 'package:path_provider/path_provider.dart';
@@ -674,6 +673,13 @@ class _GScoreApcState extends State<GScoreApc> {
                         }
                         if(postUploadCheck ==1){
                           Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => GScoreForm()))
+                              .then((value) {
+                            setState(() {});
+                          });
+
                         }else{
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
                         }

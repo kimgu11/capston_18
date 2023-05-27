@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 
 
 
@@ -611,6 +612,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     }
     if(postDeleteCheck ==1){
       Navigator.of(context).pop();
+      Navigator.of(context).pop();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => GScoreForm()))
+          .then((value) {
+        setState(() {});
+      });
     }
   }
 
@@ -1098,6 +1105,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             }
                             if(postUploadCheck ==1){
                               Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) => GScoreForm()))
+                                  .then((value) {
+                                setState(() {});
+                              });
                             }else{
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 수정 실패: 서버 오류')));
                             }

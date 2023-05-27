@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 //신청창
@@ -469,6 +469,12 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                           await _writePostAndFile();
                           if (postUploadCheck == 1) {
                             Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => AdminGScoreForm()))
+                                .then((value) {
+                              setState(() {});
+                            });
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
