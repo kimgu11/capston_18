@@ -33,12 +33,13 @@ class _GScoreApcState extends State<GScoreApc> {
 
   Future<void> _fetchLists() async {
     if (activityTypes.isEmpty) {
-      final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      final typeResponse =
+      await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
       if (typeResponse.statusCode == 200) {
         final typeResult = jsonDecode(typeResponse.body);
         for (var typeItem in typeResult) {
           String gsinfoType = typeItem['gsinfo_type'];
-          if (!activityTypes.contains(gsinfoType)) {
+          if (gsinfoType != '관리자승인' && !activityTypes.contains(gsinfoType)) {
             activityTypes.add(gsinfoType);
           }
         }
@@ -50,7 +51,6 @@ class _GScoreApcState extends State<GScoreApc> {
       }
     }
   }
-
   Future<void> _fetchNamesAndScores(String selectedType) async {
     if (!activityNames.containsKey(selectedType)) {
       final encodedType = Uri.encodeComponent(selectedType);

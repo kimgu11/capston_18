@@ -69,20 +69,18 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
       'gspost_student' : stuId,
       'gspost_category': _activityType,
       'gspost_item': _activityNamecontroller.text,
-      'gspost_score': _contentController.text,
+      'gspost_score': _score,
       'gspost_content': _contentController.text,
       'gspost_pass': '승인',
       'gspost_reason': '',
 
-      'gspost_start_date': '',
-      'gspost_end_date':'',
 
       'gspost_file': '0',
 
     };
-
+    print(postData);
     final response = await http.post(
-      Uri.parse('http://엄'),
+      Uri.parse('http://3.39.88.187:3000/gScore/allwrite'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
