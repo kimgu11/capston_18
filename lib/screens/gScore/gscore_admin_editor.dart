@@ -99,53 +99,171 @@ class _GScoreEditorState extends State<GScoreEditor> {
     }
   }
 
-  String? _activityNameSave;
-  String? _activityscoreSave;
+
   String? _selectedActivityType;
   String? _selectedActivityName;
   String? _selectedActivityScore;
   int? _selectedMaxScore;
 
-  void addActivityName() {
-    String selectedActivityType = _activityTypeController.text;
+  void addActivityName() async {
     String newActivityName = _activityNameController.text;
-    int newActivityScore = int.tryParse(_activityScoreController.text) ?? -1;
-    if (!activityNames[selectedActivityType]!.containsKey(newActivityName)) {
-      setState(() {
-        activityNames[selectedActivityType]![newActivityName] =
-            newActivityScore;
-        _activityNameController.clear();
-        _activityScoreController.clear();
-      });
+    int newActivityScore = int.tryParse(_activityScoreController.text) ?? 0;
+
+    if (newActivityName == null || newActivityScore <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('올바른 이름 및 점수를 입력하세요.')));
+    }
+    else {
+      if (!activityNames[_selectedActivityType]!.containsKey(newActivityName)) {
+        final Map<String, dynamic> postData = {
+          'category': _selectedActivityType,
+          'name': newActivityName,
+          'score': newActivityScore,
+        };
+
+
+        final response = await http.post(
+          Uri.parse('http://3.39.88.187:3000/gScore/insertInfo'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(postData),
+        );
+
+        if (response.statusCode == 201) {
+          setState(() {
+            activityNames[_selectedActivityType]![newActivityName] =
+                newActivityScore;
+            _activityNameController.clear();
+            _activityScoreController.clear();
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('항목이 추가되었습니다.')));
+          });
+        } else {
+          print(response.statusCode);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('등록 실패: 서버 오류')));
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('동일한 이름의 항목이 이미 존재합니다.')));
+      }
     }
   }
 
-  void fixActivityName() {
-    String selectedActivityType = _activityTypeController.text;
+  void updateActivityName() async {
     String newActivityName = _activityNameController.text;
-    int newActivityScore = int.tryParse(_activityScoreController.text) ?? -1;
-    if (newActivityName.isNotEmpty) {
-      setState(() {
-        activityNames[_activityTypeController.text]?.remove(_activityNameSave);
-        activityNames[selectedActivityType]![newActivityName] =
-            newActivityScore;
-        _activityNameController.clear();
-        _activityScoreController.clear();
-        _activityNameSave = null;
-      });
+    int newActivityScore = int.tryParse(_activityScoreController.text) ?? 0;
+
+    if (newActivityName == null || newActivityScore <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('올바른 이름 및 점수를 입력하세요.')));
+    }
+    else {
+      final Map<String, dynamic> postData = {
+        'category': _selectedActivityType,
+        'name': _selectedActivityName,
+        'newName': newActivityName,
+        'newScore': newActivityScore
+      };
+
+
+      final response = await http.post(
+        Uri.parse('http://3.39.88.187:3000/gScore/updateInfo'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(postData),
+      );
+
+      if (response.statusCode == 201) {
+        setState(() {
+          activityNames[_selectedActivityType]?.remove(_selectedActivityName);
+          activityNames[_selectedActivityType]![newActivityName] =
+              newActivityScore;
+          _selectedActivityName = null;
+          _selectedActivityScore = null;
+          _activityNameController.clear();
+          _activityScoreController.clear();
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('항목이 수정되었습니다.')));
+        });
+      } else {
+        print(response.statusCode);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('수정 실패: 서버 오류')));
+      }
+
     }
   }
 
-  void removeActivityName() {
-    String selectedActivityType = _activityTypeController.text;
-    String newActivityName = _activityNameController.text;
-    if (newActivityName.isNotEmpty) {
+  void removeActivityName() async{
+    final Map<String, dynamic> postData = {
+      'category': _selectedActivityType,
+      'name': _selectedActivityName,
+    };
+
+
+    final response = await http.delete(
+      Uri.parse('http://3.39.88.187:3000/gScore/deleteInfo'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(postData),
+    );
+
+    if (response.statusCode == 201) {
       setState(() {
-        activityNames[selectedActivityType]
-            ?.remove(_activityNameController.text);
+        activityNames[_selectedActivityType]
+            ?.remove(_selectedActivityName);
+        _selectedActivityName = null;
+        _selectedActivityScore = null;
         _activityNameController.clear();
         _activityScoreController.clear();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('항목이 삭제되었습니다.')));
       });
+    } else {
+      print(response.statusCode);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('삭제 실패: 서버 오류')));
+    }
+
+
+  }
+
+  void updateActivityType() async {
+    int newActivityTypeScore = int.tryParse(_maxScoreController.text) ?? 0;
+
+    if (newActivityTypeScore <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('0보다 큰 값을 입력하세요.')));
+    }
+    else {
+      final Map<String, dynamic> postData = {
+        'category': _selectedActivityType,
+        'newScore': newActivityTypeScore
+      };
+
+      final response = await http.post(
+        Uri.parse('http://3.39.88.187:3000/gScore/updateMaxScore'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(postData),
+      );
+
+      if (response.statusCode == 201) {
+        setState(() {
+          MaxScore[_selectedActivityType!] = newActivityTypeScore;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('항목이 수정되었습니다.')));
+      }
+      else {
+        print(response.statusCode);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('수정 실패: 서버 오류')));
+      }
     }
   }
 
@@ -274,7 +392,6 @@ class _GScoreEditorState extends State<GScoreEditor> {
                                           _activityNameController.text = name;
                                           _activityScoreController.text =
                                               score.toString();
-                                          _activityNameSave = name;
                                         });
                                       }
                                     },
@@ -330,13 +447,13 @@ class _GScoreEditorState extends State<GScoreEditor> {
                       SizedBox(width: 8.0),
                       ElevatedButton(
                         onPressed: () {
-                          if (_selectedActivityName == null) {
+                          if (_selectedActivityType !=null && _selectedActivityName == null) {
                             addActivityName();
                           }
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                            _selectedActivityName == null
+                            _selectedActivityType !=null && _selectedActivityName == null
                                 ? Color(0xffC1D3FF)
                                 : Color(0xffbabfcc),
                           ),
@@ -362,7 +479,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        fixActivityName();
+                                        updateActivityName();
                                         Navigator.of(context).pop();
                                       },
                                       child: Text('수정'),
@@ -467,16 +584,36 @@ class _GScoreEditorState extends State<GScoreEditor> {
                       ),
                       SizedBox(width: 8.0),
                       ElevatedButton(
+
                         onPressed: () {
-                          if(_selectedMaxScore != null){
-                          String selectedType = _activityTypeController.text;
-                          _selectedMaxScore =
-                              int.tryParse(_maxScoreController.text) ?? 0;
-                          setState(() {
-                            MaxScore[selectedType] = _selectedMaxScore;
-                          });
+                          if (_selectedActivityType != null) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('확인'),
+                                  content: Text('정말로 값을 수정하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('취소'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        updateActivityType();
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('수정'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           }
                         },
+
                         style: ButtonStyle(
                           backgroundColor:
                           MaterialStateProperty.all<Color>(
@@ -497,3 +634,4 @@ class _GScoreEditorState extends State<GScoreEditor> {
     );
   }
 }
+
