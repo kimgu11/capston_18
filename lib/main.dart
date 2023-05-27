@@ -463,7 +463,7 @@ class PercentDonutPaint extends CustomPainter {
     paint.color = activeColor; // 호를 그릴 때는 색을 바꿔줌.
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius),-pi / 2,
         arcAngle, false, paint); // 호(arc)를 그림.
-    drawText(canvas, size, "${(percentage * (maxScore["총점"] as num?)!).round()} / ${maxScore["총점"]}"); // 텍스트를 화면에 표시함.
+    drawText(canvas, size, "${(percentage *1000).round()} / 1000"); // 텍스트를 화면에 표시함.
   }
 
   // 원의 중앙에 텍스트를 적음.
