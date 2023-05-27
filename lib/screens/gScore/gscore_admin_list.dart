@@ -288,7 +288,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                             },
                             decoration: InputDecoration(
                               labelText: '학번 검색',
-                              hintText: '검색',
+                              hintText: '등록',
                               border: OutlineInputBorder(),
                               suffixIcon: IconButton(
                                 onPressed: () {
