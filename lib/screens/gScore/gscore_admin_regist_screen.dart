@@ -25,7 +25,6 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     _getuserInfo();
   }
 
-
   Future<void> _writePostAndFile() async {
     if ( _activityName == null|| _score == null || int.parse(_score ?? '0') <= 0) {
       showDialog(
@@ -114,19 +113,15 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
         String userName = item['name'];
         int userId = item['student_id'];
         int userGrade = item['grade'];
-        userInfo[userId] = userName;
-        userInfo2[userId] = userInfo2[userId] = {userName: userGrade};
+        userInfo[userId] = userInfo[userId] = {userName: userGrade};
       }
-      print(userInfo2);
+      print(userInfo);
     } else {
       throw Exception('예외 발생');
     }
   }
-
   //학생정보 리스트
-  Map<int, String> userInfo = {};
-
-  Map<int,Map<String,int>> userInfo2 = {};
+  Map<int, Map<String, int>> userInfo = {};
 
   //선택한 학생 정보 저장
   Map<int, String> userInfosave = {};
@@ -166,7 +161,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   final _formKey = GlobalKey<FormState>();
 
   void addUserInfo(int grade) {
-    for (var entry in userInfo2.entries) {
+    for (var entry in userInfo.entries) {
       var innerMap = entry.value;
       for (var innerEntry in innerMap.entries) {
         if (innerEntry.value == grade && !userInfosave.containsKey(entry.key)) {
@@ -176,6 +171,19 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
           break;
         }
       }
+    }
+  }
+
+  void addSearchUserInfo() {
+    if (_searchId != null && !userInfosave.containsKey(_userid.text)) {
+      int userid = int.parse(_userid.text);
+      setState(() {
+        var userInfo2 = userInfo[userid];
+        if (userInfo2 != null) {
+          var value = userInfo2.keys.toString();
+          userInfosave[userid] = value.substring(1, value.length - 1);
+        }
+      });
     }
   }
 
@@ -275,15 +283,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () {
-                                    if (_searchId != null &&
-                                        !userInfosave
-                                            .containsKey(_userid.text)) {
-                                      int userid = int.parse(_userid.text);
-                                      setState(() {
-                                        userInfosave[userid] =
-                                        userInfo[userid]!;
-                                      });
-                                    }
+                                    addSearchUserInfo();
                                     testPrint();
                                   },
                                   child: Padding(
@@ -312,8 +312,8 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                         itemCount: userInfo.length,
                         itemBuilder: (context, index) {
                           int key = userInfo.keys.elementAt(index);
-                          String? name = userInfo[key];
-                          int? grade = userInfo2[key]![name];
+                          String? name = userInfo[key]?.keys.isNotEmpty == true ? userInfo[key]!.keys.first : null;
+                          int? grade = userInfo[key]![name];
                           if (_searchId != null &&
                               key.toString().startsWith(_searchId.toString())) {
                             return ListTile(
@@ -394,7 +394,6 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                   ),
                 ),
 
-
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
@@ -414,7 +413,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                           children: userInfosave.entries.map((entry) {
                             int key = entry.key;
                             String value = entry.value;
-                            int? grade = userInfo2[key]![value];
+                            int? grade = userInfo[key]![value];
                             return Chip(
                               label: Text('$value($key) $grade학년'),
                               onDeleted: () {
@@ -429,8 +428,6 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                     ),
                   ),
                 ),
-
-
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
