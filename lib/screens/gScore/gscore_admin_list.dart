@@ -83,7 +83,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
       return ;
     }
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/posts'),
+      Uri.parse('http://3.39.88.187:3000/gScore/assposts'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,

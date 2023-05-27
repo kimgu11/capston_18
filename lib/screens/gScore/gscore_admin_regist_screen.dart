@@ -26,7 +26,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   }
 
   Future<void> _writePostAndFile() async {
-    if ( _activityName == null|| _score == null || int.parse(_score ?? '0') <= 0) {
+    if (_activityName == null || _score == null || int.parse(_score ?? '0') <= 0) {
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -52,8 +52,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     final token = await storage.read(key: 'token');
     if (token == null) {
       setState(() {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
       });
       return;
     }
@@ -66,17 +65,14 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
 
     print(stuId);
     final Map<String, dynamic> postData = {
-      'gspost_student' : stuId,
+      'gspost_student': stuId,
       'gspost_category': _activityType,
       'gspost_item': _activityNamecontroller.text,
       'gspost_score': _score,
       'gspost_content': _contentController.text,
       'gspost_pass': '승인',
       'gspost_reason': '',
-
-
       'gspost_file': '0',
-
     };
     print(postData);
     final response = await http.post(
@@ -94,6 +90,24 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
       postUploadCheck = 1;
     } else {
       print(response.statusCode);
+      print('에러');
+    }
+
+    final assWriteResponse = await http.post(
+      Uri.parse('http://3.39.88.187:3000/gScore/asswrite'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+      body: jsonEncode(postData),
+    );
+
+    print(assWriteResponse.statusCode);
+
+    if (assWriteResponse.statusCode == 201) {
+      // Success
+    } else {
+      print(assWriteResponse.statusCode);
       print('에러');
     }
   }
