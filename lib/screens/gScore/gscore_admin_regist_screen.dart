@@ -452,13 +452,15 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                         : const Color(0xff808080),
                     child: MaterialButton(
                       onPressed: () async {
-                        testPrint();
-                        await _writePostAndFile();
-                        if (postUploadCheck == 1) {
-                          Navigator.of(context).pop();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
+                        if(_activityName != null && _score != null && _activityName != "" && _score != "" && userInfosave.isNotEmpty){
+                          testPrint();
+                          await _writePostAndFile();
+                          if (postUploadCheck == 1) {
+                            Navigator.of(context).pop();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
+                          }
                         }
                       },
                       child: const Text(
