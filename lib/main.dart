@@ -83,6 +83,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
   Future<void> _getUserInfo() async {
     final token = await storage.read(key: 'token');
+    sumScore = 0;
 
     if (token == null) {
       return;
@@ -162,7 +163,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body:  RefreshIndicator(
+    onRefresh: () async {
+    setState(() async {
+      await _getUserInfo();
+    });
+    },
+    child:
+      SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
@@ -327,6 +335,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           ),
         ),
       ),
+    )
     );
   }
 }
