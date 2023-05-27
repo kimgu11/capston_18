@@ -279,7 +279,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                       child: Visibility(
                         visible: userPermission == 2,
                         child: Container(
-                          width: 200, // 원하는 가로 크기로 지정
+                          width: MediaQuery.of(context).size.width * 0.4, // 원하는 가로 크기로 지정
                           child: TextField(
                             onChanged: (value) {
                               setState(() {
@@ -366,7 +366,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                             ),
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.5,
+                            width: MediaQuery.of(context).size.width * 0.45,
                             alignment: Alignment.center,
                             child: Text(
                               "활동명",
