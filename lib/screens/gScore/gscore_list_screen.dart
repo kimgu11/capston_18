@@ -75,20 +75,6 @@ class _GScoreForm extends State<GScoreForm> {
   }
 
 
-/*
-  //전체 게시글 로드
-  Future<List<dynamic>> _fetchAllPosts() async {
-    final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/gScore/'));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load posts');
-    }
-  }
-*/
-
-
   Future<void> _fetchMyPosts() async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
@@ -394,7 +380,7 @@ class _GScoreForm extends State<GScoreForm> {
               Expanded(
                 flex: 7,
                 child: Visibility(
-                  visible: userPermission == 2, // permission 값이 2인 경우에만 보이도록 설정
+                  visible: userPermission == 2 || userPermission == 3, // permission 값이 2또는 3인 경우에만 보이도록 설정
                   child: Container(
                     margin: EdgeInsets.only(right: 8.0),
                     child: TextField(
@@ -421,20 +407,29 @@ class _GScoreForm extends State<GScoreForm> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => GScoreApc()),
-                  );
+                  if(userPermission ==1){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GScoreApc()),
+                    );
+                  }
                 },
                 child: Text(
                   '신청',
                   style: TextStyle(fontSize: 15),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xffC1D3FF),
-                  fixedSize: Size(width * 0.08, height * 0.055),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    userPermission == 1
+                        ? Color(0xffC1D3FF)
+                        : Color(0xffbabfcc),
+                  ),
+                  fixedSize: MaterialStateProperty.all<Size>(
+                    Size(width * 0.08, height * 0.055),
+                  ),
                 ),
               ),
+
               Container(width: 10,),
             ],
           ),

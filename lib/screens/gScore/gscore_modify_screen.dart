@@ -662,7 +662,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
               children: <Widget>[
                 Row(
                   children: [
-                    if (userPermission == 2)
+                    if (userPermission == 2 || userPermission == 3)
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -681,7 +681,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           ),
                         ),
                       ),
-                    if (userPermission == 2)
+                    if (userPermission == 2 || userPermission == 3)
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -715,7 +715,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         ? _activityType
                         : _selectedActivityType ?? _activityType,
                     onChanged:
-                    (userPermission == 2) || (_applicationStatus == '승인' || _applicationStatus == '반려')
+                    (userPermission == 2) || (_applicationStatus == '승인' || _applicationStatus == '반려') || (userPermission == 3)
                         ? null
                         : _onActivityTypeChanged,
                     items: activityTypes
@@ -910,7 +910,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
                     readOnly: _applicationStatus == '승인' ||
-                        _applicationStatus == '반려',
+                        _applicationStatus == '반려' || userPermission == 3,
                     decoration: const InputDecoration(
                       labelText: '비고',
                       border: OutlineInputBorder(),
@@ -1061,11 +1061,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Material(
                           elevation: 5.0, //그림자효과
                           borderRadius: BorderRadius.circular(30.0), //둥근효과
-                          color: (userPermission == 2 || _applicationStatus == '대기')
+                          color: ((userPermission == 2 || _applicationStatus == '대기') && userPermission != 3)
                               ? const Color(0xffC1D3FF)
                               : const Color(0xff808080),
                           child: MaterialButton(
-                            onPressed: (userPermission == 2 || _applicationStatus == '대기'|| _isLoading) ? () {
+                            onPressed: ((userPermission == 2 || _applicationStatus == '대기'|| _isLoading) && userPermission !=3) ? () {
                               deletePostConfirmation();
                             } : null,
                             child: _isLoading ? CircularProgressIndicator() :Text(
@@ -1083,11 +1083,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Material(
                         elevation: 5.0, //그림자효과
                         borderRadius: BorderRadius.circular(30.0), //둥근효과
-                        color: (userPermission == 2 || _applicationStatus == '대기')
+                        color: ((userPermission == 2 || _applicationStatus == '대기') && userPermission != 3)
                             ? const Color(0xffC1D3FF)
                             : const Color(0xff808080),
                         child: MaterialButton(
-                          onPressed: (userPermission == 2 || _applicationStatus == '대기'|| _isLoading)
+                          onPressed: ((userPermission == 2 || _applicationStatus == '대기'|| _isLoading) && userPermission !=3)
                               ? () async{
                             await updatePost();
                             if(postUploadCheck == 1){
