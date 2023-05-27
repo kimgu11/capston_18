@@ -10,6 +10,7 @@ import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
 import 'package:capstone/screens/gScore/gscore_admin_editor.dart';
 import 'package:capstone/screens/gScore/gscore_admin_regist_screen.dart';
+import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -279,6 +280,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
                 },
                 child: Text(
                   '관리자 신청 페이지',
+                  style: TextStyle(fontSize: 20),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  backgroundColor: Color(0xffC1D3FF),
+                ),
+              ),
+              SizedBox(height: 20.0),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AdminGScoreForm()),
+                  );
+                },
+                child: Text(
+                  '관리자 리스트 페이지',
                   style: TextStyle(fontSize: 20),
                 ),
                 style: ElevatedButton.styleFrom(
