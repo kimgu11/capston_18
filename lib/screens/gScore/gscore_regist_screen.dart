@@ -85,6 +85,7 @@ class _GScoreApcState extends State<GScoreApc> {
   }
 
   Future<void> _writePostAndFile() async {
+    setState(() => _isLoading = true);
     if (_activityType == null || _activityName == null) {
       showDialog(
         context: context,
@@ -143,6 +144,7 @@ class _GScoreApcState extends State<GScoreApc> {
     );
 
     print(response.statusCode);
+    setState(() => _isLoading = false);
 
     if (response.statusCode == 201) {
       postUploadCheck = 1;
@@ -252,7 +254,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
   bool isEditable = false;
 
-
+  bool _isLoading = false;
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
 
@@ -658,13 +660,17 @@ class _GScoreApcState extends State<GScoreApc> {
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
                     color: const Color(0xffC1D3FF),
                     child: MaterialButton(
-                      onPressed: () async{
+                      onPressed: (!_isLoading) ? () async{
                         await _writePostAndFile();
                         if(postUploadCheck ==1 && fileCheck ==1){
+                          setState(() => _isLoading = true);
                           await uploadFile();
+                          setState(() => _isLoading = false);
                         }
                         if(fileUploadCheck == 1){
+                          setState(() => _isLoading = true);
                           await _uploadfileToDB();
+                          setState(() => _isLoading = false);
                         }
                         if(postUploadCheck ==1){
                           Navigator.of(context).pop();
@@ -672,8 +678,8 @@ class _GScoreApcState extends State<GScoreApc> {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
                         }
 
-                        },
-                      child: const Text(
+                        } : null,
+                      child: _isLoading ? CircularProgressIndicator() : Text(
                         "신청하기",
                         style: TextStyle(
                           color: Colors.white,

@@ -30,7 +30,7 @@ class GScoreApcCt extends StatefulWidget {
 class _GScoreApcCtState extends State<GScoreApcCt> {
 
   String? _selectedActivityType;
-
+  bool _isLoading = false;
   int? userId;
   int? userPermission;
   String? userName;
@@ -317,6 +317,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<void> updateFile() async{
+    setState(() => _isLoading = true);
     if(selectedFile!=null){
       if(wasUploadedFile==1){
         await deleteFile();
@@ -338,12 +339,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       }
 
     }
-
+    setState(() => _isLoading = false); // 버튼 활성화
 
   }
 
   Future<void> uploadFile() async {
-
     if (selectedFile != null) {
       final String fileName = selectedFile!.name;
       final bytes = File(selectedFile!.path!).readAsBytesSync();
@@ -366,7 +366,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
           final response = await request.send();
 
           print(response.statusCode);
-
           if (response.statusCode == 201) {
             print("파일 등록 성공");
 
@@ -434,6 +433,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<void> deleteFile() async {
+    setState(() => _isLoading = true);
     if(wasUploadedFile==1) {
       final maxRetries = 3; // 최대 재시도 횟수
       var retryCount = 0; // 현재 재시도 횟수
@@ -447,7 +447,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
               'Content-Type': 'application/json; charset=UTF-8',
             },
           );
-
+          setState(() => _isLoading = false); // 버튼 활성화
           if (response.statusCode == 200) {
             print('파일 삭제 성공');
             return; // 성공적으로 요청을 보냈으면 메서드를 종료
@@ -467,6 +467,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     }
   }
   Future<void> updatePost() async {
+    setState(() => _isLoading = true);
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -506,7 +507,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       },
       body: jsonEncode(postData),
     );
-    print("api 실행?");
     if (response.statusCode == 200) {
       postUploadCheck = 1;
       print("게시글 업데이트 성공");
@@ -520,6 +520,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<void> deletePost() async {
+    setState(() => _isLoading = true);
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -538,7 +539,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
         'Authorization': token,
       },
     );
-
+    setState(() => _isLoading = false); // 버튼 활성화
     if (response.statusCode == 200) {
       postDeleteCheck = 1;
       print("게시글 삭제 성공");
@@ -1064,10 +1065,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                               ? const Color(0xffC1D3FF)
                               : const Color(0xff808080),
                           child: MaterialButton(
-                            onPressed: (userPermission == 2 || _applicationStatus == '대기') ? () {
+                            onPressed: (userPermission == 2 || _applicationStatus == '대기'|| _isLoading) ? () {
                               deletePostConfirmation();
                             } : null,
-                            child: const Text(
+                            child: _isLoading ? CircularProgressIndicator() :Text(
                               "삭제하기",
                               style: TextStyle(
                                 color: Colors.white,
@@ -1086,11 +1087,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                             ? const Color(0xffC1D3FF)
                             : const Color(0xff808080),
                         child: MaterialButton(
-                          onPressed: (userPermission == 2 || _applicationStatus == '대기')
+                          onPressed: (userPermission == 2 || _applicationStatus == '대기'|| _isLoading)
                               ? () async{
                             await updatePost();
                             if(postUploadCheck == 1){
+                              setState(() => _isLoading = true);
                               await updateFile();
+                              setState(() => _isLoading = false);
                             }
                             if(postUploadCheck ==1){
                               Navigator.of(context).pop();
@@ -1101,7 +1104,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
                           }
                               : null,
-                          child: const Text(
+                          child: _isLoading ? CircularProgressIndicator() :Text(
                             "수정하기",
                             style: TextStyle(
                               color: Colors.white,
