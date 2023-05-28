@@ -5,6 +5,8 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/gestures.dart';
 
 //신청글 목록 창
 final client = HttpClient();
@@ -172,6 +174,16 @@ class _GScoreForm extends State<GScoreForm> {
     }
   }
 
+  void _launchURL(String url) async {
+    final Uri launchUri = Uri.parse(url);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
     return GestureDetector(
@@ -304,7 +316,18 @@ class _GScoreForm extends State<GScoreForm> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                          text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.',
+                          text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.\n',
+                        ),
+                        TextSpan(
+                          text: '터치하면 졸업점수 내규 페이지로 이동합니다.',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              _launchURL('http://ce.hannam.ac.kr/sub5/menu_1.html?pPostNo=176133&pPageNo=4&pRowCount=10&isGongjiPostList=N');
+                            },
                         ),
                       ],
                     ),
@@ -313,6 +336,8 @@ class _GScoreForm extends State<GScoreForm> {
               ),
             ),
           ),
+
+
 
 
           Container(
