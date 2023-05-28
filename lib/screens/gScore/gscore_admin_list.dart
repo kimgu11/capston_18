@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:capstone/screens/gScore/gscore_modify_screen.dart';
-import 'package:capstone/screens/gScore/gscore_regist_screen.dart';
 import 'package:capstone/screens/gScore/gscore_admin_regist_screen.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -203,7 +202,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                   ),
                 ),
               ),
-              Container(width: MediaQuery.of(context).size.width * 0.14,
+              Container(width: MediaQuery.of(context).size.width * 0.2,
                 alignment: Alignment.center,
                 child: Text(
 
@@ -215,7 +214,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Container(width: MediaQuery.of(context).size.width * 0.5,
+              Container(width: MediaQuery.of(context).size.width * 0.3,
                 alignment: Alignment.center,
                 child: Text(
                   post['gspost_item'].toString(),
@@ -225,7 +224,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                   ),
                 ),
               ),
-              Container(width: MediaQuery.of(context).size.width * 0.13,
+              Container(width: MediaQuery.of(context).size.width * 0.18,
                 alignment: Alignment.center,
                 child: Text(
                   post['gspost_score'].toString(),
@@ -246,8 +245,6 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
     _filterStatus('관리자승인');
     return Scaffold(
         appBar: AppBar(
@@ -279,7 +276,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                       child: Visibility(
                         visible: userPermission == 2,
                         child: Container(
-                          width: MediaQuery.of(context).size.width * 0.4, // 원하는 가로 크기로 지정
+                          width: 600, // 원하는 가로 크기로 지정
                           child: TextField(
                             onChanged: (value) {
                               setState(() {
@@ -302,7 +299,6 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                       ),
                     ),
                   ),
-                  Container(width: MediaQuery.of(context).size.width * 0.4,),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -321,7 +317,6 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                   ),
                   SizedBox(width: 15,)
                 ],
-
               ),
               SizedBox(height: 10),
               Container(
@@ -343,7 +338,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                       child: Row(
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.1,
+                            width: MediaQuery.of(context).size.width * 0.15,
                             alignment: Alignment.center,
                             child: Text(
                               "No.",
@@ -355,7 +350,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                           ),
                           SizedBox(width: 10),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.14,
+                            width: MediaQuery.of(context).size.width * 0.08,
                             alignment: Alignment.center,
                             child: Text(
                               "추가일",
@@ -366,7 +361,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                             ),
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.45,
+                            width: MediaQuery.of(context).size.width * 0.42,
                             alignment: Alignment.center,
                             child: Text(
                               "활동명",
@@ -377,7 +372,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                             ),
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.13,
+                            width: MediaQuery.of(context).size.width * 0.07,
                             alignment: Alignment.center,
                             child: Text(
                               "점수",
