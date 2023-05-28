@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   }
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
-    final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
     final maxScores = await _getMaxScores();
     final response = await http.get(
-      Uri.parse('http://192.168.35.134:3000/gScore/user'),
+      Uri.parse('http://3.39.88.187:3000/gScore/user'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -385,12 +385,6 @@ class _PercentDonutState extends State<PercentDonut> {
     }
   }
 
-  Future<void> _refreshMaxScore() async {
-    setState(() {
-      _maxScoreFuture = _getMaxScore();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -409,14 +403,6 @@ class _PercentDonutState extends State<PercentDonut> {
         children: [
           Stack(
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  onPressed: _refreshMaxScore,
-                  icon: Icon(Icons.refresh),
-                  color: Colors.black45,
-                ),
-              ),
               Align(
                 alignment: Alignment.center,
                 child: Text(
