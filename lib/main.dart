@@ -45,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   final FlutterSecureStorage storage = FlutterSecureStorage();
   double percentage = 0.0;
   double newPercentage = 0.0;
+  double chartpercentage = 0.0;
   int sumScore = 0;
   double chartScore = 0;
   int i =0;
@@ -62,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   }
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
+    final response = await http.get(Uri.parse('http://192.168.35.134:3000/gScore/maxScore'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
@@ -90,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
     final maxScores = await _getMaxScores();
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/user'),
+      Uri.parse('http://192.168.35.134:3000/gScore/user'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -135,6 +136,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       ..addListener((){
         setState(() {
           percentage=lerpDouble(percentage,newPercentage,percentageAnimationController.value)!;
+          chartpercentage = percentage/0.85;
+          print(percentage);
+          print(chartpercentage);
         });
       });
   }
@@ -329,7 +333,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
                     ),
                   ),
                   SizedBox(height: 20.0),
-                  PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
+                  PercentDonut(percent: percentage, chartpercent: chartpercentage, color: Color(0xffC1D3FF)),
                 ],
               ),
             ),
@@ -340,8 +344,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 }
 
 class PercentDonut extends StatefulWidget {
-  const PercentDonut({Key? key, required this.percent, required this.color})
+  const PercentDonut({Key? key, required this.percent, required this.chartpercent, required this.color})
       : super(key: key);
+  final chartpercent;
   final percent;
   final color;
 
@@ -448,6 +453,7 @@ class _PercentDonutState extends State<PercentDonut> {
                   return CustomPaint(
                     painter: PercentDonutPaint(
                       percentage: widget.percent,
+                      chartpercentage: widget.chartpercent,
                       activeColor: widget.color,
                       maxScore: maxScore,
                     ),
@@ -464,12 +470,14 @@ class _PercentDonutState extends State<PercentDonut> {
 
 class PercentDonutPaint extends CustomPainter {
   final double percentage;
+  final double chartpercentage;
   final double textScaleFactor;
   final Color activeColor;
   final Map<String, dynamic> maxScore;
 
   PercentDonutPaint({
     required this.percentage,
+    required this.chartpercentage,
     required this.activeColor,
     required this.maxScore,
     this.textScaleFactor = 1.0,
@@ -494,7 +502,7 @@ class PercentDonutPaint extends CustomPainter {
     Offset center = Offset(size.width / 2, size.height / 2);
     canvas.drawCircle(center, radius, paint);
 
-    double arcAngle = 2 * pi * percentage;
+    double arcAngle = 2 * pi * chartpercentage;
     paint.color = activeColor;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
