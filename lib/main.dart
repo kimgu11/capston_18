@@ -47,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   double newPercentage = 0.0;
   double chartpercentage = 0.0;
   int sumScore = 0;
+  int mathScore = 0;
   double chartScore = 0;
   int i =0;
 
@@ -109,6 +110,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           if (value > maxScore) {
             allScore[key] = maxScore;
           }
+          if (maxScores.any((score) => score.containsKey('총점'))) {
+            final maxScore = maxScores.firstWhere((score) => score.containsKey('총점'))['총점'] as int;
+            mathScore = maxScore;
+          }
         }
       });
       allScore.forEach((key, value){
@@ -122,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
     percentage = newPercentage;
     newPercentage= chartScore;
     percentageAnimationController.forward();
+    mathScore;
   }
 
   @override
@@ -136,9 +142,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       ..addListener((){
         setState(() {
           percentage=lerpDouble(percentage,newPercentage,percentageAnimationController.value)!;
-          chartpercentage = percentage/0.85;
-          print(percentage);
-          print(chartpercentage);
+          chartpercentage = percentage/(mathScore/1000);
         });
       });
   }
