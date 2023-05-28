@@ -385,6 +385,12 @@ class _PercentDonutState extends State<PercentDonut> {
     }
   }
 
+  Future<void> _refreshMaxScore() async {
+    setState(() {
+      _maxScoreFuture = _getMaxScore();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -401,37 +407,47 @@ class _PercentDonutState extends State<PercentDonut> {
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Stack(
             children: [
-              Container(
-                width: 80,
-              ),
-              Text(
-                '졸업인증점수',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Align(
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  onPressed: _refreshMaxScore,
+                  icon: Icon(Icons.refresh),
+                  color: Colors.black45,
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyScorePage()),
-                  );
-                },
+              Align(
+                alignment: Alignment.center,
                 child: Text(
-                  '자세히',
+                  '졸업인증점수',
                   style: TextStyle(
-                    color: Colors.black45,
-                    fontSize: 16,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  elevation: 0,
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyScorePage()),
+                    );
+                  },
+                  child: Text(
+                    '자세히',
+                    style: TextStyle(
+                      color: Colors.black45,
+                      fontSize: 16,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
+                    onPrimary: Colors.black,
+                    elevation: 0,
+                  ),
                 ),
               ),
             ],
