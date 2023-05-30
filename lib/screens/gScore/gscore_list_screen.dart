@@ -80,7 +80,7 @@ class _GScoreForm extends State<GScoreForm> {
     const url = 'http://ce.hannam.ac.kr/sub5/menu_1.html?pPostNo=176133&pPageNo=4&pRowCount=10&isGongjiPostList=N';
     final Uri uri = Uri.parse(url);
     print(uri);
-      await launchUrl(uri);
+    await launchUrl(uri);
 
   }
 
@@ -282,12 +282,12 @@ class _GScoreForm extends State<GScoreForm> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-              '  졸업인증점수 신청/관리  ',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
+            '  졸업인증점수 신청/관리  ',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           backgroundColor: Color(0xffC1D3FF),
           centerTitle: true,
@@ -371,60 +371,60 @@ class _GScoreForm extends State<GScoreForm> {
             children: [
               Container(width: 10,),
               Container(
-                width: 120,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 1.0,
-                  ),
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                padding: const EdgeInsets.fromLTRB(10.0, 6.0, 4.0, 6.0),
-                child: Row(children: [
-                  DropdownButton<String>(
-                    value: postFilter,
-                    onChanged: (String? newValue) {
-                      _filterStatus(newValue ?? '');
-                      setState(() {
-                        postFilter = newValue ?? '' ;
-
-                      });
-                    },
-                    items: <String>['전체', '승인', '미승인']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                    icon: Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.black,
-                    ),
-                    underline: Container(), // 드롭다운 버튼 하단의 선 제거
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => GScoreForm()),
-                        );
-                      },
-                      icon: Icon(Icons.refresh),
+                  width: 120,
+                  decoration: BoxDecoration(
+                    border: Border.all(
                       color: Colors.grey,
-                      iconSize: 22.0,
+                      width: 1.0,
                     ),
+                    borderRadius: BorderRadius.circular(4.0),
                   ),
-                ],)
+                  padding: const EdgeInsets.fromLTRB(10.0, 6.0, 4.0, 6.0),
+                  child: Row(children: [
+                    DropdownButton<String>(
+                      value: postFilter,
+                      onChanged: (String? newValue) {
+                        _filterStatus(newValue ?? '');
+                        setState(() {
+                          postFilter = newValue ?? '' ;
+
+                        });
+                      },
+                      items: <String>['전체', '승인', '미승인']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                      icon: Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.black,
+                      ),
+                      underline: Container(), // 드롭다운 버튼 하단의 선 제거
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => GScoreForm()),
+                          );
+                        },
+                        icon: Icon(Icons.refresh),
+                        color: Colors.grey,
+                        iconSize: 22.0,
+                      ),
+                    ),
+                  ],)
               ),
-                    SizedBox(width: 12,),
+              SizedBox(width: 12,),
               Expanded(
                 flex: 7,
                 child: Visibility(

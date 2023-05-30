@@ -684,7 +684,7 @@ class _GScoreApcState extends State<GScoreApc> {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
                         }
 
-                        } : null,
+                      } : null,
                       child: _isLoading ? CircularProgressIndicator() : Text(
                         "신청하기",
                         style: TextStyle(

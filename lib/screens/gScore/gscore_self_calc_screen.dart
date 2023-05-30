@@ -69,7 +69,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   int _total = 0;
 
-  int _remainingScore = 800;
+  int _remainingScore = 0;
 
   List<String> activityTypes = [];
   Map<String, bool> loadedTypes = {};
@@ -165,6 +165,9 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     } else {
       throw Exception('예외 발생');
     }
+    setState(() {
+      _remainingScore=MaxScore["총점"];
+    });
   }
 
 
@@ -194,7 +197,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
             {'Type': _activityType!, 'Name': _activityName!, 'score': _score});
         setMaxscore();
         if (_remainingScore > 0) {
-          _remainingScore = 800 - _total;
+          _remainingScore = MaxScore["총점"] - _total;
           if (_remainingScore < 0) {
             _remainingScore = 0;
           }
@@ -212,7 +215,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
         setMaxscore();
 
         if (_remainingScore > 0) {
-          _remainingScore = 800 - _total;
+          _remainingScore = MaxScore["총점"] - _total;
           if (_remainingScore < 0) {
             _remainingScore = 0;
           }
@@ -280,9 +283,9 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
               items: activityTypes
                   .map<DropdownMenuItem<String>>(
                       (String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          ))
+                    value: value,
+                    child: Text(value),
+                  ))
                   .toList(),
             ),
             const SizedBox(height: 16),
@@ -295,14 +298,14 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
               value: _activityName,
               onChanged: _onActivityNameChanged,
               items: activityNames[_activityType]
-                      ?.entries
-                      .map<DropdownMenuItem<String>>(
-                          (MapEntry<String, int> entry) =>
-                              DropdownMenuItem<String>(
-                                value: entry.key,
-                                child: Text(entry.key),
-                              ))
-                      .toList() ??
+                  ?.entries
+                  .map<DropdownMenuItem<String>>(
+                      (MapEntry<String, int> entry) =>
+                      DropdownMenuItem<String>(
+                        value: entry.key,
+                        child: Text(entry.key),
+                      ))
+                  .toList() ??
                   [],
             ),
             const SizedBox(height: 16),
@@ -346,7 +349,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
               },
               controller: TextEditingController(
                   text: activityNames[_activityType]?[_activityName]
-                          ?.toString() ??
+                      ?.toString() ??
                       ''),
             ),
             SizedBox(height: 16.0),
@@ -372,7 +375,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                       border: OutlineInputBorder(),
                     ),
                     controller:
-                        TextEditingController(text: _remainingScore.toString()),
+                    TextEditingController(text: _remainingScore.toString()),
                   ),
                 ),
               ],
@@ -434,14 +437,14 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                                     eachTotal[activity['Type']]! <
                                         eachMaxTotal[activity['Type']]!) {
                                   eachMaxTotal[activity['Type']] =
-                                      eachTotal[activity['Type']]!;
+                                  eachTotal[activity['Type']]!;
                                 }
                                 _total = 0;
                                 eachMaxTotal.forEach((key, value) {
                                   _total += value;
                                 });
                                 if (_remainingScore >= 0) {
-                                  _remainingScore = 800 - _total;
+                                  _remainingScore = MaxScore["총점"] - _total;
                                   if (_remainingScore <= 0) {
                                     _remainingScore = 0;
                                   }

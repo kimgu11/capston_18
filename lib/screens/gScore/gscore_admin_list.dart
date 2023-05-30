@@ -338,7 +338,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                       child: Row(
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.15,
+                            width: MediaQuery.of(context).size.width * 0.13,
                             alignment: Alignment.center,
                             child: Text(
                               "No.",
@@ -350,7 +350,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                           ),
                           SizedBox(width: 10),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.08,
+                            width: MediaQuery.of(context).size.width * 0.12,
                             alignment: Alignment.center,
                             child: Text(
                               "추가일",
@@ -361,7 +361,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                             ),
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.42,
+                            width: MediaQuery.of(context).size.width * 0.4,
                             alignment: Alignment.center,
                             child: Text(
                               "활동명",
