@@ -208,22 +208,10 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
               children: [
                 Padding(
                   padding: EdgeInsets.only(
-                    top: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.013,
-                    right: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.035,
-                    bottom: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.01,
-                    left: MediaQuery
-                      .of(context)
-                      .size
-                      .width *0.035,
+                    top: MediaQuery.of(context).size.height * 0.013,
+                    right: MediaQuery.of(context).size.width * 0.035,
+                    bottom: MediaQuery.of(context).size.height * 0.01,
+                    left: MediaQuery.of(context).size.width * 0.035,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -241,7 +229,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                             style: TextStyle(fontSize: 20),
                           ),
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            padding: EdgeInsets.symmetric(vertical: 10.67), // 높이를 3분의 2로 조정
                             backgroundColor: Color(0xffC1D3FF),
                           ),
                         ),
@@ -261,7 +249,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                             style: TextStyle(fontSize: 20),
                           ),
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            padding: EdgeInsets.symmetric(vertical: 10.67), // 높이를 3분의 2로 조정
                             backgroundColor: Color(0xffC1D3FF),
                           ),
                         ),
@@ -281,7 +269,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                             style: TextStyle(fontSize: 20),
                           ),
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            padding: EdgeInsets.symmetric(vertical: 10.67), // 높이를 3분의 2로 조정
                             backgroundColor: Color(0xffC1D3FF),
                           ),
                         ),
@@ -289,6 +277,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
+
                 SizedBox(height: 5),
                 Container(
                   constraints: BoxConstraints(maxWidth: 370),
@@ -314,6 +303,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                                 color: Colors.black,
                               ),
                             ),
+                            SizedBox(height: 3,),
                             Text(
                               "${sumScore} / ${totalScore}",
                               style: TextStyle(
@@ -323,28 +313,28 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                               ),
                             ),
                             SizedBox(height: 10,),
-                            if (capstone)
-                              Text(
-                                "${leftScore+ " / " + "캡스톤 이수 : O"}",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "항목별 터치해서 자세히보기",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
-                              ),
-                            if (!capstone)
-                              Text(
-                                "${leftScore + " / " + "캡스톤 이수 : X"}",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                const SizedBox(width: 5), // 텍스트와 아이콘 사이의 간격
+                                Icon(
+                                  Icons.touch_app, // 터치 앱 아이콘
+                                  color: Colors.grey[600], // 짙은 회색
+                                  size: 18, // 아이콘 크기 조정
                                 ),
-                              ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                      Divider(),
                       Column(
                         children: [
                           for (int i = 0; i < maxScores.length; i += 3)
@@ -371,6 +361,25 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                             ),
                         ],
                       ),
+                      if (capstone)
+                        Text(
+                          "${leftScore+ " / " + "캡스톤 이수 : O"}",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      if (!capstone)
+                        Text(
+                          "${leftScore + " / " + "캡스톤 이수 : X"}",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      SizedBox(height: 10,)
                     ],
                   ),
                 ),
@@ -542,16 +551,7 @@ class _gScoreCheckState extends State<gScore_check> {
               offset: const Offset(0, 3),
             ),
           ],
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withOpacity(0.9),
-              Colors.white,
-              Colors.grey.withOpacity(0.9),
-            ],
-            stops: const [0.1, 0.5, 0.9],
-          ),
+          color: Colors.white, // 단색 배경
           border: Border.all(
             color: Colors.grey.withOpacity(0.5),
             width: 1.5,
