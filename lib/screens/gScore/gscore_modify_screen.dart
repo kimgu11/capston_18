@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
-
+import 'package:flutter/services.dart';
 
 
 
@@ -491,7 +491,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       'gspost_category': _activityType,
       'gspost_item': _activityName,
       'gspost_content': _contentController.text,
-      'gspost_score': _subscore,
+      'gspost_score': (_activityName == 'TOPCIT' || _activityName == '50일 이상') && (_applicationStatus == '대기' || _applicationStatus == '반려')  ? 0 : _subscore,
       'prev_gspost_pass': widget.post['gspost_pass'],
       'gspost_pass': _applicationStatus,
       'gspost_reason': _reasonController.text,
@@ -857,7 +857,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _activityName == 'TOPCIT' || _activityName == '50일 이상' ? false : true,
+                          readOnly: true,
                           decoration: const InputDecoration(
                             labelText: '점수',
                             border: OutlineInputBorder(),
@@ -877,6 +877,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           enabled: userPermission == 2,
                           readOnly: widget.post['gspost_accepted_score'] == null,
                           initialValue: widget.post['gspost_accepted_score']?.toString() ?? '',
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                           decoration: const InputDecoration(
                             labelText: '승인 점수',
                             border: OutlineInputBorder(),
@@ -910,7 +914,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         border: OutlineInputBorder(),
                       ),
                       value: _applicationStatus,
-                      onChanged: (userPermission == 2)
+                      onChanged: (userPermission == 2 && _activityType != '관리자승인')
                           ? (value) {
                         setState(() {
                           _applicationStatus = value ?? '';

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/services.dart';
 
 //신청창
 void main() {
@@ -269,6 +270,10 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                           onChanged: (value) {
                             setState(() {
                               _score = value;

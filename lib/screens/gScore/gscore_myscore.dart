@@ -275,25 +275,24 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                               ),
                             ),
                             SizedBox(height: 10,),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "항목별 터치해서 자세히보기",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[600],
-                                  ),
+                            if (capstone)
+                              Text(
+                                "${leftScore + " / " + "캡스톤 이수 : O"}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
-                                const SizedBox(width: 5), // 텍스트와 아이콘 사이의 간격
-                                Icon(
-                                  Icons.touch_app, // 터치 앱 아이콘
-                                  color: Colors.grey[600], // 짙은 회색
-                                  size: 18, // 아이콘 크기 조정
+                              ),
+                            if (!capstone)
+                              Text(
+                                "${leftScore + " / " + "캡스톤 이수 : X"}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
-                              ],
-                            ),
+                              ),
                           ],
                         ),
                       ),
@@ -324,24 +323,25 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                             ),
                         ],
                       ),
-                      if (capstone)
-                        Text(
-                          "${leftScore + " / " + "캡스톤 이수 : O"}",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "항목별 터치하여 자세히보기",
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                        ),
-                      if (!capstone)
-                        Text(
-                          "${leftScore + " / " + "캡스톤 이수 : X"}",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                          const SizedBox(width: 5), // 텍스트와 아이콘 사이의 간격
+                          Icon(
+                            Icons.touch_app, // 터치 앱 아이콘
+                            color: Colors.grey[600], // 짙은 회색
+                            size: 18, // 아이콘 크기 조정
                           ),
-                        ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -459,9 +459,6 @@ class _gScoreCheckState extends State<gScore_check> {
   }
 
 
-
-
-
   void _showScoreDetails() {
     showDialog(
       context: context,
@@ -552,7 +549,7 @@ class _gScoreCheckState extends State<gScore_check> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF1E90FF), // #1E90FF (Dodger Blue) 색상
+                    backgroundColor: Color(0xFF1E90FF), // #1E90FF (Dodger Blue) 색상
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();

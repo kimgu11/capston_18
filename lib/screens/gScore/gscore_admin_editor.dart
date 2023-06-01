@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/services.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -434,6 +436,10 @@ class _GScoreEditorState extends State<GScoreEditor> {
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                         ),
                       ),
                     ],
@@ -580,6 +586,10 @@ class _GScoreEditorState extends State<GScoreEditor> {
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                         ),
                       ),
                       SizedBox(width: 8.0),
