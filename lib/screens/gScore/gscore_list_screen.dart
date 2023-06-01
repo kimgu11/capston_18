@@ -15,7 +15,7 @@ final client = HttpClient();
 
 void main() {
   runApp(MaterialApp(
-    title: '졸업점수 신청 목록',
+    title: '졸업점수 신청 현황',
     home: GScoreForm(),
   ));
 }

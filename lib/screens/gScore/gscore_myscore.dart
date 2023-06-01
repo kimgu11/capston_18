@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:capstone/screens/gScore/gscore_regist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -219,44 +220,70 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                         .of(context)
                         .size
                         .height * 0.01,
+                    left: MediaQuery
+                      .of(context)
+                      .size
+                      .width *0.035,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SelfCalcScreen()),
-                          );
-                        },
-                        child: Text(
-                          '셀프 계산기',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          backgroundColor: Color(0xffC1D3FF),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SelfCalcScreen()),
+                            );
+                          },
+                          child: Text(
+                            '점수 계산기',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
                         ),
                       ),
                       SizedBox(width: 10),
                       // Add a space between the two buttons
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GScoreForm()),
-                          );
-                        },
-                        child: Text(
-                          '신청 목록',
-                          style: TextStyle(fontSize: 20),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => GScoreForm()),
+                            );
+                          },
+                          child: Text(
+                            '신청현황',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          backgroundColor: Color(0xffC1D3FF),
+                      ),
+                      SizedBox(width: 10),
+                      // Add a space between the two buttons
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => GScoreApc()),
+                            );
+                          },
+                          child: Text(
+                            '신청하기',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            backgroundColor: Color(0xffC1D3FF),
+                          ),
                         ),
                       ),
                     ],
