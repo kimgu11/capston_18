@@ -109,7 +109,7 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
     if (a < 0) {
       leftScore = '졸업인증점수 완료';
     } else {
-      leftScore = '${a}점 남음';
+      leftScore = '${a}점 남았어요 화이팅';
     }
 
 
@@ -301,7 +301,25 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
                             SizedBox(height: 10,),
                             if (capstone)
                               Text(
-                                "${leftScore + " / " + "캡스톤 이수 : O"}",
+                                leftScore,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            if (capstone)
+                              Text(
+                                "캡스톤 이수: O",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            if (!capstone)
+                              Text(
+                                leftScore,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -310,9 +328,9 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
                               ),
                             if (!capstone)
                               Text(
-                                "${leftScore + " / " + "캡스톤 이수 : X"}",
+                                "캡스톤 이수: X",
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),

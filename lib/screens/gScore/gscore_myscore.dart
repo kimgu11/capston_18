@@ -105,7 +105,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
     if (a < 0) {
       leftScore = '졸업인증점수 완료';
     } else {
-      leftScore = '${a}점 남음';
+      leftScore = '${a}점 남았어요 화이팅';
     }
     setState(() {
       sumScore;
@@ -277,7 +277,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                             SizedBox(height: 10,),
                             if (capstone)
                               Text(
-                                "${leftScore + " / " + "캡스톤 이수 : O"}",
+                                leftScore,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -286,13 +286,14 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                               ),
                             if (!capstone)
                               Text(
-                                "${leftScore + " / " + "캡스톤 이수 : X"}",
+                                leftScore,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),
                               ),
+
                           ],
                         ),
                       ),
