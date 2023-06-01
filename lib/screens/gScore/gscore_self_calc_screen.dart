@@ -258,7 +258,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
-          '졸업점수 계산기',
+          '졸업점수 자가점검',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,

@@ -6,6 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class MyScorePage extends StatefulWidget {
@@ -21,7 +23,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
   int a = 0;
   int i = 0;
   List<Map<String, dynamic>> maxScores = [];
-  Map<String,int> Maxscore = {};
+  Map<String, int> Maxscore = {};
   Map<String, dynamic> allScore = {};
   int student_id = 0;
   int? score = 0;
@@ -110,6 +112,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
       leftScore;
     });
   }
+
   Future<void> _getdetails() async {
     final token = await storage.read(key: 'token');
 
@@ -146,12 +149,10 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
           }
 
           details![category]![item] = score;
-
         }
       }
       print("디테일 출력");
       print(details);
-
     }
     capstone = isCapstoneDesignExists();
 
@@ -163,6 +164,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
       });
     }
   }
+
   bool isCapstoneDesignExists() {
     if (details != null) {
       for (final category in details!.keys) {
@@ -175,6 +177,15 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
     }
     return false;
   }
+
+  _launchURL() async {
+    const url = 'http://ce.hannam.ac.kr/sub5/menu_1.html?pPostNo=176133&pPageNo=4&pRowCount=10&isGongjiPostList=N';
+    final Uri uri = Uri.parse(url);
+    print(uri);
+    await launchUrl(uri);
+
+  }
+
   @override
   void initState() {
     super.initState();
@@ -202,79 +213,29 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
           centerTitle: true,
           backgroundColor: Color(0xffC1D3FF),
         ),
+        floatingActionButton: floatingButtons(),
         body: SingleChildScrollView(
           child: Center(
             child: Column(
               children: [
                 Padding(
                   padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 0.013,
-                    right: MediaQuery.of(context).size.width * 0.035,
-                    bottom: MediaQuery.of(context).size.height * 0.01,
-                    left: MediaQuery.of(context).size.width * 0.035,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SelfCalcScreen()),
-                            );
-                          },
-                          child: Text(
-                            '점수 계산기',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 10.67), // 높이를 3분의 2로 조정
-                            backgroundColor: Color(0xffC1D3FF),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      // Add a space between the two buttons
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => GScoreForm()),
-                            );
-                          },
-                          child: Text(
-                            '신청현황',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 10.67), // 높이를 3분의 2로 조정
-                            backgroundColor: Color(0xffC1D3FF),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      // Add a space between the two buttons
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => GScoreApc()),
-                            );
-                          },
-                          child: Text(
-                            '신청하기',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 10.67), // 높이를 3분의 2로 조정
-                            backgroundColor: Color(0xffC1D3FF),
-                          ),
-                        ),
-                      ),
-                    ],
+                    top: MediaQuery
+                        .of(context)
+                        .size
+                        .height * 0.013,
+                    right: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.035,
+                    bottom: MediaQuery
+                        .of(context)
+                        .size
+                        .height * 0.01,
+                    left: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.035,
                   ),
                 ),
 
@@ -344,7 +305,8 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                               children: [
                                 for (int j = i; j < i + 3 &&
                                     j < maxScores.length; j++)
-                                  if (maxScores[j].keys.first != '총점' && maxScores[j].keys.first != '캡스톤디자인')
+                                  if (maxScores[j].keys.first != '총점' &&
+                                      maxScores[j].keys.first != '캡스톤디자인')
                                     Expanded(
                                       child: Padding(
                                         padding: EdgeInsets.all(8),
@@ -364,7 +326,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                       ),
                       if (capstone)
                         Text(
-                          "${leftScore+ " / " + "캡스톤 이수 : O"}",
+                          "${leftScore + " / " + "캡스톤 이수 : O"}",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -380,7 +342,6 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                             color: Colors.black,
                           ),
                         ),
-                      SizedBox(height: 10,)
                     ],
                   ),
                 ),
@@ -389,6 +350,76 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
           ),
         ),
       ),
+    );
+  }
+
+  Widget? floatingButtons() {
+    return SpeedDial(
+      animatedIcon: AnimatedIcons.menu_close,
+      visible: true,
+      curve: Curves.bounceIn,
+      backgroundColor: Color(0xffC1D3FF),
+      children: [
+        SpeedDialChild(
+            child: const Icon(Icons.calculate, color: Colors.white, size: 30.0,),
+            label: "점수 자가점검",
+            labelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+                fontSize: 20.0),
+            backgroundColor: Color(0xffC1D3FF),
+            labelBackgroundColor: Color(0xffC1D3FF),
+            onTap: () {Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SelfCalcScreen()),
+            );}),
+        SpeedDialChild(
+            child: const Icon(Icons.menu_book, color: Colors.white, size: 30.0,),
+            label: "졸업인증 점수 내규 보러가기",
+            labelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+                fontSize: 20.0),
+            backgroundColor: Color(0xffC1D3FF),
+            labelBackgroundColor: Color(0xffC1D3FF),
+            onTap: () {  _launchURL();}),
+        SpeedDialChild(
+          child: const Icon(
+            Icons.article,
+            color: Colors.white,
+            size: 30.0,
+          ),
+          label: "신청 현황",
+          backgroundColor: Color(0xffC1D3FF),
+          labelBackgroundColor: Color(0xffC1D3FF),
+          labelStyle: const TextStyle(
+              fontWeight: FontWeight.w500, color: Colors.white, fontSize: 20.0 ),
+          onTap: () {Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => GScoreForm()),
+          );},
+        ),
+        SpeedDialChild(
+          child: const Icon(
+            Icons.edit_note,
+            color: Colors.white,
+            size: 30.0,
+          ),
+          label: "신청 하기",
+          backgroundColor: Color(0xffC1D3FF),
+          labelBackgroundColor: Color(0xffC1D3FF),
+          labelStyle: const TextStyle(
+              fontWeight: FontWeight.w500, color: Colors.white, fontSize: 20.0),
+          onTap: () {Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => GScoreApc()),
+          );},
+        )
+
+      ],
     );
   }
 }
