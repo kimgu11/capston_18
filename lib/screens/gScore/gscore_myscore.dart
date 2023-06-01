@@ -292,9 +292,10 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                   child: Column(
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(1),
                         child: Column(
                           children: [
+                            SizedBox(height: 10,),
                             Text(
                               "나의 졸업인증점수",
                               style: TextStyle(
