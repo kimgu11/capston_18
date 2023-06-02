@@ -17,7 +17,7 @@ final client = HttpClient();
 
 void main() {
   runApp(MaterialApp(
-    title: '졸업점수 신청 현황',
+    title: '졸업인증제 신청 현황',
     home: GScoreForm(),
   ));
 }
@@ -284,7 +284,7 @@ class _GScoreForm extends State<GScoreForm> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            '  졸업인증점수 신청/관리  ',
+            '  졸업인증제 신청/관리  ',
             style: TextStyle(
               color: Colors.white,
               fontSize: 20.0,
