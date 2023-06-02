@@ -334,7 +334,8 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
       // Android-specific code
       if (Platform.isAndroid) {
-        directory = await getExternalStorageDirectory();
+        directory = Directory('/storage/emulated/0/Download');
+        if (!await directory.exists()) directory = await getExternalStorageDirectory();
       } else {
         // iOS-specific code
         directory = await getApplicationDocumentsDirectory();
