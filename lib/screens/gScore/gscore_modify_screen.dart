@@ -321,14 +321,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<String?> downloadFile() async {
-
     final response = await http.get(
       Uri.parse('http://3.39.88.187:3000/gScore/download?reqPath=${Uri.encodeComponent(uploadedFilePath ?? '')}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-
 
     if (response.statusCode == 200) {
       final bytes = response.bodyBytes;
@@ -345,19 +343,31 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       print(directory);
 
       if (directory != null) {
-        final file = File('${directory.path}/$uploadedFileName');
+        final file = await _createUniqueFileName(directory, uploadedFileName!);
         await file.writeAsBytes(bytes);
-        return '파일이 다운로드 되었습니다';
-
+        return '파일이 다운로드되었습니다.';
       } else {
         return '저장 폴더 설정 오류';
       }
-    } else if(response.statusCode == 404){
+    } else if (response.statusCode == 404) {
       return '파일이 존재하지 않습니다.';
+    } else {
+      return '파일 다운로드 중 오류가 발생하였습니다.';
     }
-    else{
-      return '파일 다운로드중 오류가 발생하였습니다.';
+  }
+
+  Future<File> _createUniqueFileName(Directory directory, String originalFileName) async {
+    final fileExtension = originalFileName.split('.').last;
+    final baseFileName = originalFileName.substring(0, originalFileName.length - fileExtension.length - 1);
+    String uniqueFileName = originalFileName;
+    int count = 1;
+
+    while (await File('${directory.path}/$uniqueFileName').exists()) {
+      uniqueFileName = '$baseFileName($count).$fileExtension';
+      count++;
     }
+
+    return File('${directory.path}/$uniqueFileName');
   }
 
   Future<void> updateFile() async{
