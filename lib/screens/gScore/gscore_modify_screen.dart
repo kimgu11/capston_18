@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:flutter/services.dart';
-
+import 'package:share/share.dart';
 
 
 
@@ -78,7 +78,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   int wasUploadedFile = 0; //업로드된 파일이 있었는가?
   int fileCheck = 0; // 첨부파일이 있는가?
 
+
   PlatformFile? selectedFile; //저장소에서 선택한 파일
+
+  String downloadedFileName = '';
 
   //작성된 게시글 번호
   // 현재 페이지에는 int postUserId 변수에 할당되어 있음
@@ -336,9 +339,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       if (Platform.isAndroid) {
         directory = Directory('/storage/emulated/0/Download');
         if (!await directory.exists()) directory = await getExternalStorageDirectory();
-      } else {
-        // iOS-specific code
+      } else if (Platform.isIOS || Platform.isMacOS) {
         directory = await getApplicationDocumentsDirectory();
+      } else if (Platform.isWindows) {
+        directory = Directory('C:/Downloads');
+        if (!await directory.exists()) {
+          directory = await getApplicationDocumentsDirectory();
+        }
       }
 
       print(directory);
@@ -367,7 +374,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       uniqueFileName = '$baseFileName($count).$fileExtension';
       count++;
     }
-
+    downloadedFileName = '${directory.path}/$uniqueFileName';
     return File('${directory.path}/$uniqueFileName');
   }
 
@@ -1104,6 +1111,9 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                               onPressed: ()async {
                                 final String? downResult = await downloadFile();
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(downResult ?? '')));
+                                if((Platform.isIOS || Platform.isMacOS) && downResult! == '파일이 다운로드되었습니다.'){
+                                  Share.shareFiles([downloadedFileName]);
+                                }
                               },
                               icon: Icon(
                                 Icons.file_download,
