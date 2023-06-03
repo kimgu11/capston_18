@@ -225,7 +225,7 @@ class _GScoreForm extends State<GScoreForm> {
                   ),
                 ),
               ),
-              Container(width: MediaQuery.of(context).size.width * 0.16,
+              Container(width: MediaQuery.of(context).size.width * 0.17,
                 alignment: Alignment.center,
                 child: Text(
 
@@ -507,7 +507,7 @@ class _GScoreForm extends State<GScoreForm> {
                   child: Row(
                     children: [
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.1,
+                        width: MediaQuery.of(context).size.width * 0.13,
                         alignment: Alignment.center,
                         child: Text(
                           "No.",
@@ -519,7 +519,7 @@ class _GScoreForm extends State<GScoreForm> {
                       ),
                       Container(width: 10,),
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.14,
+                        width: MediaQuery.of(context).size.width * 0.1,
                         alignment: Alignment.center,
                         child: Text(
                           "신청일",
@@ -530,7 +530,7 @@ class _GScoreForm extends State<GScoreForm> {
                         ),
                       ),
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.3,
+                        width: MediaQuery.of(context).size.width * 0.33,
                         alignment: Alignment.center,
                         child: Text(
                           "활동종류",
@@ -541,7 +541,7 @@ class _GScoreForm extends State<GScoreForm> {
                         ),
                       ),
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.16,
+                        width: MediaQuery.of(context).size.width * 0.1,
                         alignment: Alignment.center,
                         child: Text(
                           "점수",
@@ -552,7 +552,7 @@ class _GScoreForm extends State<GScoreForm> {
                         ),
                       ),
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.13,
+                        width: MediaQuery.of(context).size.width * 0.22,
                         alignment: Alignment.center,
                         child: Text(
                           "신청상태",
