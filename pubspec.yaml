@@ -40,7 +40,7 @@ dependencies:
   url_launcher: ^6.0.10
   path_provider: ^2.0.2
   open_file: ^3.2.1
-  permission_handler: ^8.3.0
+  permission_handler: ^10.2.0
   flutter_speed_dial: ^6.2.0
   share: ^2.0.4
   # The following adds the Cupertino Icons font to your application.

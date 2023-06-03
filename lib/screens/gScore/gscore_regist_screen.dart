@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
 //import 'package:http_parser/http_parser.dart';
 //import 'package:path_provider/path_provider.dart';
 //import 'package:open_file/open_file.dart';
@@ -73,57 +74,86 @@ class _GScoreApcState extends State<GScoreApc> {
 
 
   void _selectFile() async {
-    final FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
-    );
-    if (result != null && result.files.isNotEmpty) {
-      final PlatformFile file = result.files.first;
-      final File selected = File(file.path!);
-      final int maxSize = 10 * 1024 * 1024; // 10MB를 바이트로 표현한 값
-      final int fileSize = await selected.length();
+    var status = await Permission.storage.status;
+    debugPrint('저장소 접근권한: ' + status.toString());
+    if(await Permission.storage.isDenied) {
+      PermissionStatus permissionStatus = await Permission.storage.request();
+      print('디나이?');
+      print(permissionStatus.isGranted);
+    }
+      if (await Permission.storage.isGranted) {
+        final FilePickerResult? result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        );
+        if (result != null && result.files.isNotEmpty) {
+          final PlatformFile file = result.files.first;
+          final File selected = File(file.path!);
+          final int maxSize = 10 * 1024 * 1024; // 10MB를 바이트로 표현한 값
+          final int fileSize = await selected.length();
 
-      if (fileSize <= maxSize) {
-        if (['jpg', 'jpeg', 'png', 'pdf'].contains(file.extension)) {
-          setState(() {
-            selectedFile = file;
-            fileCheck = 1;
-          });
-        } else {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('파일 확장자 오류'),
-              content: Text('JPG, PNG, PDF 형식의 파일만 지원합니다.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('확인'),
-                ),
-              ],
-            ),
-          );
+          if (fileSize <= maxSize) {
+            if (['jpg', 'jpeg', 'png', 'pdf'].contains(file.extension)) {
+              setState(() {
+                selectedFile = file;
+                fileCheck = 1;
+              });
+            } else {
+              showDialog(
+                context: context,
+                builder: (context) =>
+                    AlertDialog(
+                      title: Text('파일 확장자 오류'),
+                      content: Text('JPG, PNG, PDF 형식의 파일만 지원합니다.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('확인'),
+                        ),
+                      ],
+                    ),
+              );
+            }
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) =>
+                  AlertDialog(
+                    title: Text('파일 크기 초과'),
+                    content: Text('10MB 미만의 파일만 업로드 가능합니다.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('확인'),
+                      ),
+                    ],
+                  ),
+            );
+          }
         }
       } else {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text('파일 크기 초과'),
-            content: Text('10MB 미만의 파일만 업로드 가능합니다.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('확인'),
+          builder: (context) =>
+              AlertDialog(
+                title: Text('파일 액세스 권한 오류'),
+                content: Text('파일을 선택하려면 파일 액세스 권한이 필요합니다.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('확인'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
-    }
+
   }
 
   Future<void> _writePostAndFile() async {
