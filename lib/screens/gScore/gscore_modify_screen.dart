@@ -81,7 +81,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   PlatformFile? selectedFile; //저장소에서 선택한 파일
 
-  String downloadedFileName = '';
+  String downloadedFilePath = '';
 
   //작성된 게시글 번호
   // 현재 페이지에는 int postUserId 변수에 할당되어 있음
@@ -374,7 +374,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       uniqueFileName = '$baseFileName($count).$fileExtension';
       count++;
     }
-    downloadedFileName = '${directory.path}/$uniqueFileName';
+    downloadedFilePath = '${directory.path}/$uniqueFileName';
     return File('${directory.path}/$uniqueFileName');
   }
 
@@ -1112,7 +1112,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                                 final String? downResult = await downloadFile();
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(downResult ?? '')));
                                 if((Platform.isIOS || Platform.isMacOS) && downResult! == '파일이 다운로드되었습니다.'){
-                                  Share.shareFiles([downloadedFileName]);
+                                  Share.shareFiles([downloadedFilePath]);
                                 }
                               },
                               icon: Icon(
