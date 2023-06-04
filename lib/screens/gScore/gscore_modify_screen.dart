@@ -1194,11 +1194,11 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Material(
                           elevation: 5.0, //그림자효과
                           borderRadius: BorderRadius.circular(30.0), //둥근효과
-                          color: ((userPermission == 2 || _applicationStatus == '대기') && userPermission != 3)
+                          color: ((userPermission == 2 || _applicationStatus == '대기' || _applicationStatus == '반려') && userPermission != 3)
                               ? const Color(0xffC1D3FF)
                               : const Color(0xff808080),
                           child: MaterialButton(
-                            onPressed: ((userPermission == 2 || _applicationStatus == '대기'|| _isLoading) && userPermission !=3) ? () {
+                            onPressed: ((userPermission == 2 || _applicationStatus == '대기' || _applicationStatus == '반려' || _isLoading) && userPermission !=3) ? () {
                               deletePostConfirmation();
                             } : null,
                             child: _isLoading ? CircularProgressIndicator() :Text(

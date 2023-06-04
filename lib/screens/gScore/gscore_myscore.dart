@@ -27,6 +27,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
   Map<String, int> Maxscore = {};
   Map<String, dynamic> allScore = {};
   int student_id = 0;
+  int student_permission = 0;
   int? score = 0;
   Map<String, Map<String, List<int>>>? details;
   bool capstone = true;
@@ -86,6 +87,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
       final allScoreTemp = user['graduation_score'];
       final decodedAllScore = jsonDecode(allScoreTemp);
       student_id = user['student_id'];
+      student_permission = user['permission'];
 
       allScore.clear(); // 이전 값들을 제거하고 새로운 값을 저장
       allScore.addAll(decodedAllScore);
@@ -458,6 +460,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                 builder: (context) => GScoreForm()),
           );},
         ),
+        if (student_permission == 1)
         SpeedDialChild(
           child: const Icon(
             Icons.edit_note,
