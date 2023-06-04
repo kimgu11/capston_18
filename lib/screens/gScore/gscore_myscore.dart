@@ -417,7 +417,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
       animatedIcon: AnimatedIcons.menu_close,
       visible: true,
       curve: Curves.bounceIn,
-      backgroundColor: Color(0xffC1D3FF),
+      backgroundColor: Colors.blue,
       children: [
         SpeedDialChild(
             child: const Icon(Icons.calculate, color: Colors.white, size: 30.0,),
