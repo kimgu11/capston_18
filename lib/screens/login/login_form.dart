@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> { //LoginPage  --> _LoginPageStat
 
   @override
   Future<String?> loginUser(String studentId, String password) async {
-    final String apiUrl = 'http://3.39.88.187:3000/user/login?student_id=$studentId&password=$password'; // API URL 지정
+    final String apiUrl = 'http://203.247.42.144:443/user/login?student_id=$studentId&password=$password'; // API URL 지정
 
     final response = await http.post(
       Uri.parse(apiUrl),

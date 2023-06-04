@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:dio/dio.dart';
 //import 'package:http_parser/http_parser.dart';
 //import 'package:path_provider/path_provider.dart';
 //import 'package:open_file/open_file.dart';
@@ -34,7 +35,7 @@ class _GScoreApcState extends State<GScoreApc> {
   Future<void> _fetchLists() async {
     if (activityTypes.isEmpty) {
       final typeResponse =
-      await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      await http.get(Uri.parse('http://203.247.42.144:443/gScore/getType'));
       if (typeResponse.statusCode == 200) {
         final typeResult = jsonDecode(typeResponse.body);
         for (var typeItem in typeResult) {
@@ -54,7 +55,7 @@ class _GScoreApcState extends State<GScoreApc> {
   Future<void> _fetchNamesAndScores(String selectedType) async {
     if (!activityNames.containsKey(selectedType)) {
       final encodedType = Uri.encodeComponent(selectedType);
-      final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      final infoResponse = await http.get(Uri.parse('http://203.247.42.144:443/gScore/getInfoByType/$encodedType'));
       if (infoResponse.statusCode == 200) {
         final infoResult = jsonDecode(infoResponse.body);
         activityNames[selectedType] = {};
@@ -88,7 +89,7 @@ class _GScoreApcState extends State<GScoreApc> {
         if (result != null && result.files.isNotEmpty) {
           final PlatformFile file = result.files.first;
           final File selected = File(file.path!);
-          final int maxSize = 10 * 1024 * 1024; // 10MB를 바이트로 표현한 값
+          final int maxSize = 5 * 1024 * 1024; // 10MB를 바이트로 표현한 값
           final int fileSize = await selected.length();
 
           if (fileSize <= maxSize) {
@@ -121,7 +122,7 @@ class _GScoreApcState extends State<GScoreApc> {
               builder: (context) =>
                   AlertDialog(
                     title: Text('파일 크기 초과'),
-                    content: Text('10MB 미만의 파일만 업로드 가능합니다.'),
+                    content: Text('5MB 미만의 파일만 업로드 가능합니다.'),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -208,7 +209,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
 
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/gScore/write'),
+      Uri.parse('http://203.247.42.144:443/gScore/write'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -237,33 +238,44 @@ class _GScoreApcState extends State<GScoreApc> {
 
     if (selectedFile != null) {
       final String fileName = selectedFile!.name;
-      final bytes = File(selectedFile!.path!).readAsBytesSync();
+      final filePath = selectedFile!.path!;
 
-      final maxRetries = 4; // 최대 재시도 횟수
+      final maxRetries = 3; // 최대 재시도 횟수
       var retryCount = 0; // 현재 재시도 횟수
+
+      // Timeout values
+      final connectTimeout = 60000; // 60 seconds
+      final receiveTimeout = 30000; // 30 seconds
 
       while (retryCount < maxRetries) {
         try {
-          final request = http.MultipartRequest(
-            'POST',
-            Uri.parse('http://3.39.88.187:3000/gScore/upload'),
+          var formData = FormData.fromMap({
+            'file': await MultipartFile.fromFile(filePath, filename: fileName),
+            'gspostid': postId.toString(),
+          });
+
+          // Set timeout values for this Dio instance
+          var dio = Dio(
+            BaseOptions(
+              connectTimeout: connectTimeout,
+              receiveTimeout: receiveTimeout,
+            ),
           );
 
-          request.files.add(
-            http.MultipartFile.fromBytes('file', bytes, filename: fileName),
+          var response = await dio.post(
+            'http://203.247.42.144:443/gScore/upload',
+            data: formData,
+            onSendProgress: (int sent, int total) {
+              print("$sent $total");
+            },
           );
 
-          request.fields['gspostid'] = postId.toString();
-
-          final response = await request.send();
           print(response.statusCode);
 
           if (response.statusCode == 201) {
             print("파일 등록 성공");
 
-            var responseData = await response.stream.bytesToString();
-            var decodedData = json.decode(responseData);
-            var file = decodedData['file'];
+            var file = response.data['file'];
 
             fileInfo = {
               'post_id': postId,
@@ -299,7 +311,7 @@ class _GScoreApcState extends State<GScoreApc> {
     while (retryCount < maxRetries) {
       try {
         final response = await http.post(
-          Uri.parse('http://3.39.88.187:3000/gScore/fileToDB'),
+          Uri.parse('http://203.247.42.144:443/gScore/fileToDB'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

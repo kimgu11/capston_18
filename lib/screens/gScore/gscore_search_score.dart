@@ -37,7 +37,7 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
     final response = await http.get(
-        Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
+        Uri.parse('http://203.247.42.144:443/gScore/maxScore'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
@@ -78,7 +78,7 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
     }
     final response = await http.get(
       Uri.parse(
-          'http://3.39.88.187:3000/gScore/getselUserInfo?student_id=${widget
+          'http://203.247.42.144:443/gScore/getselUserInfo?student_id=${widget
               .student_id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -141,7 +141,7 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
 
       print(postData);
       final detailsResponse = await http.post(
-        Uri.parse('http://3.39.88.187:3000/gScore/detail'),
+        Uri.parse('http://203.247.42.144:443/gScore/detail'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': token,

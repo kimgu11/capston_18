@@ -44,7 +44,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> signup(String student_id, String email, String name, String password, int grade) async {
-    final String apiUrl='http://3.39.88.187:3000/user/signup';
+    final String apiUrl='http://203.247.42.144:443/user/signup';
     final String studentId = student_id.trim();
     final String nameValue = name.trim();
     final String emailValue = email.trim();
