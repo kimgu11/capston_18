@@ -78,8 +78,7 @@ class _GScoreApcState extends State<GScoreApc> {
     debugPrint('저장소 접근권한: ' + status.toString());
     if(await Permission.storage.isDenied) {
       PermissionStatus permissionStatus = await Permission.storage.request();
-      print('디나이?');
-      print(permissionStatus.isGranted);
+      debugPrint(permissionStatus.isGranted.toString());
     }
       if (await Permission.storage.isGranted) {
         final FilePickerResult? result = await FilePicker.platform.pickFiles(
