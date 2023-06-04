@@ -23,12 +23,14 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
   int a = 0;
   int i = 0;
   List<Map<String, dynamic>> maxScores = [];
+  List<Map<String, dynamic>> _maxScores = [];
   Map<String, int> Maxscore = {};
   Map<String, dynamic> allScore = {};
   int student_id = 0;
   int? score = 0;
-  Map<String, Map<String, int>>? details;
+  Map<String, Map<String, List<int>>>? details;
   bool capstone = true;
+  String _capstone = '';
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
     final response = await http.get(
@@ -42,6 +44,11 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
         maxScores.add({
           maxCategory: maxScore,
         });
+        if (maxCategory != '총점' &&maxCategory != '캡스톤디자인') {
+          _maxScores.add({
+            maxCategory: maxScore,
+          });
+        }
         Maxscore[maxCategory] = maxScore;
       });
       return maxScores;
@@ -97,15 +104,14 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
         sumScore += value as int;
       });
 
-      _getdetails();
     }
 
     a = (Maxscore ["총점"] ?? 0) - sumScore;
-
+    _getdetails();
     if (a < 0) {
       leftScore = '졸업인증점수 완료';
     } else {
-      leftScore = '${a}점 남았어요 화이팅';
+      leftScore = '${a}점 남음';
     }
     setState(() {
       sumScore;
@@ -148,7 +154,11 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
             details![category] = {};
           }
 
-          details![category]![item] = score;
+          if (details![category]![item] == null) {
+            details![category]![item] = [];
+          }
+
+          details![category]![item]?.add(score);
         }
       }
       print("디테일 출력");
@@ -156,11 +166,17 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
     }
     capstone = isCapstoneDesignExists();
 
+    if (capstone) {
+      _capstone = "이수 완료";
+    } else {
+      _capstone = "이수 필요";
+    }
 
     if (mounted) {
       setState(() {
         details;
         capstone;
+        _capstone;
       });
     }
   }
@@ -192,9 +208,11 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
     _getUserInfo();
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return SafeArea(
       top: false,
       bottom: false,
@@ -220,28 +238,17 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
               children: [
                 Padding(
                   padding: EdgeInsets.only(
-                    top: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.013,
-                    right: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.035,
-                    bottom: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.01,
-                    left: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.035,
+                    top: screenHeight * 0.013,
+                    right: screenWidth * 0.035,
+                    bottom: screenHeight * 0.01,
+                    left: screenWidth * 0.035,
                   ),
                 ),
-
                 SizedBox(height: 5),
                 Container(
-                  constraints: BoxConstraints(maxWidth: 370),
+                  constraints: BoxConstraints(
+                    maxWidth: screenWidth * 0.9,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16.0),
                     color: Colors.white,
@@ -256,7 +263,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                         padding: EdgeInsets.all(1),
                         child: Column(
                           children: [
-                            SizedBox(height: 10,),
+                            SizedBox(height: 10),
                             Text(
                               "나의 졸업인증점수",
                               style: TextStyle(
@@ -265,7 +272,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 3,),
+                            SizedBox(height: 3),
                             Text(
                               "${sumScore} / ${totalScore}",
                               style: TextStyle(
@@ -274,75 +281,120 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 10,),
-                            if (capstone)
-                              Text(
-                                leftScore,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            if (!capstone)
-                              Text(
-                                leftScore,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          for (int i = 0; i < maxScores.length; i += 3)
+                            SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                for (int j = i; j < i + 3 &&
-                                    j < maxScores.length; j++)
-                                  if (maxScores[j].keys.first != '총점' &&
-                                      maxScores[j].keys.first != '캡스톤디자인')
-                                    Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: gScore_check(
-                                          name: maxScores[j].keys.first,
-                                          maxScore: maxScores[j].values.first,
-                                          studentid: student_id,
-                                          allScore: allScore,
-                                          score: score,
-                                          details: details,
-                                        ),
+                                Text(
+                                  "항목별 터치해서 자세히보기",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Icon(
+                                  Icons.touch_app,
+                                  color: Colors.grey[600],
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Wrap(
+                        alignment: WrapAlignment.start,
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (int i = 0; i < _maxScores.length; i += 3)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                for (int j = i;
+                                j < i + 3 && j < _maxScores.length;
+                                j++)
+                                  SizedBox(
+                                    width: screenWidth * 0.29,
+                                    height: screenHeight * 0.12,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8),
+                                      child: gScore_check(
+                                        name: _maxScores[j].keys.first,
+                                        maxScore: _maxScores[j].values.first,
+                                        studentid: student_id,
+                                        allScore: allScore,
+                                        score: score,
+                                        details: details,
                                       ),
                                     ),
+                                  ),
                               ],
                             ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Column(
                         children: [
-                          Text(
-                            "항목별 터치하여 자세히보기",
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[600],
+                          GestureDetector(
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                height: 75,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      child: Text(
+                                        "캡스톤디자인",
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Container(
+                                      color: Colors.transparent,
+                                      child: Text(
+                                        _capstone,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 5), // 텍스트와 아이콘 사이의 간격
-                          Icon(
-                            Icons.touch_app, // 터치 앱 아이콘
-                            color: Colors.grey[600], // 짙은 회색
-                            size: 18, // 아이콘 크기 조정
                           ),
                         ],
                       ),
+                      SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -353,6 +405,10 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
       ),
     );
   }
+
+
+
+
 
   Widget? floatingButtons() {
     return SpeedDial(
@@ -441,7 +497,7 @@ class gScore_check extends StatefulWidget {
   final int studentid;
   final Map<String, dynamic> allScore;
   final int? score;
-  final Map<String, Map<String, int>>? details;
+  final Map<String, Map<String, List<int>>>? details;
 
   @override
   _gScoreCheckState createState() => _gScoreCheckState();
@@ -452,6 +508,8 @@ class _gScoreCheckState extends State<gScore_check> {
 
   dynamic myscore;
   dynamic maxscore;
+
+
   @override
   void initState() {
     super.initState();
@@ -550,7 +608,7 @@ class _gScoreCheckState extends State<gScore_check> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF1E90FF), // #1E90FF (Dodger Blue) 색상
+                    primary: Color(0xFF1E90FF), // #1E90FF (Dodger Blue) 색상
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -566,58 +624,119 @@ class _gScoreCheckState extends State<gScore_check> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _showScoreDetails,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        width: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
+    if (widget.name == "취업/대학원진학" || widget.name == "졸업작품입상") {
+      return GestureDetector(
+        onTap: _showScoreDetails,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          width: 100,
+          height: 75,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+            color: Colors.white, // 단색 배경
+            border: Border.all(
               color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+              width: 1.5,
             ),
-          ],
-          color: Colors.white, // 단색 배경
-          border: Border.all(
-            color: Colors.grey.withOpacity(0.5),
-            width: 1.5,
+          ),
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                child: Text(
+                  widget.name,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                color: Colors.transparent,
+                child: Text(
+                  '$myscore / $maxscore',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
         ),
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              child: Text(
-                widget.name,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+      );
+    }
+
+    else {
+      return GestureDetector(
+        onTap: _showScoreDetails,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          width: 100,
+          height: 75,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
               ),
+            ],
+            color: Colors.white, // 단색 배경
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.5),
+              width: 1.5,
             ),
-            const SizedBox(height: 10),
-            Container(
-              color: Colors.transparent,
-              child: Text(
-                '$myscore / $maxscore',
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
+          ),
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                child: Text(
+                  widget.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              Container(
+                color: Colors.transparent,
+                child: Text(
+                  '$myscore / $maxscore',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
+
 }
