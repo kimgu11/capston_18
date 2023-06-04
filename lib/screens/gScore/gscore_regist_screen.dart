@@ -225,7 +225,6 @@ class _GScoreApcState extends State<GScoreApc> {
       if(fileCheck==1) {
         var jsonResponse = jsonDecode(response.body);
         postId = jsonResponse['postId'];
-        //uploadFile();
       }
     }else{
       print(response.statusCode);
@@ -259,6 +258,7 @@ class _GScoreApcState extends State<GScoreApc> {
             BaseOptions(
               connectTimeout: connectTimeout,
               receiveTimeout: receiveTimeout,
+              headers: {'Connection': 'keep-alive'},
             ),
           );
 

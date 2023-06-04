@@ -458,6 +458,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
             BaseOptions(
               connectTimeout: connectTimeout,
               receiveTimeout: receiveTimeout,
+                headers: {'Connection': 'keep-alive'},
             ),
           );
 
