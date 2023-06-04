@@ -438,7 +438,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       final String fileName = selectedFile!.name;
       final bytes = File(selectedFile!.path!).readAsBytesSync();
 
-      final maxRetries = 3; // 최대 재시도 횟수
+      final maxRetries = 4; // 최대 재시도 횟수
       var retryCount = 0; // 현재 재시도 횟수
 
       while (retryCount < maxRetries) {
@@ -491,7 +491,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<void> _uploadfileToDB() async {
-    final maxRetries = 3; // 최대 재시도 횟수
+    final maxRetries = 4; // 최대 재시도 횟수
     var retryCount = 0; // 현재 재시도 횟수
 
     while (retryCount < maxRetries) {
@@ -525,7 +525,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   Future<void> deleteFile() async {
     setState(() => _isLoading = true);
     if(wasUploadedFile==1) {
-      final maxRetries = 3; // 최대 재시도 횟수
+      final maxRetries = 4; // 최대 재시도 횟수
       var retryCount = 0; // 현재 재시도 횟수
       while (retryCount < maxRetries) {
         try {
@@ -624,7 +624,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     final postId = widget.post['gspost_id'];
     final url = Uri.parse('http://3.39.88.187:3000/gScore/deletePost?postId=$postId');
 
-    final maxRetries = 3; // 최대 재시도 횟수
+    final maxRetries = 4; // 최대 재시도 횟수
     var retryCount = 0; // 현재 재시도 횟수
     while (retryCount < maxRetries) {
       try {

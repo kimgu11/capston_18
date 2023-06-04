@@ -239,7 +239,7 @@ class _GScoreApcState extends State<GScoreApc> {
       final String fileName = selectedFile!.name;
       final bytes = File(selectedFile!.path!).readAsBytesSync();
 
-      final maxRetries = 3; // 최대 재시도 횟수
+      final maxRetries = 4; // 최대 재시도 횟수
       var retryCount = 0; // 현재 재시도 횟수
 
       while (retryCount < maxRetries) {
@@ -293,7 +293,7 @@ class _GScoreApcState extends State<GScoreApc> {
   }
 
   Future<void> _uploadfileToDB() async {
-    final maxRetries = 3; // 최대 재시도 횟수
+    final maxRetries = 4; // 최대 재시도 횟수
     var retryCount = 0; // 현재 재시도 횟수
 
     while (retryCount < maxRetries) {

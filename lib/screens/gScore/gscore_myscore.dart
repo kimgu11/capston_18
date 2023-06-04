@@ -225,7 +225,7 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
             },
           ),
           title: Text(
-            '내 졸업인증점수',
+            '나의 졸업인증제',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
@@ -608,7 +608,7 @@ class _gScoreCheckState extends State<gScore_check> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF1E90FF), // #1E90FF (Dodger Blue) 색상
+                    backgroundColor: Color(0xFF1E90FF), // #1E90FF (Dodger Blue) 색상
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();

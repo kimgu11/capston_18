@@ -227,7 +227,7 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
             },
           ),
           title: Text(
-            '졸업인증점수',
+            '학생 점수 조회',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
