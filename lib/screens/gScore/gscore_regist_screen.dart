@@ -265,9 +265,6 @@ class _GScoreApcState extends State<GScoreApc> {
           var response = await dio.post(
             'http://203.247.42.144:443/gScore/upload',
             data: formData,
-            onSendProgress: (int sent, int total) {
-              print("$sent $total");
-            },
           );
 
           print(response.statusCode);
